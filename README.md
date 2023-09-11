@@ -2,12 +2,17 @@
 
 ## project structure
 - ZpeeLib
+    - src
     - test
 - client
     - cli
+        - src
+        - test
     - gui
-    - test
+        - src
+        - test
 - server
+    - src
     - test
 
 
