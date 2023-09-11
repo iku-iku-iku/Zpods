@@ -20,6 +20,7 @@
 
 on linux, run:
 ``` sh
+git submodule update --init --recursive
 chmod a+x test.sh
 ./test.sh
 ```
