@@ -15,12 +15,12 @@
     - src
     - test
 
+## configure
+``` sh
+make configure
+```
 
 ## test
-
-on linux, run:
 ``` sh
-git submodule update --init --recursive
-chmod a+x test.sh
-./test.sh
+make test
 ```
