@@ -1,7 +1,7 @@
-# Zpee
+# Zpods
 
 ## project structure
-- ZpeeLib
+- ZpodsLib
     - src
     - test
 - client

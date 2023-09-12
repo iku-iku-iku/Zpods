@@ -1,5 +1,5 @@
-#ifndef ZPEELIB_LIBRARY_H
-#define ZPEELIB_LIBRARY_H
+#ifndef ZPODSLIB_LIBRARY_H
+#define ZPODSLIB_LIBRARY_H
 
 /**
  * Adds two integers and returns the result.
@@ -9,4 +9,4 @@
  */
 int add(int a, int b);
 
-#endif //ZPEELIB_LIBRARY_H
+#endif //ZPODSLIB_LIBRARY_H
