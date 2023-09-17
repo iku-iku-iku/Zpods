@@ -4,5 +4,5 @@ mkdir -p build
 cd build
 cmake ..
 make
-./ZpodsLib/test/ZpodsLib_test
+./ZpodsLib/test/zpods_lib_test
 cd ..

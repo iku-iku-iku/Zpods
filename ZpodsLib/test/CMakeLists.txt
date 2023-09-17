@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_executable(ZpodsLib_test test1.cpp)
+project(zpods_lib_test)
 
-target_link_libraries(ZpodsLib_test ZpodsLib gtest gtest_main)
+add_executable(${PROJECT_NAME} test1.cpp)
 
-include_directories("../")
+target_link_libraries(${PROJECT_NAME} zpods_lib gtest gtest_main)
+
+include_directories("../src")
