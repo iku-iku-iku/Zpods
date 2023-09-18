@@ -11,3 +11,4 @@ FOREACH (F ${ALL_SRC})
 ENDFOREACH (F)
 
 add_library(${PROJECT_NAME} STATIC ${LIB_SRC})
+include_directories(../../extern/spdlog/include)

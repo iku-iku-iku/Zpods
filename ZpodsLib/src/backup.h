@@ -1,18 +1,8 @@
 #include "enum.h"
+#include <vector>
+#include <filesystem>
 
 namespace zpods {
-
-    enum class FileType: uint8_t {
-        DIRECTORY,
-        REGULAR_FILE,
-        SYMLINK,
-        PIPE,
-        SOCKET,
-        CHARACTER_DEVICE,
-        BLOCK_DEVICE,
-        UNKNOWN
-    };
-
     struct BackupConfig {
         bool encrypt; ///< encrypt the backup file
         bool compress; ///< compress the backup file

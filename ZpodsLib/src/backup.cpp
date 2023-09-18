@@ -1,5 +1,6 @@
 #include "backup.h"
 #include <filesystem>
+#include "spdlog/spdlog.h"
 
 using namespace zpods;
 
@@ -13,6 +14,8 @@ Status zpods::backup(const char *src_path, const char *target_dir, const BackupC
     if (!std::filesystem::exists(src)) {
         return Status::ERROR;
     }
+
+    spdlog::info("HELLO");
 
     auto backup = target / src.filename();
     backup.replace_extension(".pods");
