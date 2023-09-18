@@ -3,7 +3,9 @@
 
 using namespace zpods;
 
-Status zpods::backup(const char *src_path, const char *target_dir) {
+const BackupConfig BackupConfig::DEFAULT = {.encrypt = true, .compress = true, .filter = nullptr};
+
+Status zpods::backup(const char *src_path, const char *target_dir, const BackupConfig &config) {
     // check src exist
     const auto src = std::filesystem::path(src_path);
     const auto target = std::filesystem::path(target_dir);
