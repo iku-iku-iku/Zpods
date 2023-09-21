@@ -20,9 +20,12 @@ Status zpods::backup(const char *src_path, const char *target_dir, const BackupC
     auto backup = target / src.filename();
     backup.replace_extension(".pods");
 
+    if (std::filesystem::exists(backup)) {
+        std::filesystem::remove_all(backup);
+    }
+
     auto options = std::filesystem::copy_options::recursive |
-                   std::filesystem::copy_options::skip_symlinks |
-                   std::filesystem::copy_options::update_existing;
+                   std::filesystem::copy_options::skip_symlinks;
 
     std::filesystem::copy(src, backup, options);
     return Status::OK;

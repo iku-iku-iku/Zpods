@@ -3,7 +3,7 @@
 #include <filesystem>
 #include "zpods_lib.h"
 
-TEST(addTest, HandlesPositiveNumbers) {
+TEST(backup_test, repeat_backup_test) {
     auto src_path = "/home/code4love/PROGRAM/cpp/Zpods";
     auto target_path = "/home/code4love/tmp/";
 
