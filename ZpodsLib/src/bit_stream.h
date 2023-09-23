@@ -5,7 +5,6 @@
 #ifndef ZPODS_BITSTREAM_H
 #define ZPODS_BITSTREAM_H
 
-#include <cstdint>
 
 namespace zpods {
 

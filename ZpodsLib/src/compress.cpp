@@ -1,71 +1,77 @@
 //
 // Created by code4love on 23-9-20.
 //
-
 #include "compress.h"
-#include "spdlog/spdlog.h"
 #include "bit_stream.h"
 
 using namespace zpods;
 
-constexpr auto ceil_div(auto a, auto b) {
-    return (a + b - 1) / b;
-}
+namespace {
 
-constexpr size_t mask(size_t bits) {
-    return (1 << bits) - 1;
-}
-
-constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt) {
-    return (mask(cnt) & bits) << offset;
-}
-
-inline size_t make_ol_code(size_t offset, size_t len) {
-    return bits_part(offset, 0, OFFSET_BITS) |
-           bits_part(len, OFFSET_BITS, LENGTH_BITS);
-}
-
-inline size_t make_oll_code(size_t offset, size_t len, size_t literal) {
-    return bits_part(offset, 0, OFFSET_BITS) |
-           bits_part(len, OFFSET_BITS, LENGTH_BITS) |
-           bits_part(literal, OFFSET_BITS + LENGTH_BITS, LITERAL_BITS);
-}
-
-
-class SearchBuffer {
-public:
-    SearchBuffer() = default;
-
-    std::pair<size_t, size_t> search(const char *buf, size_t cur_offset, size_t buf_len) {
-        size_t search_window_start = cur_offset > SEARCH_WINDOW_SIZE ? cur_offset - SEARCH_WINDOW_SIZE : 0;
-        size_t max_match_offset = 0;
-        size_t max_match_len = 0;
-
-        {
-            size_t match_len;
-
-            for (size_t match_start = search_window_start; match_start < cur_offset; match_start++) {
-
-                for (match_len = 0;
-                     match_len + match_start < cur_offset && match_len < LOOK_AHEAD_WINDOW_SIZE; match_len++) {
-                    if (buf[match_start + match_len] != buf[cur_offset + match_len]) {
-                        break;
-                    }
-                }
-
-                if (match_len && match_len >= max_match_len) {
-                    max_match_len = match_len;
-                    max_match_offset = cur_offset - match_start;
-                }
-            }
-        }
-
-        return {max_match_offset, max_match_len};
+    constexpr auto ceil_div(auto a, auto b) {
+        return (a + b - 1) / b;
     }
 
-private:
+    constexpr size_t mask(size_t bits) {
+        return (1 << bits) - 1;
+    }
 
-};
+    constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt) {
+        return (mask(cnt) & bits) << offset;
+    }
+
+    inline size_t make_ol_code(size_t offset, size_t len) {
+        return bits_part(offset, 0, OFFSET_BITS) |
+               bits_part(len, OFFSET_BITS, LENGTH_BITS);
+    }
+
+    inline size_t make_oll_code(size_t offset, size_t len, size_t literal) {
+        return bits_part(offset, 0, OFFSET_BITS) |
+               bits_part(len, OFFSET_BITS, LENGTH_BITS) |
+               bits_part(literal, OFFSET_BITS + LENGTH_BITS, LITERAL_BITS);
+    }
+
+
+    class SearchBuffer {
+    public:
+        SearchBuffer() = default;
+
+        // TODO: optimize with trie
+        std::pair<size_t, size_t> search(const char *buf, size_t cur_offset, size_t buf_len) {
+            size_t search_window_start = cur_offset > SEARCH_WINDOW_SIZE ? cur_offset - SEARCH_WINDOW_SIZE : 0;
+            size_t max_match_offset = 0;
+            size_t max_match_len = 0;
+            auto remain_len = buf_len - cur_offset;
+
+            {
+                size_t match_len;
+
+                for (size_t match_start = search_window_start; match_start < cur_offset; match_start++) {
+
+                    for (match_len = 0;
+                         match_len + match_start < cur_offset &&
+                         match_len < LOOK_AHEAD_WINDOW_SIZE &&
+                         match_len < remain_len;
+                         match_len++) {
+                        if (buf[match_start + match_len] != buf[cur_offset + match_len]) {
+                            break;
+                        }
+                    }
+
+                    if (match_len && match_len >= max_match_len) {
+                        max_match_len = match_len;
+                        max_match_offset = cur_offset - match_start;
+                    }
+                }
+            }
+
+            return {max_match_offset, max_match_len};
+        }
+
+    private:
+
+    };
+}
 
 size_t zpods::compress(const char *src, size_t src_size, char *dst) {
     size_t dst_size = 0;
@@ -105,10 +111,15 @@ size_t zpods::compress(const char *src, size_t src_size, char *dst) {
     bs.append_bits(&code, OLL_CODE);
     dst_size += OLL_CODE;
 
-    return ceil_div(dst_size, 8);
+    dst_size = ceil_div(dst_size, 8);
+
+    spdlog::info("(ENCODE) FROM {} bytes TO {} bytes, compress ratio = {:f}%", src_size, dst_size,
+                 (double) dst_size / (double) src_size * 100);
+
+    return dst_size;
 }
 
-size_t zpods::decompress(const char *src, size_t src_size, char *dst) {
+size_t zpods::decompress(const char *src, char *dst) {
     size_t dst_size = 0;
     BitStream src_bs((char *) src);
     BitStream dst_bs(dst);

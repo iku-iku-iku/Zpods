@@ -1,7 +1,6 @@
 project(zpods_lib)
 
-#FILE(GLOB_RECURSE ALL_SRC *.cpp *.c *.ixx)
-FILE(GLOB_RECURSE SRC *.cpp *.c *.ixx)
+FILE(GLOB_RECURSE SRC *.cpp *.c)
 
 #FOREACH (F ${ALL_SRC})
 #
@@ -11,5 +10,7 @@ FILE(GLOB_RECURSE SRC *.cpp *.c *.ixx)
 #
 #ENDFOREACH (F)
 
-add_library(${PROJECT_NAME} STATIC ${SRC})
+add_library(${PROJECT_NAME} STATIC zpods_lib.h ${SRC})
 include_directories(../../extern/spdlog/include)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE pch.h)

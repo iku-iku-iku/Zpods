@@ -18,6 +18,6 @@ TEST(compress_test, simple1) {
     auto dst_size = zpods::compress(src, src_size, dst);
     ASSERT_LT(dst_size, src_size);
 
-    auto back_size = zpods::decompress(dst, dst_size, src);
+    auto back_size = zpods::decompress(dst, src);
     ASSERT_EQ(back_size, src_size);
 }
