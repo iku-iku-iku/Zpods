@@ -5,10 +5,20 @@
 #ifndef ZPODS_PCH_H
 #define ZPODS_PCH_H
 
-#define REF(x) const auto &x
-#define MUT_REF(x) auto &x
-#define LET(x) const auto x
-#define LET_MUT(x) auto x
+namespace zpods {
+    #define let const auto
+    #define let_mut auto
+
+    template<typename T>
+    using ref = const T &;
+
+    template<typename T>
+    using ref_mut = T &;
+
+    using byte = unsigned char;
+    using p_cbyte = const byte *;
+    using p_byte = byte *;
+}
 
 #include "spdlog/spdlog.h"
 

@@ -3,7 +3,7 @@
 
 namespace zpods {
     struct BackupConfig {
-        bool encrypt; ///< encrypt the backup file
+        bool encrypt; ///< raw_encrypt the backup file
         bool compress; ///< compress the backup file
 
         struct Filter {
@@ -44,7 +44,7 @@ namespace zpods {
      * this will restore the backup file to /home/code4love/PROGRAM/cpp/Zpods
      * if the file (/home/code4love/PROGRAM/cpp/Zpods) already exists, it will be overwritten by the new one!
      * no need to care whether the backup file is encrypted or compressed, this function will handle it,
-     * i.e. decrypt or decompress it automatically if needed
+     * i.e. raw_decrypt or decompress it automatically if needed
      *
      * @note src_path must exist and must be a valid pods file, target_dir must be a directory
      */

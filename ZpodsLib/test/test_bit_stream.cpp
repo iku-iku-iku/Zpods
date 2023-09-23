@@ -6,7 +6,7 @@
 #include <cstring>
 #include "bit_stream.h"
 
-TEST(bit_stream_test, test_read_write1) {
+TEST(BitStreamTest, test_read_write1) {
     char buf[1024];
     zpods::BitStream bs(buf);
 
@@ -19,7 +19,7 @@ TEST(bit_stream_test, test_read_write1) {
     ASSERT_EQ(bs.read_bit(), 1);
 }
 
-TEST(bit_stream_test, test_read_write2) {
+TEST(BitStreamTest, test_read_write2) {
     char buf[1024];
     zpods::BitStream bs(buf);
 
@@ -40,7 +40,7 @@ TEST(bit_stream_test, test_read_write2) {
     ASSERT_EQ(bs.read_bit(), 0);
 }
 
-TEST(bit_stream_test, test_read_write_big) {
+TEST(BitStreamTest, test_read_write_big) {
     char buf[1024];
     zpods::BitStream bs(buf);
 

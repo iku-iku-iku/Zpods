@@ -6,7 +6,7 @@
 #include <cstring>
 #include "compress.h"
 
-TEST(compress_test, simple1) {
+TEST(CompressTest, SimpleCompressDecompress1) {
     char src[] = "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE" \
