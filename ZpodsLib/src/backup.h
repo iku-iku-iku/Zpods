@@ -3,8 +3,8 @@
 
 namespace zpods {
     struct BackupConfig {
-        bool encrypt; ///< raw_encrypt the backup file
-        bool compress; ///< compress the backup file
+        bool encrypt = true; ///< raw_encrypt the backup file
+        bool compress = true; ///< compress the backup file
 
         struct Filter {
             std::vector<std::filesystem::path> ignored_paths; ///< ignore these paths
@@ -14,9 +14,7 @@ namespace zpods {
             uint64_t max_time; ///< only backup files that are modified before max_time
             uint64_t min_size; ///< only backup files that are larger than min_size
             uint64_t max_size; ///< only backup files that are smaller than max_size
-        }* filter;
-
-        static const BackupConfig DEFAULT;
+        } filter;
     };
 
     /*
@@ -32,7 +30,7 @@ namespace zpods {
      *
      * @note src_path must exist
      */
-    Status backup(const char *src_path, const char *target_dir, const BackupConfig &config = BackupConfig::DEFAULT);
+    Status backup(const char *src_path, const char *target_dir, const BackupConfig &config = {});
 
     /*
      * @brief restore the backup file to target_dir

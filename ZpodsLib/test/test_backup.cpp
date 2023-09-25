@@ -5,7 +5,7 @@
 
 TEST(backup_test, repeat_backup_test) {
     auto src_path = zpods::project_path();
-    auto target_path = "/home/code4love/tmp/";
+    auto target_path = zpods::temp_path();
 
     for (int i = 0; i < 10; i++) {
         ASSERT_EQ(zpods::backup(src_path, target_path), zpods::Status::OK);

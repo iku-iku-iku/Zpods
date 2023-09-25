@@ -11,17 +11,31 @@
 namespace zpods {
     namespace fs {
 
+        using copy_options = std::filesystem::copy_options;
+
         using path_type = std::filesystem::path;
 
-        inline auto exists(const char* path) {
+        inline auto copy(const char *src, const char *target, copy_options options) {
+            std::filesystem::copy(src, target, options);
+        }
+
+        inline auto path(const char *path) {
+            return std::filesystem::path(path);
+        }
+
+        inline auto exists(const char *path) {
             return std::filesystem::exists(path);
         }
 
-        inline auto create_directory(const char* path) {
+        inline auto create_directory(const char *path) {
             std::filesystem::create_directory(path);
         }
 
-        inline auto get_base_name(const char*path) -> std::string {
+        inline auto remove_all(const char *path) {
+            std::filesystem::remove_all(path);
+        }
+
+        inline auto get_base_name(const char *path) -> std::string {
             size_t len = 0;
             let_mut p = path;
             while (*p) {
@@ -101,7 +115,6 @@ namespace zpods {
         private:
             std::vector<path_type> paths_;
         };
-
 
     }
 }

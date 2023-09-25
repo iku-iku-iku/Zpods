@@ -1,30 +1,30 @@
 #include "backup.h"
 #include <filesystem>
+#include "fs.h"
 
 using namespace zpods;
 
-const BackupConfig BackupConfig::DEFAULT = {.encrypt = true, .compress = true, .filter = nullptr};
+using namespace zpods::fs;
 
 Status zpods::backup(const char *src_path, const char *target_dir, const BackupConfig &config) {
     // check src exist
-    const auto src = std::filesystem::path(src_path);
-    const auto target = std::filesystem::path(target_dir);
+    let src = fs::path(src_path);
+    let target = fs::path(target_dir);
 
-    if (!std::filesystem::exists(src)) {
+    if (!fs::exists(src.c_str())) {
         return Status::ERROR;
     }
 
-    auto backup = target / src.filename();
+    let_mut backup = target / src.filename();
     backup.replace_extension(".pods");
 
-    if (std::filesystem::exists(backup)) {
-        std::filesystem::remove_all(backup);
+    if (fs::exists(backup.c_str())) {
+        fs::remove_all(backup.c_str());
     }
 
-    auto options = std::filesystem::copy_options::recursive |
-                   std::filesystem::copy_options::skip_symlinks;
+    auto options = fs::copy_options::recursive | fs::copy_options::skip_symlinks;
 
-    std::filesystem::copy(src, backup, options);
+    fs::copy(src.c_str(), backup.c_str(), options);
     return Status::OK;
 }
 
