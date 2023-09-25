@@ -13,6 +13,26 @@ namespace zpods {
 
         using path_type = std::filesystem::path;
 
+        inline auto exists(const char* path) {
+            return std::filesystem::exists(path);
+        }
+
+        inline auto create_directory(const char* path) {
+            std::filesystem::create_directory(path);
+        }
+
+        inline auto get_base_name(const char*path) -> std::string {
+            size_t len = 0;
+            let_mut p = path;
+            while (*p) {
+                if (*p == '/') {
+                    len = p - path;
+                }
+                p++;
+            }
+            return {path, len};
+        }
+
         inline bool is_directory(ref<std::string> path) {
             return std::filesystem::is_directory(path);
         }

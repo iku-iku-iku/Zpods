@@ -24,7 +24,10 @@
 
 namespace zpods {
 
+    #define ZPODS_ASSERT(x) assert(x)
+
     #define let const auto
+    #define let_ref const auto&
     #define let_mut auto
 
     template<typename T>
@@ -71,6 +74,7 @@ namespace zpods {
 #include <ranges>
 #include <numeric>
 #include <fstream>
+#include <cassert>
 
 #include "enum.h"
 

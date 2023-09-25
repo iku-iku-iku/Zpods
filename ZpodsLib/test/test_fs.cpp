@@ -16,6 +16,9 @@ TEST(FsTest, test_basic) {
     EXPECT_STREQ(fs::relative("/home/a.txt", "/home/a.txt"), "a.txt");
     EXPECT_STREQ(fs::relative("a.txt", "a.txt"), "a.txt");
     EXPECT_STREQ(fs::relative("/home/a.txt", "/opt"), nullptr);
+    EXPECT_STREQ(fs::get_base_name("/home/a.txt").c_str(), "/home");
+    EXPECT_TRUE(fs::exists("/home"));
+    EXPECT_FALSE(fs::exists("/me"));
 }
 
 TEST(FsTest, test_iterate)
