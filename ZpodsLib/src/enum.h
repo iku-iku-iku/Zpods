@@ -14,5 +14,4 @@ namespace zpods {
         BLOCK_DEVICE,
         UNKNOWN
     };
-
 }

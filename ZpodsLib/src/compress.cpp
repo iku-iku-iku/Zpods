@@ -8,18 +8,6 @@ using namespace zpods;
 
 namespace {
 
-    constexpr auto ceil_div(auto a, auto b) {
-        return (a + b - 1) / b;
-    }
-
-    constexpr size_t mask(size_t bits) {
-        return (1 << bits) - 1;
-    }
-
-    constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt) {
-        return (mask(cnt) & bits) << offset;
-    }
-
     inline size_t make_ol_code(size_t offset, size_t len) {
         return bits_part(offset, 0, OFFSET_BITS) |
                bits_part(len, OFFSET_BITS, LENGTH_BITS);
@@ -37,7 +25,7 @@ namespace {
         SearchBuffer() = default;
 
         // TODO: optimize with trie
-        std::pair<size_t, size_t> search(const char *buf, size_t cur_offset, size_t buf_len) {
+        std::pair<size_t, size_t> search(p_cbyte buf, size_t cur_offset, size_t buf_len) {
             size_t search_window_start = cur_offset > SEARCH_WINDOW_SIZE ? cur_offset - SEARCH_WINDOW_SIZE : 0;
             size_t max_match_offset = 0;
             size_t max_match_len = 0;
@@ -73,14 +61,14 @@ namespace {
     };
 }
 
-size_t zpods::compress(const char *src, size_t src_size, char *dst) {
+size_t zpods::compress(p_cbyte src, size_t src_size, std::unique_ptr<byte[]>& dst) {
     size_t dst_size = 0;
 
     SearchBuffer sb;
 
     size_t code;
 
-    BitStream bs(dst);
+    BitStream bs;
 
     for (size_t i = 0; i < src_size;) {
         auto [offset, len] = sb.search(src, i, src_size);
@@ -91,16 +79,16 @@ size_t zpods::compress(const char *src, size_t src_size, char *dst) {
             bs.append_bits(&code, OLL_CODE);
             dst_size += OLL_CODE;
 
-            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {}, CODE: {:0{}b}", offset, len, *(src + i), code,
-                         OLL_CODE);
+//            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {:c}, CODE: {:0{}b}", offset, len, *(src + i), code,
+//                         OLL_CODE);
         } else {
             code = make_ol_code(offset, len);
 
             bs.append_bits(&code, OL_CODE);
             dst_size += OL_CODE;
 
-            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
-                         std::string_view(src + i - offset, len), code, OL_CODE);
+//            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
+//                         std::string_view((const char*)src + i - offset, len), code, OL_CODE);
         }
 
         i += std::max(len, (size_t) 1);
@@ -113,16 +101,17 @@ size_t zpods::compress(const char *src, size_t src_size, char *dst) {
 
     dst_size = ceil_div(dst_size, 8);
 
-    spdlog::info("(ENCODE) FROM {} bytes TO {} bytes, compress ratio = {:f}%", src_size, dst_size,
-                 (double) dst_size / (double) src_size * 100);
+//    spdlog::info("(ENCODE) FROM {} bytes TO {} bytes, compress ratio = {:f}%", src_size, dst_size,
+//                 (double) dst_size / (double) src_size * 100);
+    dst = std::move(bs.take_buf());
 
     return dst_size;
 }
 
-size_t zpods::decompress(const char *src, char *dst) {
+size_t zpods::decompress(p_cbyte src, std::unique_ptr<byte[]> &dst) {
     size_t dst_size = 0;
     BitStream src_bs((char *) src);
-    BitStream dst_bs(dst);
+    BitStream dst_bs;
 
     size_t offset, len, literal, code;
 
@@ -141,20 +130,20 @@ size_t zpods::decompress(const char *src, char *dst) {
                 dst_size++;
 
                 code = make_oll_code(offset, len, literal);
-                spdlog::info("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {:c}, CODE: {:0{}b}", offset, len, literal, code,
-                             OLL_CODE);
+//                spdlog::info("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {:c}, CODE: {:0{}b}", offset, len, literal, code,
+//                             OLL_CODE);
             }
         } else {
             code = make_ol_code(offset, len);
-            spdlog::info("(DECODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
-                         std::string_view(dst_bs.write_byte_ptr() - offset, len), code, OL_CODE);
+//            spdlog::info("(DECODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
+//                         std::string_view(reinterpret_cast<const char *>(dst_bs.write_byte_ptr() - offset), len), code, OL_CODE);
             for (size_t i = 0; i < len; ++i) {
                 dst_bs.append_byte(*(dst_bs.write_byte_ptr() - offset));
                 dst_size++;
-
             }
         };
-
     }
+
+    dst = std::move(dst_bs.take_buf());
     return dst_size;
 }

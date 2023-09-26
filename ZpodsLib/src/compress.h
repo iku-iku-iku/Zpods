@@ -5,6 +5,9 @@
 #ifndef ZPODS_COMPRESS_H
 #define ZPODS_COMPRESS_H
 
+#include "pch.h"
+#include "bit_stream.h"
+
 namespace zpods {
     constexpr static char eof_literal = -1;
 
@@ -26,7 +29,7 @@ namespace zpods {
      * @param dst is the pointer to the destination data
      * @return the size (in bytes) of compressed string
      */
-    size_t compress(const char *src, size_t src_size, char *dst);
+    size_t compress(p_cbyte src, size_t src_size, std::unique_ptr<byte[]>& dst);
 
     /*
      * @brief decompress the src to dst
@@ -34,7 +37,7 @@ namespace zpods {
      * @param dst is the pointer to the destination data
      * @return the size (in bytes) of decompressed string
      */
-    size_t decompress(const char *src, char *dst);
+    size_t decompress(p_cbyte src, std::unique_ptr<byte[]> &dst);
 }
 
 #endif //ZPODS_COMPRESS_H

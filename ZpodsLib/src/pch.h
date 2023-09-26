@@ -6,6 +6,18 @@
 #define ZPODS_PCH_H
 
 #include <type_traits>
+#include "spdlog/spdlog.h"
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <ranges>
+#include <numeric>
+#include <fstream>
+#include <cassert>
+
+#include "enum.h"
+
+
 
 #ifndef PROJECT_PATH
 // do not use this macro directly!
@@ -65,19 +77,19 @@ namespace zpods {
     inline constexpr const char *temp_path() {
         return TEMP_PATH;
     }
+
+    constexpr auto ceil_div(auto a, auto b) {
+        return (a + b - 1) / b;
+    }
+
+    constexpr size_t mask(size_t bits) {
+        return (1 << bits) - 1;
+    }
+
+    constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt) {
+        return (mask(cnt) & bits) << offset;
+    }
+
 }
-
-#include "spdlog/spdlog.h"
-#include <cstdint>
-#include <string>
-#include <vector>
-#include <ranges>
-#include <numeric>
-#include <fstream>
-#include <cassert>
-
-#include "enum.h"
-
-
 
 #endif //ZPODS_PCH_H

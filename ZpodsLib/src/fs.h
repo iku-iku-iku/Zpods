@@ -59,6 +59,19 @@ namespace zpods {
             return std::filesystem::file_size(path);
         }
 
+        inline auto read(const char *path, std::string_view buf) {
+            std::ifstream ifs(path);
+            ZPODS_ASSERT(ifs.is_open());
+            ifs.read(const_cast<char *>(buf.data()), (long) buf.length());
+        }
+
+        inline auto write(const char *path, std::string_view buf) {
+            std::ofstream ofs(path);
+            ZPODS_ASSERT(ofs.is_open());
+            ofs.write(buf.data(), (long) buf.length());
+        }
+
+
         inline auto relative(const char *path, const char *base) -> const char * {
             let_mut len = strlen(base);
             if (base[len - 1] == '/') {
