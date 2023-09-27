@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <cstring>
-#include "bit_stream.h"
+#include "bit_ops.h"
 
 TEST(BitStreamTest, test_read_write1) {
     char buf[1024];

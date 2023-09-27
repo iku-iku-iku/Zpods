@@ -12,14 +12,25 @@ TEST(CompressTest, SimpleCompressDecompress1) {
                  "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE";
 
+    size_t src_size = std::strlen((const char *) src);
 
-    size_t src_size = std::strlen((const char*)src);
-
-    std::unique_ptr<zpods::byte[]> dst;
-
-    auto dst_size = zpods::compress(src, src_size, dst);
+    auto [dst_size, compressed] = zpods::compress(src, src_size);
     ASSERT_LT(dst_size, src_size);
 
-    auto back_size = zpods::decompress(dst.get(), dst);
+    auto [back_size, decompressed] = zpods::decompress(compressed.get());
     ASSERT_EQ(back_size, src_size);
+}
+
+TEST(CompressTest, HugeRandomCompressDecompress1) {
+    let N = 1 << 10;
+    zpods::byte src[N];
+    for (auto &i: src) {
+        i = rand() % 256;
+    }
+
+    auto [dst_size, compressed] = zpods::compress(src, N);
+    ASSERT_LT(dst_size, N);
+
+    auto [back_size, decompressed] = zpods::decompress(compressed.get());
+    ASSERT_EQ(back_size, N);
 }

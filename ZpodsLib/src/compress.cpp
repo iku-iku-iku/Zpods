@@ -2,12 +2,13 @@
 // Created by code4love on 23-9-20.
 //
 #include "compress.h"
-#include "bit_stream.h"
+#include "bit_ops.h"
 
 using namespace zpods;
 
 namespace {
 
+    using namespace lz77;
     inline size_t make_ol_code(size_t offset, size_t len) {
         return bits_part(offset, 0, OFFSET_BITS) |
                bits_part(len, OFFSET_BITS, LENGTH_BITS);
@@ -61,7 +62,7 @@ namespace {
     };
 }
 
-size_t zpods::compress(p_cbyte src, size_t src_size, std::unique_ptr<byte[]>& dst) {
+std::pair<size_t, std::unique_ptr<byte[]>> zpods::lz77::compress(p_cbyte src, size_t src_size) {
     size_t dst_size = 0;
 
     SearchBuffer sb;
@@ -103,12 +104,10 @@ size_t zpods::compress(p_cbyte src, size_t src_size, std::unique_ptr<byte[]>& ds
 
 //    spdlog::info("(ENCODE) FROM {} bytes TO {} bytes, compress ratio = {:f}%", src_size, dst_size,
 //                 (double) dst_size / (double) src_size * 100);
-    dst = std::move(bs.take_buf());
-
-    return dst_size;
+    return {dst_size, std::move(bs.take_buf())};
 }
 
-size_t zpods::decompress(p_cbyte src, std::unique_ptr<byte[]> &dst) {
+std::pair<size_t, std::unique_ptr<byte[]>> zpods::lz77::decompress(p_cbyte src) {
     size_t dst_size = 0;
     BitStream src_bs((char *) src);
     BitStream dst_bs;
@@ -144,6 +143,5 @@ size_t zpods::decompress(p_cbyte src, std::unique_ptr<byte[]> &dst) {
         };
     }
 
-    dst = std::move(dst_bs.take_buf());
-    return dst_size;
+    return {dst_size, std::move(dst_bs.take_buf())};
 }

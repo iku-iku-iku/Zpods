@@ -6,7 +6,7 @@
 #define ZPODS_COMPRESS_H
 
 #include "pch.h"
-#include "bit_stream.h"
+#include "bit_ops.h"
 
 namespace zpods {
     constexpr static char eof_literal = -1;
@@ -21,23 +21,20 @@ namespace zpods {
     constexpr static size_t SEARCH_WINDOW_SIZE = 1 << OFFSET_BITS;
     constexpr static size_t LOOK_AHEAD_WINDOW_SIZE = 1 << LENGTH_BITS;
 
-
     /*
      * @brief compress the src to dst
      * @param src is the pointer to the source data
      * @param src_size is the size (in bytes) of source data
-     * @param dst is the pointer to the destination data
-     * @return the size (in bytes) of compressed string
+     * @return the size (in bytes) of compressed string and the pointer to the compressed data
      */
-    size_t compress(p_cbyte src, size_t src_size, std::unique_ptr<byte[]>& dst);
+    std::pair<size_t, std::unique_ptr<byte[]>> compress(p_cbyte src, size_t src_size);
 
     /*
      * @brief decompress the src to dst
      * @param src is the pointer to the source data
-     * @param dst is the pointer to the destination data
-     * @return the size (in bytes) of decompressed string
+     * @return the size (in bytes) of decompressed string and the pointer to the decompressed data
      */
-    size_t decompress(p_cbyte src, std::unique_ptr<byte[]> &dst);
+    std::pair<size_t, std::unique_ptr<byte[]>> decompress(p_cbyte src);
 }
 
 #endif //ZPODS_COMPRESS_H
