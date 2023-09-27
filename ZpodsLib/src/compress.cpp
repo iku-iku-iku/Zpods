@@ -25,15 +25,18 @@ namespace {
         T val{};
 
         static constexpr auto ValBits = 16;
+        static constexpr auto CodeLenBits = 8;
 
         HuffmanDictEntry(Code code, T val) : code(code), val(val) {}
 
         HuffmanDictEntry() = default;
 
-        void fill(ref_mut <BitStream> bs) {
-            bs.append_bits(&code.len, BYTE_BITS);
+        auto fill(ref_mut <BitStream> bs) {
+            bs.append_bits(&code.len, CodeLenBits);
             bs.append_bits(&code.bits, code.len);
             bs.append_bits(&val, ValBits);
+
+            return CodeLenBits + code.len + ValBits;
         }
 
         /*
@@ -42,7 +45,7 @@ namespace {
          * @return true if the entry is the end of the dictionary, false otherwise
          */
         bool read(ref_mut <BitStream> bs) {
-            code.len = bs.read_bits(BYTE_BITS);
+            code.len = bs.read_bits(CodeLenBits);
             if (code.len == 0) {
                 return true;
             }
@@ -53,11 +56,17 @@ namespace {
     };
 
     template<typename T>
-    void fill_dict(ref_mut <BitStream> bs, const std::unordered_map<T, Code> &dict) {
+    auto fill_dict(ref_mut <BitStream> bs, const std::unordered_map<T, Code> &dict) {
+        size_t write_bits = 0;
         for (const auto &[val, code]: dict) {
-            HuffmanDictEntry<T>(code, val).fill(bs);
+            write_bits += HuffmanDictEntry<T>(code, val).fill(bs);
         }
-        bs.append_byte(0);
+
+        byte eod = 0;
+        bs.append_bits(&eod, HuffmanDictEntry<T>::CodeLenBits);
+
+        write_bits += HuffmanDictEntry<T>::CodeLenBits;
+        return write_bits;
     }
 
     auto read_dict(ref_mut <BitStream> bs) {
@@ -106,7 +115,7 @@ namespace {
 
                     for (match_len = 0;
                          match_len + match_start < cur_offset &&
-                         match_len < LOOK_AHEAD_WINDOW_SIZE &&
+                         match_len < LOOK_AHEAD_WINDOW_SIZE - 1 &&
                          match_len < remain_len;
                          match_len++) {
                         if (buf[match_start + match_len] != buf[cur_offset + match_len]) {
@@ -136,8 +145,6 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
 
     SearchBuffer sb;
 
-    size_t code;
-
     BitStream bs;
 
     std::vector<size_t> offsets, lens, literals;
@@ -146,30 +153,12 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
         auto [offset, len] = sb.search(src, i, src_size);
 
         if (offset == 0 && len == 0) {
-            if constexpr (!HuffmanEnabled) {
-                code = make_oll_code(offset, len, *(src + i));
-                bs.append_bits(&code, OLL_CODE);
-                dst_size += OLL_CODE;
-
-//            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {:c}, CODE: {:0{}b}", offset, len, *(src + i), code,
-//                         OLL_CODE);
-            } else {
-                offsets.push_back(offset);
-                lens.push_back(len);
-                literals.push_back(*(src + i));
-            }
+            offsets.push_back(offset);
+            lens.push_back(len);
+            literals.push_back(*(src + i));
         } else {
-            if constexpr (!HuffmanEnabled) {
-                code = make_ol_code(offset, len);
-                bs.append_bits(&code, OL_CODE);
-                dst_size += OL_CODE;
-
-//            spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
-//                         std::string_view((const char*)src + i - offset, len), code, OL_CODE);
-            } else {
-                offsets.push_back(offset);
-                lens.push_back(len);
-            }
+            offsets.push_back(offset);
+            lens.push_back(len);
         }
 
         i += std::max(len, (size_t) 1);
@@ -178,15 +167,29 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
     ZPODS_ASSERT(offsets.size() == lens.size());
 
     if (!HuffmanEnabled) {
+        let_mut literal_iter = literals.begin();
+        for (size_t i = 0; i < offsets.size(); i++) {
+            let offset = offsets[i];
+            let len = lens[i];
+            if (offset == 0 && len == 0) {
+                let_ref literal = *literal_iter++;
+                let code = make_oll_code(offset, len, literal);
+                bs.append_bits(&code, OLL_CODE);
+                dst_size += OLL_CODE;
+
+                spdlog::debug("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {:c}", offset, len, literal);
+            } else {
+                let code = make_ol_code(offset, len);
+                bs.append_bits(&code, OL_CODE);
+                dst_size += OL_CODE;
+
+                spdlog::debug("(ENCODE) OFFSET: {}, LEN: {}", offset, len);
+            }
+        }
         // mark the end of compressed data
-        code = make_oll_code(0, 0, eof_literal);
+        let code = make_oll_code(0, 0, eof_literal);
         bs.append_bits(&code, OLL_CODE);
         dst_size += OLL_CODE;
-
-        dst_size = ceil_div(dst_size, 8);
-
-//    spdlog::info("(ENCODE) FROM {} bytes TO {} bytes, compress ratio = {:f}%", src_size, dst_size,
-//                 (double) dst_size / (double) src_size * 100);
     } else {
         offsets.push_back(0);
         lens.push_back(0);
@@ -199,9 +202,9 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
         let literal_dict = make_huffman_dictionary(std::span(literals));
         print_map(literal_dict);
 
-        fill_dict(bs, offset_dict);
-        fill_dict(bs, len_dict);
-        fill_dict(bs, literal_dict);
+        dst_size += fill_dict(bs, offset_dict);
+        dst_size += fill_dict(bs, len_dict);
+        dst_size += fill_dict(bs, literal_dict);
 
         let_mut literal_iter = literals.begin();
         for (size_t i = 0; i < offsets.size(); i++) {
@@ -221,12 +224,14 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
                 let_ref literal_code = literal_dict.find(literal)->second;
                 bs.append_bits(&literal_code.bits, literal_code.len);
                 dst_size += literal_code.len;
-                spdlog::info("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {}", offset_code, len_code, literal_code);
+                spdlog::debug("(ENCODE) OFFSET: {}, LEN: {}, LITERAL: {}", offset_code, len_code, literal_code);
             } else {
-                spdlog::info("(ENCODE) OFFSET: {}, LEN: {}", offset_code, len_code);
+                spdlog::debug("(ENCODE) OFFSET: {}, LEN: {}", offset_code, len_code);
             }
         }
     }
+
+    dst_size = ceil_div(dst_size, 8);
 
     return {dst_size, std::move(bs.take_buf())};
 }
@@ -237,8 +242,6 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
 
     size_t dst_size = 0;
     BitStream dst_bs;
-
-    size_t offset, len, literal, code;
 
     std::unordered_map<Code, size_t> offset_dict, len_dict, literal_dict;
     std::vector<size_t> offsets, lens, literals;
@@ -269,9 +272,9 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
                 if (literal == eof_literal) {
                     break;
                 }
-                spdlog::info("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {}", offset_code, len_code, literal_code);
+                spdlog::debug("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {}", offset_code, len_code, literal_code);
             } else {
-                spdlog::info("(DECODE) OFFSET: {}, LEN: {}", offset_code, len_code);
+                spdlog::debug("(DECODE) OFFSET: {}, LEN: {}", offset_code, len_code);
             }
         }
 
@@ -281,53 +284,40 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
         BitStream src_bs((char *) src);
         while (true) {
 
-            offset = src_bs.read_bits(OFFSET_BITS);
-            len = src_bs.read_bits(LENGTH_BITS);
+            let offset = src_bs.read_bits(OFFSET_BITS);
+            let len = src_bs.read_bits(LENGTH_BITS);
 
             offsets.push_back(offset);
             lens.push_back(len);
 
             if (offset == 0 && len == 0) {
-                literal = src_bs.read_bits(LITERAL_BITS);
+                let literal = src_bs.read_bits(LITERAL_BITS);
                 literals.push_back(literal);
 
                 if (literal == eof_literal) {
                     break;
-                } else {
-//                    dst_bs.append_byte((char) literal);
-//                    dst_size++;
-//
-//                    code = make_oll_code(offset, len, literal);
-//                spdlog::info("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {:c}, CODE: {:0{}b}", offset, len, literal, code,
-//                             OLL_CODE);
                 }
-            } else {
-//                code = make_ol_code(offset, len);
-//            spdlog::info("(DECODE) OFFSET: {}, LEN: {}, WORDS: {}, CODE: {:0{}b}", offset, len,
-//                         std::string_view(reinterpret_cast<const char *>(dst_bs.write_byte_ptr() - offset), len), code, OL_CODE);
-//                for (size_t i = 0; i < len; ++i) {
-//                    dst_bs.append_byte(*(dst_bs.write_byte_ptr() - offset));
-//                    dst_size++;
-//                }
-            };
+            }
         }
     }
 
     let_mut iter = literals.begin();
-    for (size_t  i = 0; i < offsets.size(); i++)  {
-        offset = offsets[i];
-        len = lens[i];
+    for (size_t i = 0; i < offsets.size(); i++) {
+        let offset = offsets[i];
+        let len = lens[i];
 
-        if (offset ==0 && len ==0) {
-            literal = *iter++;
+        if (offset == 0 && len == 0) {
+            let literal = *iter++;
             if (literal == eof_literal) {
                 break;
             }
             dst_bs.append_byte((char) literal);
-            spdlog::info("CAHR: {:c}", literal);
             dst_size++;
+
+            spdlog::debug("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {:c}", offset, len, literal);
         } else {
-            spdlog::info("WORDS: {}", std::string_view(reinterpret_cast<const char *>(dst_bs.write_byte_ptr() - offset), len));
+            spdlog::debug("(DECODE) OFFSET: {}, LEN: {}, WORDS: {}", offset, len,
+                          std::string_view((const char *) (dst_bs.write_byte_ptr() - offset), len));
             for (size_t j = 0; j < len; ++j) {
                 dst_bs.append_byte(*(dst_bs.write_byte_ptr() - offset));
                 dst_size++;

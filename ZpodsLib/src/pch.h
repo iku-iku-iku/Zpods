@@ -104,9 +104,9 @@ namespace zpods {
 
     template<typename T>
     void print_map(const T& map) {
-        spdlog::info("[MAP] map size: {}", map.size());
+        spdlog::debug("[MAP] map size: {}", map.size());
         for (let_ref [key, val] : map) {
-            spdlog::info("key: {}, value: {}", key, val);
+            spdlog::debug("key: {}, value: {}", key, val);
         }
     }
 }
