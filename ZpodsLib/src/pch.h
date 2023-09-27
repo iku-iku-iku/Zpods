@@ -5,15 +5,19 @@
 #ifndef ZPODS_PCH_H
 #define ZPODS_PCH_H
 
-#include <type_traits>
 #include "spdlog/spdlog.h"
+
+#include <type_traits>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <ranges>
+#include <span>
 #include <numeric>
 #include <fstream>
 #include <cassert>
+#include <queue>
+#include <stack>
 
 #include "enum.h"
 
@@ -41,6 +45,7 @@ namespace zpods {
     #define let const auto
     #define let_ref const auto&
     #define let_mut auto
+    #define let_mut_ref auto&
 
     template<typename T>
     using ref = const std::remove_cvref_t<T> &;
@@ -66,6 +71,8 @@ namespace zpods {
     using p_cbyte = const byte *;
     using p_byte = byte *;
 
+    constexpr auto BYTE_BITS = 8;
+
     inline constexpr const char *project_path() {
         return PROJECT_PATH;
     }
@@ -90,6 +97,18 @@ namespace zpods {
         return (mask(cnt) & bits) << offset;
     }
 
+    template<typename T>
+    constexpr auto enabled(T bits, auto opt) {
+        return (bits & static_cast<T>(opt)) != 0;
+    }
+
+    template<typename T>
+    void print_map(const T& map) {
+        spdlog::info("[MAP] map size: {}", map.size());
+        for (let_ref [key, val] : map) {
+            spdlog::info("key: {}, value: {}", key, val);
+        }
+    }
 }
 
 #endif //ZPODS_PCH_H
