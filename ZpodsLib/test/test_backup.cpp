@@ -8,7 +8,7 @@ TEST(BackupTest, backup_restore) {
     auto target_path = zpods::temp_path();
 
 //    for (int i = 0; i < 10; i++) {
-    ASSERT_EQ(zpods::backup(src_path.c_str(), target_path), zpods::Status::OK);
+    EXPECT_EQ(zpods::backup(src_path.c_str(), target_path), zpods::Status::OK);
 //    }
-    ASSERT_EQ(zpods::restore(fmt::format("{}/archive", zpods::temp_path()).c_str(), zpods::temp_path()), zpods::Status::OK);
+    EXPECT_EQ(zpods::restore(fmt::format("{}/archive", zpods::temp_path()).c_str(), zpods::temp_path()), zpods::Status::OK);
 }

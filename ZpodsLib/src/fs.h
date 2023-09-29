@@ -11,6 +11,12 @@
 namespace zpods {
     namespace fs {
 
+        namespace ios {
+            constexpr auto binary = std::ios::binary;
+        }
+
+        using openmode = std::ios::openmode;
+
         using copy_options = std::filesystem::copy_options;
 
         using path_type = std::filesystem::path;
@@ -47,6 +53,26 @@ namespace zpods {
             return {path, len};
         }
 
+        inline auto open_or_create_file_as_ofs(const char *path, openmode mode) -> std::ofstream {
+            let base = get_base_name(path);
+            if (!exists(base.c_str())) {
+                create_directory(base.c_str());
+            }
+            std::ofstream ofs(path, mode);
+            ZPODS_ASSERT(ofs.is_open());
+            return ofs;
+        }
+
+        inline auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream {
+            let base = get_base_name(path);
+            if (!exists(base.c_str())) {
+                create_directory(base.c_str());
+            }
+            std::ifstream ifs(path, mode);
+            ZPODS_ASSERT(ifs.is_open());
+            return ifs;
+        }
+
         inline bool is_directory(ref<std::string> path) {
             return std::filesystem::is_directory(path);
         }
@@ -77,7 +103,6 @@ namespace zpods {
             if (base[len - 1] == '/') {
                 len--;
             }
-
 
             if (strlen(path) == len && !is_directory(base)) {
                 let_mut ret = path;

@@ -31,8 +31,9 @@ namespace zpods {
     constexpr auto LZ77 = 1 << 0;
     constexpr auto Huffman = 1 << 1;
 
+    constexpr auto DefaultPolicy = LZ77 | Huffman;
 
-    template<size_t Policy = LZ77>
+    template<size_t Policy = DefaultPolicy>
     std::pair<size_t, std::unique_ptr<byte[]>> compress(std::span<byte> src);
 
     /*
@@ -40,8 +41,33 @@ namespace zpods {
      * @param src is the pointer to the source data
      * @return the size (in bytes) of decompressed string and the pointer to the decompressed data
      */
-    template<size_t Policy = LZ77>
+    template<size_t Policy = DefaultPolicy>
     std::pair<size_t, std::unique_ptr<byte[]>> decompress(p_cbyte src);
+
+    /*
+     * @brief compress the file
+     * @param src_path is the path to the source file
+     * @param dst_path is the path to the destination file
+     * @return OK if success, otherwise return the error code
+     */
+    Status compress_file(const char *src_path, const char *dst_path);
+
+    /*
+     * @brief decompress the file
+     * @param src_path is the path to the source file
+     * @param dst_path is the path to the destination file
+     * @return OK if success, otherwise return the error code
+     */
+    Status decompress_file(const char *src_path, const char *dst_path);
+
+    struct Code {
+        size_t bits;
+        size_t len;
+
+        friend bool operator==(const Code &lhs, const Code &rhs) {
+            return lhs.bits == rhs.bits && lhs.len == rhs.len;
+        }
+    };
 
     template<typename Value>
     struct Node {
@@ -59,40 +85,17 @@ namespace zpods {
         }
     };
 
-    struct Code {
-        size_t bits;
-        size_t len;
-
-        friend bool operator==(const zpods::Code &lhs, const zpods::Code &rhs) {
-            return lhs.bits == rhs.bits && lhs.len == rhs.len;
-        }
-    };
-
-
-    template<typename T>
-    std::unordered_map<T, size_t> get_freq_table(std::span<T> rng) {
-        std::unordered_map<T, size_t> freq_table;
-        for (let_ref item: rng) {
-            freq_table[item]++;
-        }
-        return freq_table;
-    }
-
-    template<typename Value>
-    void
-    dfs_huffman_tree(ref<Node<Value>> root, ref_mut<std::unordered_map<Value, Code>> huffman_dict, Code code = {0, 0}) {
-        if (root.is_leaf) {
-            huffman_dict[root.val] = code;
-            return;
-        }
-        dfs_huffman_tree<Value>(*root.left, huffman_dict, {code.bits | (0 << code.len), code.len + 1});
-        dfs_huffman_tree<Value>(*root.right, huffman_dict, {code.bits | (1 << code.len), code.len + 1});
-    }
-
-
     template<typename Value>
     std::unordered_map<Value, Code> make_huffman_dictionary(std::span<Value> rng) {
         ZPODS_ASSERT(!rng.empty());
+
+        auto get_freq_table = [](std::span<Value> rng) {
+            std::unordered_map<Value, size_t> freq_table;
+            for (let_ref item: rng) {
+                freq_table[item]++;
+            }
+            return freq_table;
+        };
 
         let freq_table = get_freq_table(rng);
         std::unordered_map<Value, Code> huffman_dict;
@@ -107,6 +110,7 @@ namespace zpods {
         for (auto &i: freq_table) {
             pq.emplace(i.second, i.first, true, nullptr, nullptr);
         }
+
         while (pq.size() > 1) {
             let node1 = pq.top();
             pq.pop();
@@ -116,29 +120,40 @@ namespace zpods {
             pq.emplace(node1.freq + node2.freq, 0, false, std::make_shared<Term>(node1), std::make_shared<Term>(node2));
         }
 
-        dfs_huffman_tree<Value>(pq.top(), huffman_dict);
+        auto dfs_huffman_tree = [](auto& self, ref<Node<Value>> root,
+                                   ref_mut<std::unordered_map<Value, Code>> huffman_dict,
+                                   Code code = {0, 0}) {
+            if (root.is_leaf) {
+                huffman_dict[root.val] = code;
+                return;
+            }
+            self(self, *root.left, huffman_dict, {code.bits | (0 << code.len), code.len + 1});
+            self(self, *root.right, huffman_dict, {code.bits | (1 << code.len), code.len + 1});
+        };
+
+        dfs_huffman_tree(dfs_huffman_tree, pq.top(), huffman_dict);
         return huffman_dict;
     }
 }
+using zpods::Code;
 
 template<>
-struct fmt::formatter<zpods::Code> {
+struct fmt::formatter<Code> {
     constexpr auto parse(format_parse_context &ctx) {
         return ctx.end();
     }
 
     template<typename FormatContext>
-    auto format(const zpods::Code &p, FormatContext &ctx) const {
+    auto format(const Code &p, FormatContext &ctx) const {
         return format_to(ctx.out(), "0b{:0{}b}", p.bits, p.len, p.len);
     }
 };
 
-namespace std {
-    template<>
-    struct hash<zpods::Code> {
-        std::size_t operator()(const zpods::Code &p) const {
-            return std::hash<int>()(p.bits) ^ std::hash<int>()(p.len);
-        }
-    };
-}
+template<>
+struct std::hash<Code> {
+    std::size_t operator()(const Code &p) const {
+        return std::hash<int>()(p.bits) ^ std::hash<int>()(p.len);
+    }
+};
+
 #endif //ZPODS_COMPRESS_H

@@ -3,6 +3,7 @@
 //
 #include "compress.h"
 #include "bit_ops.h"
+#include "fs.h"
 
 using namespace zpods;
 
@@ -26,6 +27,11 @@ namespace {
                bits_part(len, OFFSET_BITS, LENGTH_BITS) |
                bits_part(literal, OFFSET_BITS + LENGTH_BITS, LITERAL_BITS);
     }
+}
+
+
+namespace {
+
 
     template<typename T>
     struct HuffmanDictEntry {
@@ -146,6 +152,8 @@ namespace {
     private:
 
     };
+
+
 }
 
 template<size_t Policy>
@@ -340,6 +348,54 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
     }
 
     return {dst_size, std::move(dst_bs.take_buf())};
+}
+
+Status zpods::compress_file(const char *src_path, const char *dst_path) {
+    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
+    if (!ifs.is_open()) {
+        spdlog::error("cannot open file: {}", src_path);
+        return Status::ERROR;
+    }
+
+    let src_size = fs::get_file_size(src_path);
+    std::vector<byte> src(src_size);
+    ifs.read((char *) src.data(), src_size);
+
+    let [dst_size, compressed] = compress(src);
+
+    let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, fs::ios::binary);
+    if (!ofs.is_open()) {
+        spdlog::error("cannot open file: {}", dst_path);
+        return Status::ERROR;
+    }
+
+    ofs.write((const char *) compressed.get(), dst_size);
+
+    return Status::OK;
+}
+
+Status zpods::decompress_file(const char *src_path, const char *dst_path) {
+    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, std::ios::binary);
+    if (!ifs.is_open()) {
+        spdlog::error("cannot open file: {}", src_path);
+        return Status::ERROR;
+    }
+
+    let src_size = fs::get_file_size(src_path);
+    std::vector<byte> src(src_size);
+    ifs.read((char *) src.data(), src_size);
+
+    let [dst_size, decompressed] = decompress(src.data());
+
+    let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, std::ios::binary);
+    if (!ofs.is_open()) {
+        spdlog::error("cannot open file: {}", dst_path);
+        return Status::ERROR;
+    }
+
+    ofs.write((const char *) decompressed.get(), dst_size);
+
+    return Status::OK;
 }
 
 template std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress<LZ77>(std::span<byte>);
