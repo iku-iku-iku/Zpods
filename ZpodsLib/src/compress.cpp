@@ -8,7 +8,15 @@ using namespace zpods;
 
 namespace {
 
-    inline size_t make_ol_code(size_t offset, size_t len) {
+    inline bool literal_mark(size_t offset, size_t len) {
+        return offset == 0 && len == 0;
+    }
+
+    inline bool eof_mark(size_t offset, size_t len) {
+        return offset == 0 && len == mask(LENGTH_BITS);
+    }
+
+    inline constexpr size_t make_ol_code(size_t offset, size_t len) {
         return bits_part(offset, 0, OFFSET_BITS) |
                bits_part(len, OFFSET_BITS, LENGTH_BITS);
     }
@@ -24,13 +32,13 @@ namespace {
         Code code{};
         T val{};
 
-        static constexpr auto ValBits = 16;
-        static constexpr auto CodeLenBits = 8;
+        static constexpr auto CodeLenBits = 4;
 
         HuffmanDictEntry(Code code, T val) : code(code), val(val) {}
 
         HuffmanDictEntry() = default;
 
+        template<size_t ValBits>
         auto fill(ref_mut <BitStream> bs) {
             bs.append_bits(&code.len, CodeLenBits);
             bs.append_bits(&code.bits, code.len);
@@ -44,6 +52,7 @@ namespace {
          * @param bs is the bit stream
          * @return true if the entry is the end of the dictionary, false otherwise
          */
+        template<size_t ValBits>
         bool read(ref_mut <BitStream> bs) {
             code.len = bs.read_bits(CodeLenBits);
             if (code.len == 0) {
@@ -55,11 +64,11 @@ namespace {
         }
     };
 
-    template<typename T>
+    template<size_t ValBits, typename T>
     auto fill_dict(ref_mut <BitStream> bs, const std::unordered_map<T, Code> &dict) {
         size_t write_bits = 0;
         for (const auto &[val, code]: dict) {
-            write_bits += HuffmanDictEntry<T>(code, val).fill(bs);
+            write_bits += HuffmanDictEntry<T>(code, val).template fill<ValBits>(bs);
         }
 
         byte eod = 0;
@@ -69,12 +78,13 @@ namespace {
         return write_bits;
     }
 
+    template<size_t ValBits>
     auto read_dict(ref_mut <BitStream> bs) {
         std::unordered_map<Code, size_t> dict;
 
         HuffmanDictEntry<size_t> entry;
         while (true) {
-            if (entry.read(bs)) {
+            if (entry.read<ValBits>(bs)) {
                 break;
             }
             dict[entry.code] = entry.val;
@@ -139,7 +149,7 @@ namespace {
 }
 
 template<size_t Policy>
-std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t src_size) {
+std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(std::span<byte> src_rng) {
     constexpr auto HuffmanEnabled = enabled(Policy, Huffman);
     size_t dst_size = 0;
 
@@ -148,6 +158,9 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
     BitStream bs;
 
     std::vector<size_t> offsets, lens, literals;
+
+    p_cbyte src = src_rng.data();
+    let src_size = src_rng.size();
 
     for (size_t i = 0; i < src_size;) {
         auto [offset, len] = sb.search(src, i, src_size);
@@ -187,13 +200,12 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
             }
         }
         // mark the end of compressed data
-        let code = make_oll_code(0, 0, eof_literal);
-        bs.append_bits(&code, OLL_CODE);
+        let code = make_ol_code(0, mask(LENGTH_BITS));
+        bs.append_bits(&code, OL_CODE);
         dst_size += OLL_CODE;
     } else {
         offsets.push_back(0);
-        lens.push_back(0);
-        literals.push_back(eof_literal);
+        lens.push_back(EOF_LEN);
 
         let offset_dict = make_huffman_dictionary(std::span(offsets));
         print_map(offset_dict);
@@ -202,9 +214,9 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(p_cbyte src, size_t s
         let literal_dict = make_huffman_dictionary(std::span(literals));
         print_map(literal_dict);
 
-        dst_size += fill_dict(bs, offset_dict);
-        dst_size += fill_dict(bs, len_dict);
-        dst_size += fill_dict(bs, literal_dict);
+        dst_size += fill_dict<OFFSET_BITS>(bs, offset_dict);
+        dst_size += fill_dict<LENGTH_BITS>(bs, len_dict);
+        dst_size += fill_dict<LITERAL_BITS>(bs, literal_dict);
 
         let_mut literal_iter = literals.begin();
         for (size_t i = 0; i < offsets.size(); i++) {
@@ -250,11 +262,11 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
         BitStream src_bs((char *) src);
 
         {
-            offset_dict = read_dict(src_bs);
+            offset_dict = read_dict<OFFSET_BITS>(src_bs);
             print_map(offset_dict);
-            len_dict = read_dict(src_bs);
+            len_dict = read_dict<LENGTH_BITS>(src_bs);
             print_map(len_dict);
-            literal_dict = read_dict(src_bs);
+            literal_dict = read_dict<LITERAL_BITS>(src_bs);
             print_map(literal_dict);
         }
 
@@ -266,12 +278,13 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
             offsets.push_back(offset);
             lens.push_back(len);
 
-            if (offset == 0 && len == 0) {
+            if (eof_mark(offset, len)) {
+                break;
+            }
+
+            if (literal_mark(offset, len)) {
                 let [literal, literal_code] = read_with_dict(src_bs, literal_dict);
                 literals.push_back(literal);
-                if (literal == eof_literal) {
-                    break;
-                }
                 spdlog::debug("(DECODE) OFFSET: {}, LEN: {}, LITERAL: {}", offset_code, len_code, literal_code);
             } else {
                 spdlog::debug("(DECODE) OFFSET: {}, LEN: {}", offset_code, len_code);
@@ -290,13 +303,13 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
             offsets.push_back(offset);
             lens.push_back(len);
 
-            if (offset == 0 && len == 0) {
+            if (eof_mark(offset, len)) {
+                break;
+            }
+
+            if (literal_mark(offset, len)) {
                 let literal = src_bs.read_bits(LITERAL_BITS);
                 literals.push_back(literal);
-
-                if (literal == eof_literal) {
-                    break;
-                }
             }
         }
     }
@@ -306,11 +319,12 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
         let offset = offsets[i];
         let len = lens[i];
 
-        if (offset == 0 && len == 0) {
+        if (eof_mark(offset, len)) {
+            break;
+        }
+
+        if (literal_mark(offset, len)) {
             let literal = *iter++;
-            if (literal == eof_literal) {
-                break;
-            }
             dst_bs.append_byte((char) literal);
             dst_size++;
 
@@ -328,10 +342,9 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src) {
     return {dst_size, std::move(dst_bs.take_buf())};
 }
 
-template std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress<LZ77>(zpods::p_cbyte src, size_t src_size);
+template std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress<LZ77>(std::span<byte>);
 
-template std::pair<size_t, std::unique_ptr<byte[]>>
-zpods::compress<LZ77 | Huffman>(zpods::p_cbyte src, size_t src_size);
+template std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress<LZ77 | Huffman>(std::span<byte>);
 
 template std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress<LZ77>(p_cbyte src);
 

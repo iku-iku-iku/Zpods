@@ -24,7 +24,7 @@ TEST(CompressTest, SimpleCompressDecompress1) {
 
     size_t src_size = std::strlen((const char *) src);
 
-    auto [dst_size, compressed] = zpods::compress(src, src_size);
+    auto [dst_size, compressed] = zpods::compress(std::span(src, src_size));
     ASSERT_LT(dst_size, src_size);
 
     spdlog::info("src_size: {}, dst_size: {}", src_size, dst_size);
@@ -35,7 +35,7 @@ TEST(CompressTest, SimpleCompressDecompress1) {
 
 TEST(CompressTest, SimpleCompressDecompress2) {
     zpods::byte src[] =
-                 "TOBEORNOTTOBE" \
+            "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE" \
                  "TOBEORNOTTOBE" \
@@ -50,7 +50,7 @@ TEST(CompressTest, SimpleCompressDecompress2) {
 
     size_t src_size = std::strlen((const char *) src);
 
-    auto [dst_size, compressed] = zpods::compress<zpods::LZ77 | zpods::Huffman>(src, src_size);
+    auto [dst_size, compressed] = zpods::compress<zpods::LZ77 | zpods::Huffman>(std::span(src, src_size));
     ASSERT_LT(dst_size, src_size);
 //
     spdlog::info("src_size: {}, dst_size: {}", src_size, dst_size);
@@ -70,16 +70,34 @@ TEST(CompressTest, TestHuffman) {
     ASSERT_TRUE(dict['C'].bits == 0b10 && dict['C'].len == 2);
 }
 
-TEST(CompressTest, HugeRandomCompressDecompress1) {
-    let N = 1 << 10;
-    zpods::byte src[N];
-    for (auto &i: src) {
-        i = rand() % 256;
+void compress_decompress_test_helper(std::span<zpods::byte> src) {
+    auto [dst_size1, compressed1] = zpods::compress<zpods::LZ77>(src);
+    auto [dst_size2, compressed2] = zpods::compress<zpods::LZ77 | zpods::Huffman>(src);
+    spdlog::info("[raw] {}, [lz77] {} [lz77&huffman] {}", src.size(), dst_size1, dst_size2);
+
+    ASSERT_LT(dst_size1, src.size());
+    ASSERT_LT(dst_size2, src.size());
+
+    auto [back_size1, decompressed1] = zpods::decompress<zpods::LZ77>(compressed1.get());
+    auto [back_size2, decompressed2] = zpods::decompress<zpods::LZ77 | zpods::Huffman>(compressed2.get());
+
+    ASSERT_EQ(back_size1, src.size());
+    ASSERT_EQ(back_size2, src.size());
+}
+
+TEST(CompressTest, HugeCompressDecompress1) {
+    auto test = [](int N) {
+        zpods::byte src[N];
+        for (int i = 0; i < N; i++) { src[i] = i & 0xff; }
+
+        compress_decompress_test_helper(std::span(src, N));
+    };
+
+//    spdlog::set_level(spdlog::level::debug);
+
+    for (int i = 10; i <= 18; i++) {
+        test(1 << i);
     }
 
-    auto [dst_size, compressed] = zpods::compress<zpods::LZ77 | zpods::Huffman>(src, N);
-    ASSERT_LT(dst_size, N);
-
-//    auto [back_size, decompressed] = zpods::decompress(compressed.get());
-//    ASSERT_EQ(back_size, N);
+//    test(1 << 19);
 }

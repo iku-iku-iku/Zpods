@@ -11,11 +11,10 @@
 #include "bit_ops.h"
 
 namespace zpods {
-    constexpr static size_t eof_literal = 255;
-
     constexpr static size_t OFFSET_BITS = 15;
     constexpr static size_t LENGTH_BITS = 5;
     constexpr static size_t LITERAL_BITS = 8;
+    constexpr static size_t EOF_LEN = mask(LENGTH_BITS);
 
     constexpr static size_t OL_CODE = OFFSET_BITS + LENGTH_BITS;
     constexpr static size_t OLL_CODE = OL_CODE + LITERAL_BITS;
@@ -34,7 +33,7 @@ namespace zpods {
 
 
     template<size_t Policy = LZ77>
-    std::pair<size_t, std::unique_ptr<byte[]>> compress(p_cbyte src, size_t src_size);
+    std::pair<size_t, std::unique_ptr<byte[]>> compress(std::span<byte> src);
 
     /*
      * @brief decompress the src to dst

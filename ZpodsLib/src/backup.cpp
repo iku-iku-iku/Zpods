@@ -28,7 +28,7 @@ Status zpods::backup(const char *src_path, const char *target_dir, const BackupC
         std::vector<byte> buf(src_size);
         fs::read(archive_path.c_str(), {reinterpret_cast<const char *>(buf.data()), buf.size()});
 
-        let [dest_size, dest] = zpods::compress(buf.data(), buf.size());
+        let [dest_size, dest] = zpods::compress(std::span(buf.data(), buf.size()));
 
         spdlog::info("SIZE BEFORE: {} AFTER: {}", src_size, dest_size);
         fs::write(archive_path.c_str(), {reinterpret_cast<const char *>(dest.get()), dest_size});
