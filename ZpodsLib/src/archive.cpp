@@ -5,6 +5,8 @@
 #include "archive.h"
 #include "fs.h"
 
+using namespace zpods;
+
 namespace {
     struct Header {
         size_t data_len;
@@ -16,7 +18,7 @@ namespace {
         }
 
         auto get_path() {
-            let p= reinterpret_cast<const char*>(this) + real_size();
+            let p = reinterpret_cast<const char *>(this) + real_size();
             return std::string_view(p, path_len);
         }
 
@@ -29,33 +31,35 @@ namespace {
         }
     };
 
-    auto as_header(auto* p) {
-        return reinterpret_cast<Header*>(p);
+    auto as_header(auto *p) {
+        return reinterpret_cast<Header *>(p);
     }
 }
 
-zpods::Status zpods::archive(const char *src_path, const char *target_dir) {
-    if (!zpods::fs::is_directory(target_dir)) {
-        return zpods::Status::ERROR;
+Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
+    if (!fs::is_directory(target_dir)) {
+        return Status::ERROR;
     }
 
     size_t total_size = 0;
 
-    auto iter = zpods::fs::FileCollector(src_path);
+    let_mut iter = fs::FileCollector(src_path);
     const std::vector file_paths(iter.begin(), iter.end());
     std::vector<const char *> relative_paths;
     std::vector<size_t> data_sizes;
     std::vector<size_t> path_sizes;
 
     let file_cnt = file_paths.size();
-    for (const auto &path: file_paths) {
-        let rel = zpods::fs::relative(path.c_str(), src_path);
+    ZPODS_ASSERT(src_path[strlen(src_path) - 1] != '/');
+    let base = fs::get_base_name(src_path);
+    for (let_ref path: file_paths) {
+        let rel = fs::relative(path.c_str(), base.c_str());
         relative_paths.push_back(rel);
-        data_sizes.push_back(zpods::fs::get_file_size(path));
+        data_sizes.push_back(fs::get_file_size(path));
         path_sizes.push_back(strlen(rel));
     }
 
-    constexpr auto header_size = Header::real_size();
+    constexpr let header_size = Header::real_size();
     total_size += std::accumulate(data_sizes.begin(), data_sizes.end(), 0ul);
     total_size += std::accumulate(path_sizes.begin(), path_sizes.end(), 0ul);
     total_size += (file_cnt + 1) * header_size;
@@ -74,21 +78,25 @@ zpods::Status zpods::archive(const char *src_path, const char *target_dir) {
 
     memset(p, 0, header_size);
 
-    std::ofstream ofs(fmt::format("{}/{}", target_dir, "archive").c_str());
+    if (!config.backup_filename.has_value()) {
+        config.backup_filename = fmt::format("{}{}", fs::path(src_path).filename().c_str(),
+                                             PODS_FILE_SUFFIX);
+    }
+    std::ofstream ofs(fmt::format("{}/{}", target_dir, config.backup_filename.value()).c_str());
     ofs.write((char *) buffer.data(), (long) total_size);
 
-    return zpods::Status::OK;
+    return Status::OK;
 }
 
-zpods::Status zpods::unarchive(const char *src_path, const char *target_dir) {
-    if (!zpods::fs::is_directory(target_dir)) {
-        return zpods::Status::ERROR;
+Status zpods::unarchive(const char *src_path, const char *target_dir) {
+    if (!fs::is_directory(target_dir)) {
+        return Status::ERROR;
     }
-    if (zpods::fs::is_directory(src_path)) {
-        return zpods::Status::ERROR;
+    if (fs::is_directory(src_path)) {
+        return Status::ERROR;
     }
 
-    let total_size = zpods::fs::get_file_size(src_path);
+    let total_size = fs::get_file_size(src_path);
     std::vector<byte> buffer(total_size);
 
     {
@@ -105,10 +113,9 @@ zpods::Status zpods::unarchive(const char *src_path, const char *target_dir) {
         let path_name = fmt::format("{}/{}", target_dir, file_name);
         spdlog::info("unarchived file {}", file_name);
 
-        let base_name = zpods::fs::get_base_name(path_name.c_str());
-        if (!zpods::fs::exists(base_name.c_str())) {
-            zpods::fs::create_directory(base_name.c_str());
-        }
+        let base_name = fs::get_base_name(path_name.c_str());
+
+        fs::create_directory_if_not_exist(base_name.c_str());
 
         std::ofstream ofs(path_name);
 
@@ -117,5 +124,5 @@ zpods::Status zpods::unarchive(const char *src_path, const char *target_dir) {
         p += header->data_len;
     }
 
-    return zpods::Status::OK;
+    return Status::OK;
 }

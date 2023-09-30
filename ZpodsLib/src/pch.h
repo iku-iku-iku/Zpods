@@ -21,8 +21,6 @@
 
 #include "enum.h"
 
-
-
 #ifndef PROJECT_PATH
 // do not use this macro directly!
 #define PROJECT_PATH "macro PROJECT_PATH needed"
@@ -38,14 +36,28 @@
 #define TEMP_PATH "macro TEMP_PATH needed"
 #endif
 
+#define ZPODS_ASSERT(x)                                          \
+    do {                                                         \
+        if (!(x)) {                                              \
+            fprintf(stderr, "Assertion failed: `%s`\n", #x);       \
+            exit(1);                                             \
+        }                                                        \
+    } while (0)
+#define ZPODS_ASSERT_MSG(expr, format, ...)                  \
+        do {                                                     \
+            if (!(expr)) {                                       \
+                fprintf(stderr, format, ##__VA_ARGS__);           \
+                fprintf(stderr, "\n");                            \
+                exit(1);                                             \
+            }                                                    \
+        } while (0)
+
+#define let const auto
+#define let_ref const auto&
+#define let_mut auto
+#define let_mut_ref auto&
+
 namespace zpods {
-
-    #define ZPODS_ASSERT(x) assert(x)
-
-    #define let const auto
-    #define let_ref const auto&
-    #define let_mut auto
-    #define let_mut_ref auto&
 
     template<typename T>
     using ref = const std::remove_cvref_t<T> &;
@@ -54,18 +66,18 @@ namespace zpods {
     using ref_mut = std::remove_cvref_t<T> &;
 
     static_assert(std::is_same_v<ref<int>, const int &>);
-    static_assert(std::is_same_v<ref<int&>, const int &>);
-    static_assert(std::is_same_v<ref<int&&>, const int &>);
+    static_assert(std::is_same_v<ref<int &>, const int &>);
+    static_assert(std::is_same_v<ref<int &&>, const int &>);
     static_assert(std::is_same_v<ref<const int>, const int &>);
-    static_assert(std::is_same_v<ref<const int&>, const int &>);
-    static_assert(std::is_same_v<ref<const int&&>, const int &>);
+    static_assert(std::is_same_v<ref<const int &>, const int &>);
+    static_assert(std::is_same_v<ref<const int &&>, const int &>);
 
     static_assert(std::is_same_v<ref_mut<int>, int &>);
-    static_assert(std::is_same_v<ref_mut<int&>, int &>);
-    static_assert(std::is_same_v<ref_mut<int&&>, int &>);
+    static_assert(std::is_same_v<ref_mut<int &>, int &>);
+    static_assert(std::is_same_v<ref_mut<int &&>, int &>);
     static_assert(std::is_same_v<ref_mut<const int>, int &>);
-    static_assert(std::is_same_v<ref_mut<const int&>, int &>);
-    static_assert(std::is_same_v<ref_mut<const int&&>, int &>);
+    static_assert(std::is_same_v<ref_mut<const int &>, int &>);
+    static_assert(std::is_same_v<ref_mut<const int &&>, int &>);
 
     using byte = unsigned char;
     using p_cbyte = const byte *;
@@ -103,9 +115,9 @@ namespace zpods {
     }
 
     template<typename T>
-    void print_map(const T& map) {
+    void print_map(const T &map) {
         spdlog::debug("[MAP] map size: {}", map.size());
-        for (let_ref [key, val] : map) {
+        for (let_ref[key, val]: map) {
             spdlog::debug("key: {}, value: {}", key, val);
         }
     }

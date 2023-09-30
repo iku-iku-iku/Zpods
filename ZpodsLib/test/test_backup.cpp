@@ -3,12 +3,15 @@
 #include <filesystem>
 #include "zpods_lib.h"
 
-TEST(BackupTest, backup_restore) {
+TEST(BackupTest, BackupRestore) {
+//    spdlog::set_level(spdlog::level::debug);
     auto src_path = fmt::format("{}/recursive", zpods::test_data_path());
     auto target_path = zpods::temp_path();
 
-//    for (int i = 0; i < 10; i++) {
-    EXPECT_EQ(zpods::backup(src_path.c_str(), target_path), zpods::Status::OK);
-//    }
-    EXPECT_EQ(zpods::restore(fmt::format("{}/archive", zpods::temp_path()).c_str(), zpods::temp_path()), zpods::Status::OK);
+    zpods::BackupConfig config;
+    let status1 = zpods::backup(src_path.c_str(), target_path, config);
+    EXPECT_EQ(status1, zpods::Status::OK);
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
+    EXPECT_EQ(status2, zpods::Status::OK);
 }

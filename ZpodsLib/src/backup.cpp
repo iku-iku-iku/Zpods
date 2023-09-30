@@ -7,7 +7,7 @@ using namespace zpods;
 
 using namespace zpods::fs;
 
-Status zpods::backup(const char *src_path, const char *target_dir, const BackupConfig &config) {
+Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
     // check src exist
     let src = fs::path(src_path);
     let target = fs::path(target_dir);
@@ -17,8 +17,9 @@ Status zpods::backup(const char *src_path, const char *target_dir, const BackupC
     }
 
     // 1. archive files of src_path to a single file in target_dir
-    zpods::archive(src_path, target_dir);
-    let archive_path = fmt::format("{}/archive", target_dir);
+    zpods::archive(src_path, target_dir, config);
+    ZPODS_ASSERT(config.backup_filename.has_value());
+    let archive_path = fmt::format("{}/{}", target_dir, config.backup_filename.value());
 
     // 2. compress if needed
     compress_file(archive_path.c_str(), archive_path.c_str());

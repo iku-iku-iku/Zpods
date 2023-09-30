@@ -13,8 +13,7 @@ TEST(FsTest, test_basic) {
     EXPECT_FALSE(fs::is_directory(path + "/single/man_pthreads.txt"));
     EXPECT_STREQ(fs::relative("/home/a.txt", "/home"), "a.txt");
     EXPECT_STREQ(fs::relative("/home/a.txt", "/home/"), "a.txt");
-    EXPECT_STREQ(fs::relative("/home/a.txt", "/home/a.txt"), "a.txt");
-    EXPECT_STREQ(fs::relative("a.txt", "a.txt"), "a.txt");
+    EXPECT_DEATH(fs::relative("a.txt", "a.txt"), "Assertion failed: `is_directory\\(base\\)`");
     EXPECT_STREQ(fs::relative("/home/a.txt", "/opt"), nullptr);
     EXPECT_STREQ(fs::get_base_name("/home/a.txt").c_str(), "/home");
     EXPECT_TRUE(fs::exists("/home"));

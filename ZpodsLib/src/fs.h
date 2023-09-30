@@ -19,7 +19,7 @@ namespace zpods {
 
         using copy_options = std::filesystem::copy_options;
 
-        using path_type = std::filesystem::path;
+        using zpath = std::filesystem::path;
 
         inline auto copy(const char *src, const char *target, copy_options options) {
             std::filesystem::copy(src, target, options);
@@ -33,8 +33,10 @@ namespace zpods {
             return std::filesystem::exists(path);
         }
 
-        inline auto create_directory(const char *path) {
-            std::filesystem::create_directory(path);
+        inline auto create_directory_if_not_exist(const char *path) {
+            if (!exists(path)) {
+                std::filesystem::create_directories(path);
+            }
         }
 
         inline auto remove_all(const char *path) {
@@ -56,7 +58,7 @@ namespace zpods {
         inline auto open_or_create_file_as_ofs(const char *path, openmode mode) -> std::ofstream {
             let base = get_base_name(path);
             if (!exists(base.c_str())) {
-                create_directory(base.c_str());
+                create_directory_if_not_exist(base.c_str());
             }
             std::ofstream ofs(path, mode);
             ZPODS_ASSERT(ofs.is_open());
@@ -66,7 +68,7 @@ namespace zpods {
         inline auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream {
             let base = get_base_name(path);
             if (!exists(base.c_str())) {
-                create_directory(base.c_str());
+                create_directory_if_not_exist(base.c_str());
             }
             std::ifstream ifs(path, mode);
             ZPODS_ASSERT(ifs.is_open());
@@ -81,7 +83,7 @@ namespace zpods {
             return std::filesystem::directory_iterator(path);
         }
 
-        inline auto get_file_size(ref<path_type> path) {
+        inline auto get_file_size(ref<zpath> path) {
             return std::filesystem::file_size(path);
         }
 
@@ -104,14 +106,16 @@ namespace zpods {
                 len--;
             }
 
-            if (strlen(path) == len && !is_directory(base)) {
-                let_mut ret = path;
-                while (*path) {
-                    if (*path == '/') ret = path + 1;
-                    path++;
-                }
-                return ret;
-            }
+            ZPODS_ASSERT(is_directory(base));
+
+//            if (strlen(path) == len && !is_directory(base)) {
+//                let_mut ret = path;
+//                while (*path) {
+//                    if (*path == '/') ret = path + 1;
+//                    path++;
+//                }
+//                return ret;
+//            }
 
             if (strncmp(path, base, len) == 0) {
                 return path + len + 1;
@@ -121,7 +125,7 @@ namespace zpods {
 
         class FileCollector {
         public:
-            using iterator = std::vector<path_type>::iterator;
+            using iterator = std::vector<zpath>::iterator;
 
             FileCollector(ref<std::string> path) {
                 scan_path(path);
@@ -151,7 +155,7 @@ namespace zpods {
             }
 
         private:
-            std::vector<path_type> paths_;
+            std::vector<zpath> paths_;
         };
 
     }

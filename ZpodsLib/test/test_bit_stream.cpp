@@ -7,8 +7,7 @@
 #include "bit_ops.h"
 
 TEST(BitStreamTest, test_read_write1) {
-    char buf[1024];
-    zpods::BitStream bs(buf);
+    zpods::BitStream bs;
 
     bs.append_bit(1);
     bs.append_bit(0);
@@ -20,8 +19,7 @@ TEST(BitStreamTest, test_read_write1) {
 }
 
 TEST(BitStreamTest, test_read_write2) {
-    char buf[1024];
-    zpods::BitStream bs(buf);
+    zpods::BitStream bs;
 
     int magic = 0b11101;
 
@@ -41,8 +39,7 @@ TEST(BitStreamTest, test_read_write2) {
 }
 
 TEST(BitStreamTest, test_read_write_big) {
-    char buf[1024];
-    zpods::BitStream bs(buf);
+    zpods::BitStream bs;
 
     const size_t N = 1000;
 

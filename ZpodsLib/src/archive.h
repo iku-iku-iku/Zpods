@@ -6,6 +6,7 @@
 #define ZPODS_ARCHIVE_H
 
 #include "pch.h"
+#include "config.h"
 
 namespace zpods {
     /*
@@ -14,14 +15,15 @@ namespace zpods {
      * @param target_dir the directory to store the archived file
      * @return Status::OK if success, otherwise Status::ERROR
      */
-    Status archive(const char* src_path, const char* target_dir);
+    Status archive(const char *src_path, const char *target_dir, ref<BackupConfig> config = {});
+
     /*
      * @brief unarchive a archive file indicated by src_path to a directory in target_dir
      * @param src_path the path of the archive file to be unarchived
      * @param target_dir the directory to store the unarchived files
      * @return Status::OK if success, otherwise Status::ERROR
      */
-    Status unarchive(const char* src_path, const char* target_dir);
+    Status unarchive(const char *src_path, const char *target_dir);
 }
 
 #endif //ZPODS_ARCHIVE_H

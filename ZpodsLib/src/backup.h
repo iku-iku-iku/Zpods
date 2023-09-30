@@ -1,22 +1,8 @@
 #include "pch.h"
 #include <filesystem>
+#include "config.h"
 
 namespace zpods {
-    struct BackupConfig {
-        bool encrypt = true; ///< raw_encrypt the backup file
-        bool compress = true; ///< compress the backup file
-
-        struct Filter {
-            std::vector<std::filesystem::path> ignored_paths; ///< ignore these paths
-            std::vector<FileType> ignored_types; ///< ignore these types
-            std::vector<std::string> ignored_names; ///< ignore these names
-            uint64_t min_time; ///< only backup files that are modified after min_time
-            uint64_t max_time; ///< only backup files that are modified before max_time
-            uint64_t min_size; ///< only backup files that are larger than min_size
-            uint64_t max_size; ///< only backup files that are smaller than max_size
-        } filter;
-    };
-
     /*
      * @brief backup the src_path to target_dir
      * @param src_path is the path to back up, can be a file or a directory
@@ -30,7 +16,7 @@ namespace zpods {
      *
      * @note src_path must exist
      */
-    Status backup(const char *src_path, const char *target_dir, const BackupConfig &config = {});
+    Status backup(const char *src_path, const char *target_dir, ref<BackupConfig> config = {});
 
     /*
      * @brief restore the backup file to target_dir
