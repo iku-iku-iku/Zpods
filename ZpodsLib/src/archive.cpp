@@ -37,9 +37,8 @@ namespace {
 }
 
 Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
-    if (!fs::is_directory(target_dir)) {
-        return Status::ERROR;
-    }
+    fs::create_directory_if_not_exist(target_dir);
+    ZPODS_ASSERT(fs::is_directory(target_dir));
 
     size_t total_size = 0;
 
@@ -89,12 +88,9 @@ Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupC
 }
 
 Status zpods::unarchive(const char *src_path, const char *target_dir) {
-    if (!fs::is_directory(target_dir)) {
-        return Status::ERROR;
-    }
-    if (fs::is_directory(src_path)) {
-        return Status::ERROR;
-    }
+    fs::create_directory_if_not_exist(target_dir);
+    ZPODS_ASSERT(fs::is_directory(target_dir));
+    ZPODS_ASSERT(!fs::is_directory(src_path));
 
     let total_size = fs::get_file_size(src_path);
     std::vector<byte> buffer(total_size);

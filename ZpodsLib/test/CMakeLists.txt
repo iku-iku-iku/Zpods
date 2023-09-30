@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 project(zpods_lib_test)
 
 FILE(GLOB_RECURSE SRC *.cpp *.c *.ixx)

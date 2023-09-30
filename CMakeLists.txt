@@ -6,8 +6,11 @@ add_compile_definitions(PROJECT_PATH="${PROJECT_SOURCE_DIR}")
 add_compile_definitions(TEST_DATA_PATH="${PROJECT_SOURCE_DIR}/test_data")
 add_compile_definitions(TEMP_PATH="${PROJECT_SOURCE_DIR}/tmp")
 
-include_directories(extern/spdlog/include)
+include_directories(extern/spdlog/include ./)
 
-add_subdirectory(extern/googletest) 
-add_subdirectory(ZpodsLib)
+set(PCH_PATH ${CMAKE_SOURCE_DIR}/pch.h)
+
+add_subdirectory(extern/googletest)
 add_subdirectory(extern/spdlog)
+add_subdirectory(ZpodsLib)
+add_subdirectory(client)
