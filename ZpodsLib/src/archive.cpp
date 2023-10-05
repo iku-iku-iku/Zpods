@@ -54,6 +54,7 @@ Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupC
     for (let_ref path: file_paths) {
         let rel = fs::relative(path.c_str(), base.c_str());
         relative_paths.push_back(rel);
+        spdlog::info("archived file {}", rel);
         data_sizes.push_back(fs::get_file_size(path));
         path_sizes.push_back(strlen(rel));
     }
@@ -62,6 +63,8 @@ Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupC
     total_size += std::accumulate(data_sizes.begin(), data_sizes.end(), 0ul);
     total_size += std::accumulate(path_sizes.begin(), path_sizes.end(), 0ul);
     total_size += (file_cnt + 1) * header_size;
+    // align total size to 16 bytes
+    total_size = (total_size + 15) & ~15ul;
 
     std::vector<byte> buffer(total_size);
     p_byte p = buffer.data();

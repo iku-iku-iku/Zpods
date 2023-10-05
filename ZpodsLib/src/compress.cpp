@@ -251,6 +251,11 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::compress(std::span<byte> src_r
         }
     }
 
+    while (dst_size % 8 != 0 || (dst_size / 8) % 16 != 0) {
+        bs.append_bit(1);
+        dst_size++;
+    }
+
     dst_size = ceil_div(dst_size, 8);
 
     return {dst_size, std::move(bs.take_buf())};
@@ -362,6 +367,8 @@ Status zpods::compress_file(const char *src_path, const char *dst_path) {
     ifs.read((char *) src.data(), src_size);
 
     let [dst_size, compressed] = compress(src);
+    let hash = std::hash<std::string_view>()({(char*)compressed.get(), dst_size});
+    spdlog::info("COMPRESSED SIZE: {} HASH: {}", dst_size, hash);
 
     let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, fs::ios::binary);
     if (!ofs.is_open()) {
@@ -385,6 +392,8 @@ Status zpods::decompress_file(const char *src_path, const char *dst_path) {
     std::vector<byte> src(src_size);
     ifs.read((char *) src.data(), src_size);
 
+    let hash = std::hash<std::string_view>()({(char*)src.data(), src_size});
+    spdlog::info("TO DECOMPRESS SIZE: {} HASH: {}", src_size, hash);
     let [dst_size, decompressed] = decompress(src.data());
 
     let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, std::ios::binary);

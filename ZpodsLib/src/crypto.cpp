@@ -3,6 +3,11 @@
 //
 
 #include "crypto.h"
+#include "fs.h"
+#include "config.h"
+#include <openssl/err.h>
+
+using namespace zpods;
 
 int zpods::raw_encrypt(p_cbyte plaintext, int plaintext_len, p_cbyte key, p_cbyte iv, p_byte ciphertext) {
     EVP_CIPHER_CTX *ctx;
@@ -14,6 +19,7 @@ int zpods::raw_encrypt(p_cbyte plaintext, int plaintext_len, p_cbyte key, p_cbyt
 
     if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv))
         return -1;
+//    EVP_CIPHER_CTX_set_padding(ctx, 0);
 
     if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
         return -1;
@@ -29,6 +35,11 @@ int zpods::raw_encrypt(p_cbyte plaintext, int plaintext_len, p_cbyte key, p_cbyt
 }
 
 int zpods::raw_decrypt(p_cbyte ciphertext, int ciphertext_len, p_cbyte key, p_cbyte iv, p_byte plaintext) {
+    {
+        let hash = std::hash<std::string_view>()({(char *) ciphertext, (size_t) ciphertext_len});
+        spdlog::info("CIPHER SIZE: {} HASH: {}", ciphertext_len, hash);
+    }
+
     EVP_CIPHER_CTX *ctx;
     int len;
     int plaintext_len;
@@ -36,15 +47,18 @@ int zpods::raw_decrypt(p_cbyte ciphertext, int ciphertext_len, p_cbyte key, p_cb
     if (!(ctx = EVP_CIPHER_CTX_new()))
         return -1;
 
-    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv))
         return -1;
+//    EVP_CIPHER_CTX_set_padding(ctx, 0);
 
     if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
         return -1;
     plaintext_len = len;
 
-    if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len))
+    if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
+        ERR_print_errors_fp(stderr);
         return -1;
+    }
     plaintext_len += len;
 
     EVP_CIPHER_CTX_free(ctx);
@@ -52,43 +66,95 @@ int zpods::raw_decrypt(p_cbyte ciphertext, int ciphertext_len, p_cbyte key, p_cb
     return plaintext_len;
 }
 
-bool
-zpods::encrypt(const std::string &plaintext, const std::string &key, const std::string &iv, std::string &ciphertext) {
-    int plaintext_len = (int) plaintext.size();
+auto
+zpods::encrypt(std::string_view plaintext, std::string_view key, std::string_view iv) -> std::optional<std::string> {
+    let plaintext_len = (int) plaintext.size();
     let block_size = 16; // 假设块大小为16字节
     let padding = block_size - (plaintext_len % block_size);
-    int ciphertext_len = (int) (plaintext_len + padding);
+    let_mut ciphertext_len = (int) (plaintext_len + padding);
 
-    std::vector<unsigned char> cipher_buf(ciphertext_len);
+    std::vector<byte> cipher_buf(ciphertext_len);
 
-    if (!(ciphertext_len = raw_encrypt(reinterpret_cast<p_cbyte>(plaintext.c_str()),
+    if (!(ciphertext_len = raw_encrypt(reinterpret_cast<p_cbyte>(plaintext.data()),
                                        plaintext_len,
-                                       reinterpret_cast<p_cbyte>(key.c_str()),
-                                       reinterpret_cast<p_cbyte>(iv.c_str()),
+                                       reinterpret_cast<p_cbyte>(key.data()),
+                                       reinterpret_cast<p_cbyte>(iv.data()),
                                        &cipher_buf[0]))) {
-        return false;
+        return {};
     }
 
-    ciphertext.assign(cipher_buf.begin(), cipher_buf.begin() + ciphertext_len);
-    return true;
+    return std::string(cipher_buf.begin(), cipher_buf.begin() + ciphertext_len);
 }
 
-bool
-zpods::decrypt(ref<std::string> ciphertext, ref<std::string> key, ref<std::string> iv, ref_mut<std::string> plaintext) {
+auto zpods::decrypt(std::string_view ciphertext, std::string_view key,
+                    std::string_view iv) -> std::optional<std::string> {
     int ciphertext_len = (int) ciphertext.size();
 
     std::vector<unsigned char> plain_buf(ciphertext_len);
     int plaintext_len;
 
-    if (!(plaintext_len = raw_decrypt(reinterpret_cast<p_cbyte>(ciphertext.c_str()),
+    if (!(plaintext_len = raw_decrypt(reinterpret_cast<p_cbyte>(ciphertext.data()),
                                       ciphertext_len,
-                                      reinterpret_cast<p_cbyte>(key.c_str()),
-                                      reinterpret_cast<p_cbyte>(iv.c_str()),
+                                      reinterpret_cast<p_cbyte>(key.data()),
+                                      reinterpret_cast<p_cbyte>(iv.data()),
                                       &plain_buf[0]))) {
-        return false;
+        return {};
     }
 
-    plaintext.assign(plain_buf.begin(), plain_buf.begin() + plaintext_len);
-    return true;
+    return std::string(plain_buf.begin(), plain_buf.begin() + plaintext_len);
+}
+
+zpods::Status zpods::encrypt_file(const char *src_path, const char *dst_path, ref <CryptoConfig> config) {
+    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
+    if (!ifs.is_open()) {
+        spdlog::error("cannot open file: {}", src_path);
+        return Status::ERROR;
+    }
+
+    let src_size = fs::get_file_size(src_path);
+    std::vector<byte> src(src_size);
+    ifs.read((char *) src.data(), src_size);
+
+    std::string_view src_view((const char *) src.data(), src_size);
+    let cipher = encrypt(src_view, config.key_, config.iv_);
+    let hash = std::hash<std::string_view>()({cipher->data(), cipher->size()});
+    spdlog::info("CIPHER SIZE: {} HASH: {}", cipher->size(), hash);
+    ZPODS_ASSERT(cipher.has_value());
+
+    let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, fs::ios::binary);
+    if (!ofs.is_open()) {
+        spdlog::error("cannot open file: {}", dst_path);
+        return Status::ERROR;
+    }
+
+    ofs.write((const char *) cipher->c_str(), (long) cipher->size());
+
+    return Status::OK;
+}
+
+Status zpods::decrypt_file(const char *src_path, const char *dst_path, ref <CryptoConfig> config) {
+    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, std::ios::binary);
+    if (!ifs.is_open()) {
+        spdlog::error("cannot open file: {}", src_path);
+        return Status::ERROR;
+    }
+
+    let src_size = fs::get_file_size(src_path);
+    std::vector<byte> src(src_size);
+    ifs.read((char *) src.data(), src_size);
+
+    std::string_view src_view((const char *) src.data(), src_size);
+
+    let plain_text = decrypt(src_view, config.key_, config.iv_);
+
+    let_mut ofs = fs::open_or_create_file_as_ofs(dst_path, std::ios::binary);
+    if (!ofs.is_open()) {
+        spdlog::error("cannot open file: {}", dst_path);
+        return Status::ERROR;
+    }
+
+    ofs.write((const char *) plain_text->c_str(), (long) plain_text->size());
+
+    return Status::OK;
 }
 

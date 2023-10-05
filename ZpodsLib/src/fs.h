@@ -43,37 +43,11 @@ namespace zpods {
             std::filesystem::remove_all(path);
         }
 
-        inline auto get_base_name(const char *path) -> std::string {
-            size_t len = 0;
-            let_mut p = path;
-            while (*p) {
-                if (*p == '/') {
-                    len = p - path;
-                }
-                p++;
-            }
-            return {path, len};
-        }
+        auto get_base_name(const char *path) -> std::string;
 
-        inline auto open_or_create_file_as_ofs(const char *path, openmode mode) -> std::ofstream {
-            let base = get_base_name(path);
-            if (!exists(base.c_str())) {
-                create_directory_if_not_exist(base.c_str());
-            }
-            std::ofstream ofs(path, mode);
-            ZPODS_ASSERT(ofs.is_open());
-            return ofs;
-        }
+        auto open_or_create_file_as_ofs(const char *path, openmode mode) -> std::ofstream;
 
-        inline auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream {
-            let base = get_base_name(path);
-            if (!exists(base.c_str())) {
-                create_directory_if_not_exist(base.c_str());
-            }
-            std::ifstream ifs(path, mode);
-            ZPODS_ASSERT(ifs.is_open());
-            return ifs;
-        }
+        auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream;
 
         inline bool is_directory(ref<std::string> path) {
             return std::filesystem::is_directory(path);
@@ -87,41 +61,15 @@ namespace zpods {
             return std::filesystem::file_size(path);
         }
 
-        inline auto read(const char *path, std::string_view buf) {
-            std::ifstream ifs(path);
-            ZPODS_ASSERT(ifs.is_open());
-            ifs.read(const_cast<char *>(buf.data()), (long) buf.length());
-        }
+        auto read(const char *path, std::string_view buf);
 
-        inline auto write(const char *path, std::string_view buf) {
-            std::ofstream ofs(path);
-            ZPODS_ASSERT(ofs.is_open());
-            ofs.write(buf.data(), (long) buf.length());
-        }
+        auto write(const char *path, std::string_view buf);
 
+        auto read_from_file(const char *path) -> std::string;
 
-        inline auto relative(const char *path, const char *base) -> const char * {
-            let_mut len = strlen(base);
-            if (base[len - 1] == '/') {
-                len--;
-            }
+        auto relative(const char *path, const char *base) -> const char *;
 
-            ZPODS_ASSERT(is_directory(base));
-
-//            if (strlen(path) == len && !is_directory(base)) {
-//                let_mut ret = path;
-//                while (*path) {
-//                    if (*path == '/') ret = path + 1;
-//                    path++;
-//                }
-//                return ret;
-//            }
-
-            if (strncmp(path, base, len) == 0) {
-                return path + len + 1;
-            }
-            return nullptr;
-        }
+        bool is_same_content(const char *path1, const char *path2);
 
         class FileCollector {
         public:

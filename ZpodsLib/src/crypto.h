@@ -6,6 +6,7 @@
 #define ZPODS_CRYPTO_H
 
 #include "pch.h"
+#include "config.h"
 #include <openssl/types.h>
 #include <openssl/evp.h>
 
@@ -26,8 +27,15 @@ namespace zpods {
     /*
      * @brief C++ style API encapsulation of raw_encrypt for easier use
      */
-    bool encrypt(ref<std::string> plaintext, ref<std::string> key, ref<std::string> iv,
-                 ref_mut<std::string> ciphertext);
+    auto encrypt(std::string_view plaintext, std::string_view key, std::string_view iv) -> std::optional<std::string>;
+
+    /*
+     * @brief encrypt the file
+     * @param src_path is the path to the source file
+     * @param dst_path is the path to the destination file
+     * @return OK if success, otherwise return the error code
+     */
+    Status encrypt_file(const char *src_path, const char *dst_path, ref<CryptoConfig> config);
 
     /*
      * @brief raw_decrypt the ciphertext to plaintext
@@ -44,8 +52,15 @@ namespace zpods {
     /*
      * @brief C++ style API encapsulation of raw_decrypt for easier use
      */
-    bool decrypt(ref<std::string> ciphertext, ref<std::string> key, ref<std::string> iv,
-                 ref_mut<std::string> plaintext);
+    auto decrypt(std::string_view ciphertext, std::string_view key, std::string_view iv) -> std::optional<std::string>;
+
+    /*
+     * @brief decrypt the file
+     * @param src_path is the path to the source file
+     * @param dst_path is the path to the destination file
+     * @return OK if success, otherwise return the error code
+     */
+    Status decrypt_file(const char *src_path, const char *dst_path, ref<CryptoConfig> config);
 }
 
 #endif //ZPODS_CRYPTO_H

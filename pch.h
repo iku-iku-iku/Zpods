@@ -18,12 +18,14 @@
 #include <cassert>
 #include <queue>
 #include <stack>
+#include <random>
 
 // enums
 namespace zpods {
     enum class Status : std::uint8_t {
         OK,
-        ERROR
+        ERROR,
+        PASSWORD_NEEDED,
     };
 
     enum class FileType : std::uint8_t {
@@ -137,6 +139,16 @@ namespace zpods {
         for (let_ref[key, val]: map) {
             spdlog::debug("key: {}, value: {}", key, val);
         }
+    }
+
+    template <typename T>
+    auto as_c_str(T&& str) {
+        return reinterpret_cast<const char*>(&str);
+    }
+
+    template <typename T>
+    auto as_c_str(T* str) {
+        return reinterpret_cast<const char*>(str);
     }
 }
 

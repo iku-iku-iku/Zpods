@@ -28,17 +28,40 @@ TEST(CryptoTest, EncryptDecrypt1) {
 }
 
 TEST(CryptoTest, EncryptDecrypt2) {
-    std::string plaintext = "Hello, world!";
-    std::string key = "01234567890123456789012345678901"; // 请确保密钥长度正确
-    std::string iv = "0123456789012345"; // 请确保IV长度正确
-    std::string ciphertext;
-    std::string decryptedtext;
+    std::string plaintext = std::to_string(rand());
+    std::string key = std::to_string(rand());
+    std::string iv = std::to_string(rand());
 
     // 测试加密
-    EXPECT_TRUE(zpods::encrypt(plaintext, key, iv, ciphertext));
-    EXPECT_NE(plaintext, ciphertext);
+    let cipher = zpods::encrypt(plaintext, key, iv);
+    EXPECT_TRUE(cipher.has_value());
+    EXPECT_NE(plaintext, cipher);
 
     // 测试解密
-    EXPECT_TRUE(zpods::decrypt(ciphertext, key, iv, decryptedtext));
-    EXPECT_EQ(plaintext, decryptedtext);
+    let decrypt = zpods::decrypt(*cipher, key, iv);
+    EXPECT_TRUE(decrypt.has_value());
+    EXPECT_EQ(plaintext, decrypt);
+}
+
+TEST(CryptoTest, EncrpytDecrptFile) {
+    std::string src_path = fmt::format("{}/{}", zpods::test_data_path(), "single/man_pthreads.txt");
+    std::string dst_path = fmt::format("{}/{}", zpods::temp_path(), "single/man_pthreads.txt");
+    std::string key = std::to_string(rand());
+
+    let config = zpods::CryptoConfig(key);
+    // 测试加密
+    {
+        let status = zpods::encrypt_file(src_path.c_str(), dst_path.c_str(), config);
+        EXPECT_EQ(status, zpods::Status::OK);
+    }
+
+    // 验证加密后的文件是否与原始文件不同
+    EXPECT_FALSE(zpods::fs::is_same_content(src_path.c_str(), dst_path.c_str()));
+    // 测试解密
+    {
+        let status = zpods::decrypt_file(dst_path.c_str(), dst_path.c_str(), config);
+        EXPECT_EQ(status, zpods::Status::OK);
+    }
+    // 验证解密后的文件是否与原始文件相同
+    EXPECT_TRUE(zpods::fs::is_same_content(src_path.c_str(), dst_path.c_str()));
 }

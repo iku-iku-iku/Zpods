@@ -32,5 +32,5 @@ namespace zpods {
      *
      * @note src_path must exist and must be a valid pods file, target_dir must be a directory
      */
-    Status restore(const char *src_path, const char *target_dir);
+    Status restore(const char *src_path, const char *target_dir, BackupConfig config = {});
 }
