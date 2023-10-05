@@ -16,7 +16,9 @@ namespace zpods {
         std::string key_;
         std::string iv_;
 
-        explicit CryptoConfig(std::string key) : key_(std::move(key)) {
+        explicit CryptoConfig(std::string key) {
+            key_ = std::move(key);
+            key_.resize(32);
 //            std::random_device rd;
 //            std::mt19937 gen(rd());
 //            iv_ = std::to_string(gen());
@@ -30,7 +32,7 @@ namespace zpods {
             COMPRESS = 1 << 0,
             ENCRYPT = 1 << 1,
         };
-        bool compress = true; ///< compress the backup file
+        bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file
         mutable std::optional<std::string> backup_filename;
         ///< the name of backup file,
