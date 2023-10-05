@@ -24,35 +24,36 @@ Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupCo
     ZPODS_ASSERT(config.backup_filename.has_value());
     let archive_path = fmt::format("{}/{}", target_dir, config.backup_filename.value());
 
+    let_mut bytes = fs::read_from_file(archive_path.c_str());
+    std::unique_ptr<byte[]> buf;
+    size_t buf_len;
     // 2. compress if needed
     if (config.compress) {
-        compress_file(archive_path.c_str(), archive_path.c_str());
+        std::tie(buf_len, buf) = compress({(p_byte) bytes.data(), bytes.size()});
+        bytes = {as_c_str(buf.get()), buf_len};
         spdlog::info("file compression succeeded : {}", archive_path);
     }
 
     // 3. encrypt if needed
     if (config.crypto_config) {
-        let status = encrypt_file(archive_path.c_str(), archive_path.c_str(), *config.crypto_config);
-    if (status != Status::OK) {
+        let_ref conf = config.crypto_config;
+        let cipher = encrypt({as_c_str(bytes.data()), bytes.size()}, conf->key_, conf->iv_);
+        if (!cipher.has_value()) {
             spdlog::error("file encryption failed: {}", archive_path);
-            return status;
+            return Status::ERROR;
         }
+        bytes = {cipher->data(), cipher->size()};
         spdlog::info("file encryption succeeded : {}", archive_path);
     }
 
-//    // set header
-//    {
-//        let content = fs::read_from_file(archive_path.c_str());
-//        let_mut ofs = fs::open_or_create_file_as_ofs(archive_path.c_str(), fs::ios::binary);
-//        let header = config.get_header();
-//        ofs.write(as_c_str(header), sizeof(header));
-//        ofs << content;
-//    }
+    // output to target file
+    {
+        let_mut ofs = fs::open_or_create_file_as_ofs(archive_path.c_str(), fs::ios::binary);
 
-
-//    if (fs::exists(backup.c_str())) {
-//        fs::remove_all(backup.c_str());
-//    }
+        let header = config.get_header();
+        ofs.write(as_c_str(header), sizeof(header));
+        ofs << bytes;
+    }
 
     return Status::OK;
 }
@@ -61,34 +62,43 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
 
-//    // read header
-//    {
-//        let status = config.read_header(src_path);
-//        if (status == Status::PASSWORD_NEEDED) {
-//            return status;
-//        }
-//    }
-//
-//    // remove header
-//    {
-//        let content = fs::read_from_file(src_path);
-//
-//        let_mut ofs = fs::open_or_create_file_as_ofs(src_path, fs::ios::binary);
-//        ofs << content.substr(sizeof(BackupConfig::Header));
-//    }
-
-    if (config.crypto_config) {
-        let status = decrypt_file(src_path, src_path, *config.crypto_config);
-        if (status != Status::OK) {
-            spdlog::error("file decryption failed: {}", src_path);
+    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
+    // read header
+    {
+        BackupConfig::Header header;
+        ifs.read((char *) (&header), sizeof(header));
+        let status = config.read_header(header);
+        if (status == Status::PASSWORD_NEEDED) {
             return status;
         }
+    }
+    // read content
+    std::string bytes((std::istreambuf_iterator<char>(ifs)),
+                      (std::istreambuf_iterator<char>()));
+
+    // decrypt if needed
+    if (config.crypto_config) {
+        let_ref conf = config.crypto_config;
+        let plain_text = decrypt({as_c_str(bytes.data()), bytes.size()}, conf->key_, conf->iv_);
+        if (!plain_text.has_value()) {
+            spdlog::error("file decryption failed: {}", src_path);
+            return Status::ERROR;
+        }
+        bytes = {plain_text->data(), plain_text->size()};
         spdlog::info("file decryption succeeded : {}", src_path);
     }
 
+    // decompress if needed
     if (config.compress) {
-        decompress_file(src_path, src_path);
+        let [buf_len, buf] = decompress((p_cbyte) bytes.data());
+        bytes = {as_c_str(buf.get()), buf_len};
         spdlog::info("file decompression succeeded : {}", src_path);
+    }
+
+    // write to target file
+    {
+        let_mut ofs = fs::open_or_create_file_as_ofs(src_path, fs::ios::binary);
+        ofs << bytes;
     }
 
     zpods::unarchive(src_path, target_dir);

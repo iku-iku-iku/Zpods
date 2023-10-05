@@ -64,10 +64,7 @@ namespace zpods {
             }
             return header;
         }
-        auto read_header(const char* path) {
-            let_mut ifs = fs::open_or_create_file_as_ifs(path, fs::ios::binary);
-            Header header;
-            ifs.read((char*)(&header), sizeof(header));
+        auto read_header(ref<Header> header) {
             this->compress = !!(header.backup_policy & COMPRESS);
             if (header.backup_policy & ENCRYPT) {
                 if (!this->crypto_config.has_value()) {
