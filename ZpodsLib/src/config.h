@@ -30,12 +30,25 @@ namespace zpods {
         }
     };
 
+    struct ZpodsHeader {
+        static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
+        constexpr static auto MAGIC_SIZE = 4;
+        constexpr static auto CHECKSUM_SIZE = 16;
+        constexpr static auto PASSWORD_VERIFY_SIZE = 16;
+        byte magic[MAGIC_SIZE] = {'Z', 'P', 'O', 'D'};
+        byte iv[IV_SIZE]{};
+        byte checksum[CHECKSUM_SIZE]{};
+        byte password_verify_token[PASSWORD_VERIFY_SIZE]{};
+        byte backup_policy = 0;
+    };
+
     struct BackupConfig {
         enum /* class BackupPolicy */: uint8_t {
             NONE = 0,
             COMPRESS = 1 << 0,
             ENCRYPT = 1 << 1,
         };
+
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
 
         bool compress = false; ///< compress the backup file
@@ -55,14 +68,8 @@ namespace zpods {
             uint64_t max_size; ///< only backup files that are smaller than max_size
         } filter;
 
-        struct Header {
-            char magic[4] = {'Z', 'P', 'O', 'D'};
-            char backup_policy = 0;
-            char iv[IV_SIZE]{};
-        };
-
-        auto get_header() const -> Header {
-            let_mut header = Header();
+        auto get_header() const -> ZpodsHeader {
+            let_mut header = ZpodsHeader();
             if (this->compress) {
                 header.backup_policy |= COMPRESS;
             }
@@ -74,20 +81,19 @@ namespace zpods {
             return header;
         }
 
-        auto read_header(ref <Header> header) {
+        auto read_header(ref<ZpodsHeader> header) {
             this->compress = !!(header.backup_policy & COMPRESS);
             if (header.backup_policy & ENCRYPT) {
                 if (!this->crypto_config.has_value()) {
                     return Status::PASSWORD_NEEDED;
                 }
-                this->crypto_config->iv_ = std::string_view{header.iv, IV_SIZE};
+                this->crypto_config->iv_ = std::string_view{as_c_str(header.iv), IV_SIZE};
                 spdlog::info("IV: {} PASSWORD: {}", this->crypto_config->iv_, this->crypto_config->key_);
             }
 
             return Status::OK;
         }
     };
-
 }
 
 #endif //ZPODS_CONFIG_H

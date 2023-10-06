@@ -24,6 +24,8 @@ namespace zpods {
      * @return Status::OK if success, otherwise Status::ERROR
      */
     Status unarchive(const char *src_path, const char *target_dir);
+
+    Status unarchive(std::span<byte> src_bytes, const char *target_dir);
 }
 
 #endif //ZPODS_ARCHIVE_H

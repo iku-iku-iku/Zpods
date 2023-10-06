@@ -19,7 +19,6 @@ int zpods::raw_encrypt(p_cbyte plaintext, int plaintext_len, p_cbyte key, p_cbyt
 
     if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv))
         return -1;
-//    EVP_CIPHER_CTX_set_padding(ctx, 0);
 
     if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
         return -1;
@@ -49,7 +48,6 @@ int zpods::raw_decrypt(p_cbyte ciphertext, int ciphertext_len, p_cbyte key, p_cb
 
     if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key, iv))
         return -1;
-//    EVP_CIPHER_CTX_set_padding(ctx, 0);
 
     if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
         return -1;

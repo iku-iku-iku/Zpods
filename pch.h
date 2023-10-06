@@ -26,6 +26,9 @@ namespace zpods {
         OK,
         ERROR,
         PASSWORD_NEEDED,
+        NOT_ZPODS_FILE,
+        CHECKSUM_ERROR,
+        WRONG_PASSWORD,
     };
 
     enum class FileType : std::uint8_t {

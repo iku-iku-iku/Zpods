@@ -93,15 +93,13 @@ Status zpods::unarchive(const char *src_path, const char *target_dir) {
     ZPODS_ASSERT(fs::is_directory(target_dir));
     ZPODS_ASSERT(!fs::is_directory(src_path));
 
-    let total_size = fs::get_file_size(src_path);
-    std::vector<byte> buffer(total_size);
+    let content = fs::read_from_file(src_path);
 
-    {
-        std::ifstream ifs(src_path);
-        ifs.rdbuf()->sgetn((char *) buffer.data(), (long) total_size);
-    }
+    return unarchive({(p_byte) content.data(), content.size()}, target_dir);
+}
 
-    let_mut p = buffer.data();
+Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
+    let_mut p = src_bytes.data();
     Header *header;
     while (!(header = as_header(p))->empty()) {
         p += header->size();

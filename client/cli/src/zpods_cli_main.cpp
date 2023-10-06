@@ -12,16 +12,6 @@ int main(int argc, char **argv) {
 
     CLI::App *backup = app.add_subcommand("backup", "backup a directory (or a file) to a single file");
     CLI::App *restore = app.add_subcommand("restore", "restore a archive file to a directory");
-//    app.parse(argc, argv);
-//    try {
-//        app.parse(argc, argv /* only parse up to first non-option argument */);
-//    } catch (const CLI::CallForHelp &e) {
-//        // Handle help call here if necessary
-//    } catch (const CLI::ParseError &e) {
-//        std::cout << "A subcommand is required." << std::endl;
-//        std::cout << "Run with --help for more information." << std::endl;
-//        return 1;
-//    }
 
     std::string src_path;
     std::string target_dir;
@@ -60,22 +50,32 @@ int main(int argc, char **argv) {
         if (*decrypt_password) {
             config.crypto_config = zpods::CryptoConfig(password);
         }
-        zpods::restore(src_path.c_str(), target_dir.c_str(), config);
+        let status = zpods::restore(src_path.c_str(), target_dir.c_str(), config);
+
+        switch (status) {
+            case zpods::Status::OK:
+                spdlog::info("restore succeeded");
+                break;
+            case zpods::Status::NOT_ZPODS_FILE:
+                spdlog::error("restore failed: not a zpods file");
+                break;
+            case zpods::Status::ERROR:
+                spdlog::error("restore failed: unknown error");
+                break;
+            case zpods::Status::PASSWORD_NEEDED:
+                spdlog::error("restore failed: password needed");
+                break;
+            case zpods::Status::WRONG_PASSWORD:
+                spdlog::error("restore failed: wrong password");
+                break;
+            case zpods::Status::CHECKSUM_ERROR:
+                spdlog::error("restore failed: checksum error");
+                break;
+            default:
+                spdlog::error("restore failed: unknown error");
+        }
     });
 
     CLI11_PARSE(app, argc, argv);
-
-//    if (backup->parsed()) {
-//        if (*compress) {
-//            config.compress = true;
-//        }
-//        zpods::backup(src_path.c_str(), target_dir.c_str(), config);
-//    } else if (restore->parsed()) {
-//        zpods::restore(src_path.c_str(), target_dir.c_str(), config);
-//    } else {
-//        std::cout << "You must specify a subcommand" << std::endl;
-//        std::cout << "Run with --help for more information." << std::endl;
-//        return 1;
-//    }
     return 0;
 }

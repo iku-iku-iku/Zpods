@@ -8,6 +8,38 @@ using namespace zpods;
 
 using namespace zpods::fs;
 
+static constexpr auto CHECKSUM_SIZE = ZpodsHeader::CHECKSUM_SIZE;
+
+namespace {
+    Status check_header(ref <zpods::ZpodsHeader> header) {
+        let std_header = zpods::ZpodsHeader();
+        if (memcmp(header.magic, std_header.magic, sizeof(header.magic)) != 0) {
+            return Status::NOT_ZPODS_FILE;
+        }
+
+        return Status::OK;
+    }
+
+    void calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> bytes) {
+        memset(checksum, 0, sizeof(checksum));
+        ssize_t i = 0;
+        for (let_ref byte: bytes) {
+            checksum[i % CHECKSUM_SIZE] ^= byte;
+            i++;
+        }
+    }
+
+    void calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <std::string> password) {
+        let_mut cipher = zpods::encrypt(
+                {as_c_str(header), sizeof(header)},
+                password,
+                {as_c_str(header.iv), sizeof(header.iv)}
+        );
+
+        memcpy(header.password_verify_token, cipher->c_str(), sizeof(header.password_verify_token));
+    }
+}
+
 Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
@@ -60,7 +92,9 @@ Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupCo
     {
         let_mut ofs = fs::open_or_create_file_as_ofs(archive_path.c_str(), fs::ios::binary);
 
-        let header = config.get_header();
+        let_mut header = config.get_header();
+        calculate_checksum(header.checksum, {(p_byte) bytes.data(), bytes.size()});
+        calculate_password_verify_token(header, config.crypto_config->key_);
         ofs.write(as_c_str(header), sizeof(header));
         ofs << bytes;
     }
@@ -74,17 +108,51 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
 
     let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
     // read header
+    ZpodsHeader header;
     {
-        BackupConfig::Header header;
         ifs.read((char *) (&header), sizeof(header));
-        let status = config.read_header(header);
-        if (status == Status::PASSWORD_NEEDED) {
-            return status;
+
+        // check header
+        {
+            let status = check_header(header);
+            if (status != Status::OK) {
+                return status;
+            }
+        }
+
+        // parse header
+        {
+            let status = config.read_header(header);
+            if (status != Status::OK) {
+                return status;
+            }
         }
     }
     // read content
     std::string bytes((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
+
+    // check checksum
+    {
+        byte checksum[CHECKSUM_SIZE];
+        calculate_checksum(checksum, {(p_byte) bytes.data(), bytes.size()});
+        if (memcmp(checksum, header.checksum, sizeof(checksum)) != 0) {
+            return Status::CHECKSUM_ERROR;
+        }
+    }
+
+    // check password validity
+    {
+        let current_password_verify_token = std::string{as_c_str(header.password_verify_token),
+                                                        sizeof(header.password_verify_token)};
+        calculate_password_verify_token(header, config.crypto_config->key_);
+        if (memcmp(header.password_verify_token,
+                   current_password_verify_token.c_str(),
+                   ZpodsHeader::PASSWORD_VERIFY_SIZE) != 0) {
+            return Status::WRONG_PASSWORD;
+        }
+    }
+
 
     // decrypt if needed
     if (config.crypto_config) {
@@ -105,13 +173,7 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
         spdlog::info("file decompression succeeded : {}", src_path);
     }
 
-    // write to target file
-    {
-        let_mut ofs = fs::open_or_create_file_as_ofs(src_path, fs::ios::binary);
-        ofs << bytes;
-    }
-
-    zpods::unarchive(src_path, target_dir);
+    zpods::unarchive({(p_byte) bytes.data(), bytes.size()}, target_dir);
 
     return Status::OK;
 }

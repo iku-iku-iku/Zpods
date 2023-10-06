@@ -28,9 +28,11 @@ TEST(CryptoTest, EncryptDecrypt1) {
 }
 
 TEST(CryptoTest, EncryptDecrypt2) {
-    std::string plaintext = std::to_string(rand());
+    std::string plaintext = "012345678912345";
     std::string key = std::to_string(rand());
+    key.resize(32);
     std::string iv = std::to_string(rand());
+    iv.resize(16);
 
     // 测试加密
     let cipher = zpods::encrypt(plaintext, key, iv);

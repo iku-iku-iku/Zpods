@@ -16,6 +16,12 @@ TEST(BackupTest, BackupRestore) {
     EXPECT_EQ(status2, zpods::Status::OK);
 }
 
+TEST(BackupTest, Magic) {
+    let src_path = fmt::format("{}/single/man_pthreads.txt", zpods::test_data_path());
+    EXPECT_EQ(zpods::restore(src_path.c_str(), zpods::temp_path()),
+              zpods::Status::NOT_ZPODS_FILE);
+}
+
 TEST(BackupTest, BackupRestoreCompression) {
     auto src_path = fmt::format("{}/recursive", zpods::test_data_path());
     auto target_path = zpods::temp_path();
@@ -36,10 +42,25 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
     zpods::BackupConfig config;
     config.compress = true;
     config.crypto_config = zpods::CryptoConfig("123456");
-    spdlog::info("IV: {} PASSWORD: {}", config.crypto_config->iv_, config.crypto_config->key_);
-    let status1 = zpods::backup(src_path.c_str(), target_path, config);
-    EXPECT_EQ(status1, zpods::Status::OK);
+
+    // backup with password
+    {
+        EXPECT_EQ(zpods::backup(src_path.c_str(), target_path, config),
+                  zpods::Status::OK);
+    }
+
     let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
-    let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path(), config);
-    EXPECT_EQ(status2, zpods::Status::OK);
+
+    // restore with right password
+    {
+        EXPECT_EQ(zpods::restore(backup_path.c_str(), zpods::temp_path(), config),
+                  zpods::Status::OK);
+    }
+
+    // restore with wrong password
+    {
+        config.crypto_config = zpods::CryptoConfig("WrongPassword");
+        EXPECT_EQ(zpods::restore(backup_path.c_str(), zpods::temp_path(), config),
+                  zpods::Status::WRONG_PASSWORD);
+    }
 }
