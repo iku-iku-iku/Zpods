@@ -29,9 +29,12 @@ int main(int argc, char **argv) {
 
     zpods::BackupConfig config;
 
+    // backup
     backup->add_option("-s,--src", src_path, "source path")->required();
     backup->add_option("-t,--target", target_dir, "target directory")->required();
+
     let compress = backup->add_flag("-c,--compress", "compress the backup file");
+    let sync = backup->add_flag("-y,--sync", "synchronously backup the src_path to target_dir");
     let encrypt_password = backup->add_option("-p,--password", password, "password for encryption/decryption");
 
     backup->callback([&] {
@@ -41,9 +44,14 @@ int main(int argc, char **argv) {
         if (*compress) {
             config.compress = true;
         }
-        zpods::backup(src_path.c_str(), target_dir.c_str(), config);
+        if (*sync) {
+            zpods::sync_backup(src_path.c_str(), target_dir.c_str(), config);
+        } else {
+            zpods::backup(src_path.c_str(), target_dir.c_str(), config);
+        }
     });
 
+    // restore
     restore->add_option("-s,--src", src_path, "source path")->required();
     restore->add_option("-t,--target", target_dir, "target directory")->required();
     let decrypt_password = restore->add_option("-p,--password", password, "password for encryption/decryption");

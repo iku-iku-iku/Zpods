@@ -19,6 +19,15 @@ namespace zpods {
     Status backup(const char *src_path, const char *target_dir, ref<BackupConfig> config = {});
 
     /*
+     * @brief sync backup the src_path to target_dir
+     * @param src_path is the path to back up, can be a file or a directory
+     * @param target_dir is the path to put the backup file
+     * @param config is the config of backup, default to BackupConfig::DEFAULT
+     * @return Status::OK if backup successfully, otherwise Status::ERROR
+     */
+    Status sync_backup(const char *src_path, const char *target_dir, ref<BackupConfig> config = {});
+
+    /*
      * @brief restore the backup file to target_dir
      * @param src_path is the path to the backup file
      * @param target_dir is the path to restore

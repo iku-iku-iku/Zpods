@@ -35,7 +35,7 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
 
     zpods::BackupConfig config;
     config.compress = true;
-    config.crypto_config = zpods::CryptoConfig("01234567890123456789012345678901");
+    config.crypto_config = zpods::CryptoConfig("123456");
     spdlog::info("IV: {} PASSWORD: {}", config.crypto_config->iv_, config.crypto_config->key_);
     let status1 = zpods::backup(src_path.c_str(), target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);

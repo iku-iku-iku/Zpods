@@ -16,22 +16,28 @@ namespace zpods {
         std::string key_;
         std::string iv_;
 
+        static constexpr auto IV_SIZE = 16;
+        static constexpr auto KEY_SIZE = 32;
+
         explicit CryptoConfig(std::string key) {
             key_ = std::move(key);
-            key_.resize(32);
-//            std::random_device rd;
-//            std::mt19937 gen(rd());
-//            iv_ = std::to_string(gen());
-            iv_ = "0123456789012345";
+            key_.resize(KEY_SIZE);
+
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            iv_ = std::to_string(gen());
+            iv_.resize(IV_SIZE);
         }
     };
 
     struct BackupConfig {
-        enum /* class BackupPolicy */: uint8_t{
+        enum /* class BackupPolicy */: uint8_t {
             NONE = 0,
             COMPRESS = 1 << 0,
             ENCRYPT = 1 << 1,
         };
+        static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
+
         bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file
         mutable std::optional<std::string> backup_filename;
@@ -52,9 +58,10 @@ namespace zpods {
         struct Header {
             char magic[4] = {'Z', 'P', 'O', 'D'};
             char backup_policy = 0;
-            char iv[32]{};
+            char iv[IV_SIZE]{};
         };
-        auto get_header() const -> Header{
+
+        auto get_header() const -> Header {
             let_mut header = Header();
             if (this->compress) {
                 header.backup_policy |= COMPRESS;
@@ -62,17 +69,18 @@ namespace zpods {
             if (this->crypto_config) {
                 ZPODS_ASSERT(this->crypto_config.has_value());
                 header.backup_policy |= ENCRYPT;
-                strcpy(header.iv, this->crypto_config->iv_.c_str());
+                memcpy(header.iv, this->crypto_config->iv_.c_str(), IV_SIZE);
             }
             return header;
         }
-        auto read_header(ref<Header> header) {
+
+        auto read_header(ref <Header> header) {
             this->compress = !!(header.backup_policy & COMPRESS);
             if (header.backup_policy & ENCRYPT) {
                 if (!this->crypto_config.has_value()) {
                     return Status::PASSWORD_NEEDED;
                 }
-//                this->crypto_config->iv_ = header.iv;
+                this->crypto_config->iv_ = std::string_view{header.iv, IV_SIZE};
                 spdlog::info("IV: {} PASSWORD: {}", this->crypto_config->iv_, this->crypto_config->key_);
             }
 

@@ -115,3 +115,22 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
 
     return Status::OK;
 }
+
+Status zpods::sync_backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
+    // make sure the backup file is up-to-date
+    zpods::backup(src_path, target_dir, config);
+
+    // backup callback if the src_path is modified
+    let callback = [&](const char *path) {
+        zpods::backup(src_path, target_dir, config);
+    };
+
+    FsWatcher watcher(src_path, {
+            .on_file_create = callback,
+            .on_file_delete = callback,
+            .on_file_modify = callback,
+            .on_dir_create = callback,
+            .on_dir_delete = callback,
+    });
+    return Status::OK;
+}
