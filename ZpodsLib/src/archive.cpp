@@ -80,11 +80,9 @@ Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupC
 
     memset(p, 0, header_size);
 
-    if (!config.backup_filename.has_value()) {
-        config.backup_filename = fmt::format("{}{}", fs::path(src_path).filename().c_str(),
-                                             PODS_FILE_SUFFIX);
-    }
-    std::ofstream ofs(fmt::format("{}/{}", target_dir, config.backup_filename.value()).c_str());
+    ZPODS_ASSERT(config.backup_filename.has_value());
+    let ofs_path = fs::path(target_dir) / *config.backup_filename;
+    let_mut ofs = fs::open_or_create_file_as_ofs(ofs_path.c_str(), fs::ios::binary);
     ofs.write((char *) buffer.data(), (long) total_size);
 
     return Status::OK;

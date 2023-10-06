@@ -11,18 +11,28 @@ using namespace zpods::fs;
 Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
-    // check src exist
     let src = fs::path(src_path);
     let target = fs::path(target_dir);
 
+    // check src exist
     if (!fs::exists(src.c_str())) {
         return Status::ERROR;
+    }
+
+    if (!config.backup_filename.has_value()) {
+        config.backup_filename = fmt::format("{}{}", src.filename().c_str(),
+                                             PODS_FILE_SUFFIX);
+    }
+    let archive_path = target / *config.backup_filename;
+
+    // remove target
+    if (fs::exists(target.c_str())) {
+        fs::remove_all(target.c_str());
     }
 
     // 1. archive files of src_path to a single file in target_dir
     zpods::archive(src_path, target_dir, config);
     ZPODS_ASSERT(config.backup_filename.has_value());
-    let archive_path = fmt::format("{}/{}", target_dir, config.backup_filename.value());
 
     let_mut bytes = fs::read_from_file(archive_path.c_str());
     std::unique_ptr<byte[]> buf;
@@ -31,7 +41,7 @@ Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupCo
     if (config.compress) {
         std::tie(buf_len, buf) = compress({(p_byte) bytes.data(), bytes.size()});
         bytes = {as_c_str(buf.get()), buf_len};
-        spdlog::info("file compression succeeded : {}", archive_path);
+        spdlog::info("file compression succeeded : {}", archive_path.c_str());
     }
 
     // 3. encrypt if needed
@@ -39,11 +49,11 @@ Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupCo
         let_ref conf = config.crypto_config;
         let cipher = encrypt({as_c_str(bytes.data()), bytes.size()}, conf->key_, conf->iv_);
         if (!cipher.has_value()) {
-            spdlog::error("file encryption failed: {}", archive_path);
+            spdlog::error("file encryption failed: {}", archive_path.c_str());
             return Status::ERROR;
         }
         bytes = {cipher->data(), cipher->size()};
-        spdlog::info("file encryption succeeded : {}", archive_path);
+        spdlog::info("file encryption succeeded : {}", archive_path.c_str());
     }
 
     // output to target file

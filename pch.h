@@ -29,15 +29,18 @@ namespace zpods {
     };
 
     enum class FileType : std::uint8_t {
-        DIRECTORY,
-        REGULAR_FILE,
-        SYMLINK,
-        PIPE,
-        SOCKET,
-        CHARACTER_DEVICE,
-        BLOCK_DEVICE,
-        UNKNOWN
+        DIRECTORY = 1 << 0,
+        REGULAR_FILE = 1 << 1,
+        SYMLINK = 1 << 2,
+        PIPE = 1 << 3,
+        SOCKET = 1 << 4,
+        CHARACTER_DEVICE = 1 << 5,
+        BLOCK_DEVICE = 1 << 6,
+        UNKNOWN = 1 << 7
     };
+    inline auto operator&(FileType a, FileType b) {
+        return static_cast<std::uint8_t>(a) & static_cast<std::uint8_t>(b);
+    }
 }
 
 #ifndef PROJECT_PATH
@@ -141,14 +144,14 @@ namespace zpods {
         }
     }
 
-    template <typename T>
-    auto as_c_str(T&& str) {
-        return reinterpret_cast<const char*>(&str);
+    template<typename T>
+    auto as_c_str(T &&str) {
+        return reinterpret_cast<const char *>(&str);
     }
 
-    template <typename T>
-    auto as_c_str(T* str) {
-        return reinterpret_cast<const char*>(str);
+    template<typename T>
+    auto as_c_str(T *str) {
+        return reinterpret_cast<const char *>(str);
     }
 }
 
