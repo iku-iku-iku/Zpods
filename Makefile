@@ -12,3 +12,7 @@ clean:
 test: 
 	./test.sh
 
+hdfs:
+	stop-dfs.sh
+	hdfs namenode -format
+	start-dfs.sh

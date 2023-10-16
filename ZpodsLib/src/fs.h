@@ -50,6 +50,8 @@ namespace zpods {
             std::filesystem::remove_all(path);
         }
 
+        auto get_file_name(const char *path) -> const char*;
+
         auto get_base_name(const char *path) -> std::string;
 
         auto open_or_create_file_as_ofs(const char *path, openmode mode) -> std::ofstream;

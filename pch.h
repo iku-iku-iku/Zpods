@@ -28,6 +28,8 @@ namespace zpods {
         PASSWORD_NEEDED,
         NOT_ZPODS_FILE,
         CHECKSUM_ERROR,
+        USER_ALREADY_EXISTS,
+        USER_NOT_EXISTS,
         WRONG_PASSWORD,
     };
 
