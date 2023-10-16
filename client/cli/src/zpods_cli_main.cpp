@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
     std::string password;
     zpods::BackupConfig config;
     zpods::User user;
+    int interval = -1;
 
     // register
     register_->callback([&] {
@@ -69,8 +70,10 @@ int main(int argc, char **argv) {
     let sync = backup->add_flag("-y,--sync", "synchronously backup the src_path to target_dir");
     let remote = backup->add_flag("-r,--remote", "backup to remote server");
     let encrypt_password = backup->add_option("-p,--password", password, "password for encryption/decryption");
+    let periodic = backup->add_option("-i,--interval", interval, "interval for periodic backup (in seconds)");
 
     backup->callback([&] {
+        // login
         if (*remote) {
             user.username = get_username();
             user.password = get_password();
@@ -92,27 +95,35 @@ int main(int argc, char **argv) {
                     spdlog::info("unknown error");
             }
         }
-        if (*encrypt_password) {
-            config.crypto_config = zpods::CryptoConfig(password);
-        }
-        if (*compress) {
-            config.compress = true;
-        }
-        if (*sync) {
-            zpods::sync_backup(src_path.c_str(), target_dir.c_str(), config);
-        } else {
-            zpods::backup(src_path.c_str(), target_dir.c_str(), config);
-        }
-        let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.backup_filename->c_str());
 
-        if (*remote) {
-            let status = user.upload_file(backup_file_path.c_str());
-            if (status == zpods::Status::OK) {
-                spdlog::info("upload successfully!");
-            } else {
-                spdlog::info("fail to upload");
+
+        do {
+            if (*encrypt_password) {
+                config.crypto_config = zpods::CryptoConfig(password);
             }
-        }
+            if (*compress) {
+                config.compress = true;
+            }
+            if (*sync) {
+                zpods::sync_backup(src_path.c_str(), target_dir.c_str(), config);
+            } else {
+                zpods::backup(src_path.c_str(), target_dir.c_str(), config);
+            }
+            let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.backup_filename->c_str());
+
+            if (*remote) {
+                let status = user.upload_file(backup_file_path.c_str());
+                if (status == zpods::Status::OK) {
+                    spdlog::info("upload successfully!");
+                } else {
+                    spdlog::info("fail to upload");
+                }
+            }
+
+            if (interval > 0) {
+                std::this_thread::sleep_for(std::chrono::seconds(interval));
+            }
+        } while (interval > 0); // periodic backup
     });
 
     // restore

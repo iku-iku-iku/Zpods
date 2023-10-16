@@ -84,6 +84,7 @@ zpods::Status zpods::User::upload_file(const char *file_path) {
         if (res) {
             spdlog::info("Status: {}", res->status);
             spdlog::info("Body: {}", res->body);
+            return Status::ERROR;
         }
     }
     return Status::OK;
