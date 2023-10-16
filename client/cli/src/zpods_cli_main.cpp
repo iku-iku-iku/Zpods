@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
                 }
             }
 
-            if (interval > 0) {
+            if (*periodic) {
                 std::this_thread::sleep_for(std::chrono::seconds(interval));
             }
         } while (interval > 0); // periodic backup
