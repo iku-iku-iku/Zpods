@@ -7,6 +7,7 @@
 
 #include "spdlog/spdlog.h"
 
+#include <unordered_set>
 #include <type_traits>
 #include <cstdint>
 #include <string>
@@ -33,19 +34,16 @@ namespace zpods {
         WRONG_PASSWORD,
     };
 
-    enum class FileType : std::uint8_t {
-        DIRECTORY = 1 << 0,
-        REGULAR_FILE = 1 << 1,
-        SYMLINK = 1 << 2,
-        PIPE = 1 << 3,
-        SOCKET = 1 << 4,
-        CHARACTER_DEVICE = 1 << 5,
-        BLOCK_DEVICE = 1 << 6,
-        UNKNOWN = 1 << 7
-    };
-    inline auto operator&(FileType a, FileType b) {
-        return static_cast<std::uint8_t>(a) & static_cast<std::uint8_t>(b);
-    }
+//    enum class FileType : std::uint8_t {
+//        DIRECTORY = 1 << 0,
+//        REGULAR_FILE = 1 << 1,
+//        SYMLINK = 1 << 2,
+//        PIPE = 1 << 3,
+//        SOCKET = 1 << 4,
+//        CHARACTER_DEVICE = 1 << 5,
+//        BLOCK_DEVICE = 1 << 6,
+//        UNKNOWN = 1 << 7
+//    };
 }
 
 #ifndef PROJECT_PATH

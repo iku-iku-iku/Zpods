@@ -21,12 +21,87 @@ TEST(FsTest, BasicTest) {
     EXPECT_FALSE(fs::exists("/me"));
 }
 
-TEST(FsTest, FileCollector) {
-    spdlog::info("{}", project_path());
-    for (const auto &path: fs::FileCollector(project_path())) {
-        spdlog::info("{}", path.string());
+auto filtered_paths_expect_eq(std::unordered_set<std::string> paths, fs::FilesFilter filter) {
+    let_mut iter = fs::FileCollector(std::move(filter));
+    let filtered_paths = std::unordered_set(iter.begin(), iter.end());
+    for (const auto &item: filtered_paths) {
+        spdlog::info("file: {}", item.filename().c_str());
+        EXPECT_TRUE(paths.contains(item.filename()));
+    }
+    EXPECT_EQ(paths.size(), filtered_paths.size());
+}
+
+// default filter
+TEST(FsTest, FileCollectorWithDefaultFilter) {
+    filtered_paths_expect_eq({}, fs::FilesFilter{});
+}
+
+// filter with paths
+TEST(FsTest, FileCollectorWithPaths) {
+    let path1 = fs::path(test_data_path()) / fs::path("filter") / fs::path("dir2");
+    let path2 = path1 / fs::path("sub");
+    filtered_paths_expect_eq(
+            {},
+            fs::FilesFilter{
+                    .paths = {path1, path2},
+            });
+    filtered_paths_expect_eq(
+            {"empty_file", "main.c"},
+            fs::FilesFilter{
+                    .paths = {path1, path2},
+                    .types = {fs::FileType::regular}
+            });
+}
+
+// filter with types
+TEST(FsTest, FileCollectorWithTypes) {
+    let filter_path = fs::path(test_data_path()) / fs::path("filter");
+    filtered_paths_expect_eq(
+            {"soft_lint_to_man_fork.txt"},
+            fs::FilesFilter{
+                    .paths = {filter_path},
+                    .types = {fs::FileType::symlink}
+            });
+}
+
+// filter with size
+TEST(FsTest, FileCollectorWithSize) {
+    let filter_path = fs::path(test_data_path()) / fs::path("filter");
+    filtered_paths_expect_eq(
+            {"main.c", "man_printf.txt"},
+            fs::FilesFilter{
+                    .paths = {filter_path},
+                    .types = {fs::FileType::regular},
+                    .min_size = 20,
+                    .max_size = 2.8_KB,
+            });
+}
+
+TEST(FsTest, FileCollectorWithNames) {
+    {
+        let regex = std::regex("abc");
+        EXPECT_TRUE(std::regex_search("abcd", regex));
+        EXPECT_FALSE(std::regex_search("abdc", regex));
+    }
+    {
+        let regex = std::regex("a.*c");
+        EXPECT_TRUE(std::regex_search("abcd", regex));
+        EXPECT_TRUE(std::regex_search("abdc", regex));
+    }
+
+    {
+        let filter_path = fs::path(test_data_path()) / fs::path("filter");
+        filtered_paths_expect_eq(
+                {"man_printf.txt", "man_fork.txt", "hard_link_to_man_fork.txt"},
+                {
+                        .paths = {filter_path},
+                        .types = {fs::FileType::regular},
+                        .re_list = {"man"}
+                }
+        );
     }
 }
+
 
 TEST(FsTest, Inotify) {
     let test_path = test_data_path();

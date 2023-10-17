@@ -42,7 +42,8 @@ Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupC
 
     size_t total_size = 0;
 
-    let_mut iter = fs::FileCollector(src_path);
+    let_mut iter = zpods::fs::FileCollector{config.filter};
+//    let_mut iter = FileCollector{config.filter};
     const std::vector file_paths(iter.begin(), iter.end());
     std::vector<const char *> relative_paths;
     std::vector<size_t> data_sizes;

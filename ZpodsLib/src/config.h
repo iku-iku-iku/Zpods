@@ -8,6 +8,7 @@
 #include "pch.h"
 #include "fs.h"
 
+class zpath;
 namespace zpods {
 
     constexpr auto PODS_FILE_SUFFIX = ".pods";
@@ -57,16 +58,7 @@ namespace zpods {
         ///< the name of backup file,
         ///< if not set, default to ${src_path.filename()}.pods
         ///< will be overwritten by the real name after backup
-
-        struct Filter {
-            std::vector<fs::zpath> ignored_paths; ///< ignore these paths
-            std::vector<FileType> ignored_types; ///< ignore these types
-            std::vector<std::string> ignored_names; ///< ignore these names
-            uint64_t min_time; ///< only backup files that are modified after min_time
-            uint64_t max_time; ///< only backup files that are modified before max_time
-            uint64_t min_size; ///< only backup files that are larger than min_size
-            uint64_t max_size; ///< only backup files that are smaller than max_size
-        } filter;
+        fs::FilesFilter filter; ///< filter the files to backup
 
         auto get_header() const -> ZpodsHeader {
             let_mut header = ZpodsHeader();

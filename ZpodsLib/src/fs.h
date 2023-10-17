@@ -8,6 +8,7 @@
 #include "pch.h"
 #include <filesystem>
 #include <utility>
+#include <regex>
 
 #ifdef __linux__
 
@@ -50,7 +51,7 @@ namespace zpods {
             std::filesystem::remove_all(path);
         }
 
-        auto get_file_name(const char *path) -> const char*;
+        auto get_file_name(const char *path) -> const char *;
 
         auto get_base_name(const char *path) -> std::string;
 
@@ -80,28 +81,107 @@ namespace zpods {
 
         bool is_same_content(const char *path1, const char *path2);
 
+        using FileType = std::filesystem::file_type;
+
+        inline auto make_year_month_day(int year, int month, int day) {
+            return std::chrono::year_month_day(std::chrono::year(year), std::chrono::month(month),
+                                               std::chrono::day(day));
+        }
+
+        struct FilesFilter {
+            std::vector<zpath> paths; ///< paths to backup
+            std::unordered_set<FileType> types;  ///< types to backup
+            std::vector<std::string> re_list; // regular expressions
+            std::chrono::year_month_day min_date = make_year_month_day(0, 1, 1);
+            ///< only backup files that are modified after min_time
+            std::chrono::year_month_day max_date = make_year_month_day(9999, 12, 31);
+            ///< only backup files that are modified before max_time
+            uintmax_t min_size = 0; ///< only backup files that are larger than min_size
+            uintmax_t max_size = (uintmax_t) -1; ///< only backup files that are smaller than max_size
+        };
+
+
         class FileCollector {
         public:
             using iterator = std::vector<zpath>::iterator;
 
-            FileCollector(ref<std::string> path, FileType type = FileType::REGULAR_FILE) : type_(type) {
-                scan_path(path);
+            explicit FileCollector(FilesFilter filter) : filter_(std::move(filter)) {
+                for (const auto &item: filter_.paths) {
+                    scan_path(item);
+                }
             }
 
-            void scan_path(ref<std::string> path) {
-                if (!is_directory(path)) {
-                    if (type_ & FileType::REGULAR_FILE) {
-                        paths_.emplace_back(path);
-                    }
-                    return;
-                } else {
-                    if (type_ & FileType::DIRECTORY) {
-                        paths_.emplace_back(path);
+            inline auto file_time_to_date(std::filesystem::file_time_type time) {
+                let sys_time = decltype(time)::clock::to_sys(time);
+                let tt = std::chrono::system_clock::to_time_t(sys_time);
+                let tm = std::localtime(&tt);
+
+                let year = std::chrono::year(tm->tm_year + 1900);
+                let month = std::chrono::month(tm->tm_mon + 1);
+                let day = std::chrono::day(tm->tm_mday);
+
+                let date = std::chrono::year_month_day(year, month, day);
+                return date;
+            }
+
+            bool add_path(ref<std::string> path) {
+                if (path_set_.contains(path)) {
+                    return false;
+                }
+                let status = std::filesystem::symlink_status(path);
+                FileType type = status.type();
+
+                spdlog::debug("PATH: {}, TYPE: {}", path, (int) type);
+                if (!filter_.types.contains(type)) {
+                    return false;
+                }
+
+                uintmax_t bytes_cnt = 0;
+
+                if (status.type() != FileType::directory) {
+                    bytes_cnt = std::filesystem::file_size(path);
+                    if (bytes_cnt > filter_.max_size || bytes_cnt < filter_.min_size) {
+                        return false;
                     }
                 }
 
-                for (const auto &entry: directory_iterator(path)) {
-                    scan_path(entry.path());
+                std::filesystem::file_time_type time = std::filesystem::last_write_time(path);
+                let date = file_time_to_date(time);
+
+                if (date > filter_.max_date || date < filter_.min_date) {
+                    return false;
+                }
+
+                if (!filter_.re_list.empty()) {
+                    bool found = false;
+                    for (const auto &item: filter_.re_list) {
+                        if (std::regex_search(fs::path(path.c_str()).filename().c_str(), std::regex(item))) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        return false;
+                    }
+                }
+
+                spdlog::info("{}: {}-{}-{} size: {}", path, (int) date.year(), (unsigned) date.month(),
+                             (unsigned) date.day(), bytes_cnt);
+                path_set_.insert(path);
+                paths_.emplace_back(path);
+
+                return true;
+            }
+
+            void scan_path(ref<std::string> path) {
+                add_path(path);
+
+                // for non dir, no need to dfs
+                // for dir, continue to dfs
+                if (is_directory(path)) {
+                    for (const auto &entry: directory_iterator(path)) {
+                        scan_path(entry.path());
+                    }
                 }
             }
 
@@ -115,7 +195,8 @@ namespace zpods {
 
         private:
             std::vector<zpath> paths_;
-            FileType type_;
+            std::unordered_set<zpath> path_set_;
+            FilesFilter filter_;
         };
     }
 
@@ -133,7 +214,10 @@ namespace zpods {
 #ifdef __linux__
             fd_ = inotify_init();
             ZPODS_ASSERT(fd_ >= 0);
-            for (let_ref p: fs::FileCollector(path_, FileType::DIRECTORY)) {
+            fs::FilesFilter filter;
+            filter.paths.emplace_back(path_);
+            filter.types.insert(fs::FileType::directory);
+            for (let_ref p: fs::FileCollector(std::move(filter))) {
                 // add watch for all directories
                 add_watch_for(p.c_str());
             }
@@ -218,6 +302,32 @@ namespace zpods {
         std::unordered_map<fs::zpath, int> path_wd_map_;
         char buf_[1024];
     };
+
+}
+
+// 定义字面量函数
+constexpr unsigned long long operator"" _KB(unsigned long long x) {
+    return x * 1024;
+}
+
+constexpr unsigned long long operator"" _KB(long double x) {
+    return static_cast<unsigned long long>(x * 1024.0);
+}
+
+constexpr unsigned long long operator"" _MB(unsigned long long x) {
+    return x * 1024 * 1024;
+}
+
+constexpr unsigned long long operator"" _MB(long double x) {
+    return static_cast<unsigned long long>(x * 1024.0 * 1024.0);
+}
+
+constexpr unsigned long long operator"" _GB(unsigned long long x) {
+    return x * 1024 * 1024 * 1024;
+}
+
+constexpr unsigned long long operator"" _GB(long double x) {
+    return static_cast<unsigned long long>(x * 1024.0 * 1024.0 * 1024.0);
 }
 
 #endif //ZPODS_FS_H
