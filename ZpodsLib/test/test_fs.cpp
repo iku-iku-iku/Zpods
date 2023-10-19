@@ -110,7 +110,7 @@ TEST(FsTest, Inotify) {
         zpods::BackupConfig config;
         config.compress = true;
         config.crypto_config = zpods::CryptoConfig("123456");
-        zpods::backup(test_path, tmp_path, config);
+        zpods::backup(tmp_path, config);
     };
     FsWatcher watcher(test_path, {
             .on_file_create = callback,

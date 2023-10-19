@@ -9,7 +9,7 @@ TEST(BackupTest, BackupRestore) {
 
     zpods::BackupConfig config;
     config.compress = false;
-    let status1 = zpods::backup(src_path.c_str(), target_path, config);
+    let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
     let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
@@ -28,7 +28,7 @@ TEST(BackupTest, BackupRestoreCompression) {
 
     zpods::BackupConfig config;
     config.compress = true;
-    let status1 = zpods::backup(src_path.c_str(), target_path, config);
+    let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
     let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
@@ -45,7 +45,7 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
 
     // backup with password
     {
-        EXPECT_EQ(zpods::backup(src_path.c_str(), target_path, config),
+        EXPECT_EQ(zpods::backup(target_path, config),
                   zpods::Status::OK);
     }
 

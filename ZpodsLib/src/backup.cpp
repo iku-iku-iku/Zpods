@@ -40,21 +40,29 @@ namespace {
     }
 }
 
-Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
+Status zpods::backup(const char *target_dir, ref <BackupConfig> config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
-    let src = fs::path(src_path);
     let target = fs::path(target_dir);
 
-    // check src exist
-    if (!fs::exists(src.c_str())) {
-        return Status::ERROR;
+    // check src not empty
+    if (config.filter.paths.empty()) {
+        return Status::EMPTY;
     }
 
+    // check src exist
+    for (const auto &item: config.filter.paths) {
+        if (!fs::exists(item.c_str())) {
+            return Status::PATH_NOT_EXIST;
+        }
+    }
+
+    // decide backup file name
     if (!config.backup_filename.has_value()) {
-        config.backup_filename = fmt::format("{}{}", src.filename().c_str(),
+        config.backup_filename = fmt::format("{}{}", config.filter.paths[0].filename().c_str(),
                                              PODS_FILE_SUFFIX);
     }
+
     let archive_path = target / *config.backup_filename;
 
     // remove target
@@ -63,7 +71,7 @@ Status zpods::backup(const char *src_path, const char *target_dir, ref <BackupCo
     }
 
     // 1. archive files of src_path to a single file in target_dir
-    zpods::archive(src_path, target_dir, config);
+    zpods::archive(target_dir, config);
     ZPODS_ASSERT(config.backup_filename.has_value());
 
     let_mut bytes = fs::read_from_file(archive_path.c_str());
@@ -178,21 +186,30 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
     return Status::OK;
 }
 
-Status zpods::sync_backup(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
+Status zpods::sync_backup(const char *target_dir, ref <BackupConfig> config) {
     // make sure the backup file is up-to-date
-    zpods::backup(src_path, target_dir, config);
+    zpods::backup(target_dir, config);
 
     // backup callback if the src_path is modified
     let callback = [&](const char *path) {
-        zpods::backup(src_path, target_dir, config);
+        zpods::backup(target_dir, config);
     };
 
-    FsWatcher watcher(src_path, {
-            .on_file_create = callback,
-            .on_file_delete = callback,
-            .on_file_modify = callback,
-            .on_dir_create = callback,
-            .on_dir_delete = callback,
-    });
+    // create a watcher in a thread for each path
+    std::vector<std::thread> threads;
+    threads.reserve(config.filter.paths.size());
+    for (let_ref path: config.filter.paths) {
+        threads.emplace_back([=] {
+            FsWatcher watcher(path.c_str(), {
+                    .on_file_create = callback,
+                    .on_file_delete = callback,
+                    .on_file_modify = callback,
+                    .on_dir_create = callback,
+                    .on_dir_delete = callback,
+            });
+        });
+    }
+    for (let_mut_ref item: threads) { item.join(); }
+
     return Status::OK;
 }

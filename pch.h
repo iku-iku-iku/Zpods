@@ -26,12 +26,14 @@ namespace zpods {
     enum class Status : std::uint8_t {
         OK,
         ERROR,
+        PATH_NOT_EXIST,
         PASSWORD_NEEDED,
         NOT_ZPODS_FILE,
         CHECKSUM_ERROR,
         USER_ALREADY_EXISTS,
         USER_NOT_EXISTS,
         WRONG_PASSWORD,
+        EMPTY,
     };
 
 //    enum class FileType : std::uint8_t {

@@ -36,24 +36,26 @@ namespace {
     }
 }
 
-Status zpods::archive(const char *src_path, const char *target_dir, ref <BackupConfig> config) {
+Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
 
     size_t total_size = 0;
 
-    let_mut iter = zpods::fs::FileCollector{config.filter};
+    let_mut collector = zpods::fs::FileCollector{config.filter};
 //    let_mut iter = FileCollector{config.filter};
-    const std::vector file_paths(iter.begin(), iter.end());
+    const std::vector file_paths(collector.begin(), collector.end());
     std::vector<const char *> relative_paths;
     std::vector<size_t> data_sizes;
     std::vector<size_t> path_sizes;
 
     let file_cnt = file_paths.size();
-    ZPODS_ASSERT(src_path[strlen(src_path) - 1] != '/');
-    let base = fs::get_base_name(src_path);
+    for (const auto &item: config.filter.paths) {
+        ZPODS_ASSERT(item.c_str()[strlen(item.c_str()) - 1] != '/');
+    }
+
     for (let_ref path: file_paths) {
-        let rel = fs::relative(path.c_str(), base.c_str());
+        let rel = fs::relative(path.c_str(), collector.get_base(path).c_str());
         relative_paths.push_back(rel);
         spdlog::info("archived file {}", rel);
         data_sizes.push_back(fs::get_file_size(path));

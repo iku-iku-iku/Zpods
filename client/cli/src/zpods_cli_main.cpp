@@ -41,11 +41,13 @@ int main(int argc, char **argv) {
     CLI::App *backup = app.add_subcommand("backup", "backup a directory (or a file) to a single file");
     CLI::App *restore = app.add_subcommand("restore", "restore a archive file to a directory");
 
-    std::string src_path;
+    std::string src_path_list;
     std::string target_dir;
     std::string password;
     zpods::BackupConfig config;
     zpods::User user;
+    std::string min_date;
+    std::string max_date;
     int interval = -1;
 
     // register
@@ -63,7 +65,7 @@ int main(int argc, char **argv) {
     });
 
     // backup
-    backup->add_option("-s,--src", src_path, "source path")->required();
+    backup->add_option("-s,--src-list", src_path_list, "source path")->required();
     backup->add_option("-t,--target", target_dir, "target directory")->required();
 
     let compress = backup->add_flag("-c,--compress", "compress the backup file");
@@ -72,7 +74,43 @@ int main(int argc, char **argv) {
     let encrypt_password = backup->add_option("-p,--password", password, "password for encryption/decryption");
     let periodic = backup->add_option("-i,--interval", interval, "interval for periodic backup (in seconds)");
 
+    let min_size_opt = backup->add_option("-min,--min-size", config.filter.min_size, "minimum size of file to be backed up");
+    let max_size_opt = backup->add_option("-max,--max-size", config.filter.max_size, "maximum size of file to be backed up");
+    let min_date_opt = backup->add_option("-min-date", min_date, "minimum date of file to be backed up");
+    let max_date_opt = backup->add_option("-max-date", max_date, "maximum date of file to be backed up");
+
     backup->callback([&] {
+        // config path
+        std::vector<std::string> src_paths;
+        if (src_path_list.empty()) {
+            spdlog::error("src path list is empty!");
+            return;
+        }
+        std::string_view sv = src_path_list;
+        while (!sv.empty()) {
+            let pos = sv.find(',');
+            if (pos == std::string_view::npos) {
+                src_paths.emplace_back(sv);
+                break;
+            }
+            src_paths.emplace_back(sv.substr(0, pos));
+            sv = sv.substr(pos + 1);
+        }
+        config.filter.paths = std::vector<zpods::fs::zpath>(src_paths.begin(), src_paths.end());
+        // config date
+        if (*min_date_opt) {
+            let year = std::stoi(min_date.substr(0, 4));
+            let month = std::stoi(min_date.substr(5, 2));
+            let day = std::stoi(min_date.substr(8, 2));
+            config.filter.min_date = zpods::fs::make_year_month_day(year, month, day);
+        }
+        if (*max_date_opt) {
+            let year = std::stoi(max_date.substr(0, 4));
+            let month = std::stoi(max_date.substr(5, 2));
+            let day = std::stoi(max_date.substr(8, 2));
+            config.filter.max_date = zpods::fs::make_year_month_day(year, month, day);
+        }
+
         // login
         if (*remote) {
             user.username = get_username();
@@ -105,9 +143,9 @@ int main(int argc, char **argv) {
                 config.compress = true;
             }
             if (*sync) {
-                zpods::sync_backup(src_path.c_str(), target_dir.c_str(), config);
+                zpods::sync_backup(target_dir.c_str(), config);
             } else {
-                zpods::backup(src_path.c_str(), target_dir.c_str(), config);
+                zpods::backup(target_dir.c_str(), config);
             }
             let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.backup_filename->c_str());
 

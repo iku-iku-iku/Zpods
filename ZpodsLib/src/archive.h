@@ -15,7 +15,7 @@ namespace zpods {
      * @param target_dir the directory to store the archived file
      * @return Status::OK if success, otherwise Status::ERROR
      */
-    Status archive(const char *src_path, const char *target_dir, ref<BackupConfig> config = {});
+    Status archive(const char *target_dir, ref<BackupConfig> config = {});
 
     /*
      * @brief unarchive a archive file indicated by src_path to a directory in target_dir

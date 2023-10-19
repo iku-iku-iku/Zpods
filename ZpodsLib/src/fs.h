@@ -107,6 +107,8 @@ namespace zpods {
 
             explicit FileCollector(FilesFilter filter) : filter_(std::move(filter)) {
                 for (const auto &item: filter_.paths) {
+                    parent_.insert({item, item});
+                    root_ = item;
                     scan_path(item);
                 }
             }
@@ -170,7 +172,21 @@ namespace zpods {
                 path_set_.insert(path);
                 paths_.emplace_back(path);
 
+                if (parent_.count(path) == 0) {
+                    parent_.insert({path, root_});
+                } else {
+                    if (strlen(parent_[path].c_str()) > strlen(root_.c_str())) {
+                        parent_[path] = root_;
+                    }
+                }
+
                 return true;
+            }
+
+            auto get_base(zpath path) const {
+                let it = parent_.find(path);
+                ZPODS_ASSERT(it != parent_.end());
+                return it->second;
             }
 
             void scan_path(ref<std::string> path) {
@@ -197,6 +213,8 @@ namespace zpods {
             std::vector<zpath> paths_;
             std::unordered_set<zpath> path_set_;
             FilesFilter filter_;
+            std::unordered_map<zpath, zpath> parent_;
+            zpath root_;
         };
     }
 
@@ -306,27 +324,27 @@ namespace zpods {
 }
 
 // 定义字面量函数
-constexpr unsigned long long operator"" _KB(unsigned long long x) {
+constexpr unsigned long long operator "" _KB(unsigned long long x) {
     return x * 1024;
 }
 
-constexpr unsigned long long operator"" _KB(long double x) {
+constexpr unsigned long long operator "" _KB(long double x) {
     return static_cast<unsigned long long>(x * 1024.0);
 }
 
-constexpr unsigned long long operator"" _MB(unsigned long long x) {
+constexpr unsigned long long operator "" _MB(unsigned long long x) {
     return x * 1024 * 1024;
 }
 
-constexpr unsigned long long operator"" _MB(long double x) {
+constexpr unsigned long long operator "" _MB(long double x) {
     return static_cast<unsigned long long>(x * 1024.0 * 1024.0);
 }
 
-constexpr unsigned long long operator"" _GB(unsigned long long x) {
+constexpr unsigned long long operator "" _GB(unsigned long long x) {
     return x * 1024 * 1024 * 1024;
 }
 
-constexpr unsigned long long operator"" _GB(long double x) {
+constexpr unsigned long long operator "" _GB(long double x) {
     return static_cast<unsigned long long>(x * 1024.0 * 1024.0 * 1024.0);
 }
 

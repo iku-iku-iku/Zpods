@@ -38,15 +38,6 @@ auto zpods::fs::relative(const char *path, const char *base) -> const char * {
 
     ZPODS_ASSERT(is_directory(base));
 
-//            if (strlen(path) == len && !is_directory(base)) {
-//                let_mut ret = path;
-//                while (*path) {
-//                    if (*path == '/') ret = path + 1;
-//                    path++;
-//                }
-//                return ret;
-//            }
-
     if (strncmp(path, base, len) == 0) {
         return path + len + 1;
     }
