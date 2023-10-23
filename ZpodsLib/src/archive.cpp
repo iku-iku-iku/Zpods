@@ -4,37 +4,9 @@
 
 #include "archive.h"
 #include "fs.h"
+#include "zpods_core.h"
 
 using namespace zpods;
-
-namespace {
-    struct Header {
-        size_t data_len;
-        uint8_t path_len;
-        char path[];
-
-        static constexpr auto real_size() {
-            return sizeof(Header::data_len) + sizeof(Header::path_len);
-        }
-
-        auto get_path() {
-            let p = reinterpret_cast<const char *>(this) + real_size();
-            return std::string_view(p, path_len);
-        }
-
-        [[nodiscard]] auto size() const {
-            return real_size() + path_len;
-        }
-
-        [[nodiscard]] auto empty() const {
-            return data_len == 0 && path_len == 0;
-        }
-    };
-
-    auto as_header(auto *p) {
-        return reinterpret_cast<Header *>(p);
-    }
-}
 
 Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
     fs::create_directory_if_not_exist(target_dir);
@@ -62,7 +34,7 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
         path_sizes.push_back(strlen(rel));
     }
 
-    constexpr let header_size = Header::real_size();
+    constexpr let header_size = PodHeader::real_size();
     total_size += std::accumulate(data_sizes.begin(), data_sizes.end(), 0ul);
     total_size += std::accumulate(path_sizes.begin(), path_sizes.end(), 0ul);
     total_size += (file_cnt + 1) * header_size;
@@ -73,9 +45,9 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
     p_byte p = buffer.data();
 
     for (size_t i = 0; i < file_cnt; i++) {
-        *as_header(p) = {data_sizes[i], static_cast<uint8_t>(path_sizes[i])};
+        *PodHeader::as_header(p) = {data_sizes[i], static_cast<uint8_t>(path_sizes[i])};
         memcpy(p + header_size, relative_paths[i], path_sizes[i]);
-        p += as_header(p)->size();
+        p += PodHeader::as_header(p)->size();
         std::ifstream ifs(file_paths[i]);
         ifs.read((char *) p, (long) data_sizes[i]);
         p += data_sizes[i];
@@ -102,25 +74,18 @@ Status zpods::unarchive(const char *src_path, const char *target_dir) {
 }
 
 Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
-    let_mut p = src_bytes.data();
-    Header *header;
-    while (!(header = as_header(p))->empty()) {
-        p += header->size();
-        let file_size = header->data_len;
-        let file_name = header->get_path();
-        let path_name = fmt::format("{}/{}", target_dir, file_name);
-        spdlog::info("unarchived file {}", file_name);
+    return foreach_file_in_zpods_bytes(src_bytes.data(), [&](auto &path, auto bytes) {
+        let full_path = fs::path(target_dir) / path;
+        spdlog::info("unarchived file {}", full_path.c_str());
 
-        let base_name = fs::get_base_name(path_name.c_str());
+        let base_name = fs::get_base_name(full_path.c_str());
 
         fs::create_directory_if_not_exist(base_name.c_str());
 
-        std::ofstream ofs(path_name);
-
+        std::ofstream ofs(full_path);
         ZPODS_ASSERT(ofs.is_open());
-        ofs.write((char *) p, (long) file_size);
-        p += header->data_len;
-    }
 
-    return Status::OK;
+        ofs.write((char *) bytes.data(), bytes.size());
+        return Status::OK;
+    });
 }

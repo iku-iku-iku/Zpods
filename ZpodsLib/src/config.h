@@ -43,6 +43,33 @@ namespace zpods {
         byte backup_policy = 0;
     };
 
+    struct PodHeader {
+        size_t data_len;
+        uint8_t path_len;
+        char path[];
+
+        static auto as_header(auto*p )  {
+            return reinterpret_cast<PodHeader*>(p);
+        }
+
+        static constexpr auto real_size() {
+            return sizeof(PodHeader::data_len) + sizeof(PodHeader::path_len);
+        }
+
+        auto get_path() {
+            let p = reinterpret_cast<const char *>(this) + real_size();
+            return std::string(p, path_len);
+        }
+
+        [[nodiscard]] auto size() const {
+            return real_size() + path_len;
+        }
+
+        [[nodiscard]] auto empty() const {
+            return data_len == 0 && path_len == 0;
+        }
+    };
+
     struct BackupConfig {
         enum /* class BackupPolicy */: uint8_t {
             NONE = 0,

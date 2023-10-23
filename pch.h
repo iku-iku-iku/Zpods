@@ -110,6 +110,10 @@ namespace zpods {
     using p_cbyte = const byte *;
     using p_byte = byte *;
 
+    inline auto as_p_byte(auto* p) {
+        return (byte*)(p);
+    }
+
     constexpr auto BYTE_BITS = 8;
 
     inline constexpr const char *project_path() {

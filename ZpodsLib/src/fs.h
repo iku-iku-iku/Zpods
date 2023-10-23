@@ -67,6 +67,20 @@ namespace zpods {
             return std::filesystem::directory_iterator(path);
         }
 
+        // given a file: xx/yy/zz, retrieve all files like: xx/yy/zz*
+        inline auto get_file_family(const char* file_path) {
+            std::vector<zpath> paths;
+            let dir = path(file_path).parent_path();
+
+            for (const auto &entry: directory_iterator(dir)) {
+                if (strstr(entry.path().c_str(), file_path)) {
+                    paths.push_back(entry.path());
+                }
+            }
+
+            return paths;
+        }
+
         inline auto get_file_size(ref<zpath> path) {
             return std::filesystem::file_size(path);
         }
