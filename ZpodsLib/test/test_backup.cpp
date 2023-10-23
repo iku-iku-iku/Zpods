@@ -33,6 +33,21 @@ TEST(BackupTest, BackupRestoreMultiPath) {
     EXPECT_EQ(status2, zpods::Status::OK);
 }
 
+TEST(BackupTest, BackupRestoreSoftLink) {
+    auto src_path = fmt::format("{}/filter", zpods::test_data_path());
+    auto target_path = zpods::temp_path();
+
+    zpods::BackupConfig config;
+    config.compress = false;
+    config.filter.types.emplace(zpods::fs::FileType::symlink);
+    config.filter.paths.emplace_back(src_path);
+    let status1 = zpods::backup(target_path, config);
+    EXPECT_EQ(status1, zpods::Status::OK);
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
+    EXPECT_EQ(status2, zpods::Status::OK);
+}
+
 TEST(BackupTest, Magic) {
     // read the magic number to check whether it is a zpods file
     let src_path = fmt::format("{}/single/man_pthreads.txt", zpods::test_data_path());
