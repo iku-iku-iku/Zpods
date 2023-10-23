@@ -9,6 +9,23 @@ TEST(BackupTest, BackupRestore) {
 
     zpods::BackupConfig config;
     config.compress = false;
+    config.filter.paths.emplace_back(src_path);
+    let status1 = zpods::backup(target_path, config);
+    EXPECT_EQ(status1, zpods::Status::OK);
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
+    EXPECT_EQ(status2, zpods::Status::OK);
+}
+
+TEST(BackupTest, BackupRestoreMultiPath) {
+    auto src_path1 = fmt::format("{}/recursive", zpods::test_data_path());
+    auto src_path2 = fmt::format("{}/middle", zpods::test_data_path());
+    auto target_path = zpods::temp_path();
+
+    zpods::BackupConfig config;
+    config.compress = false;
+    config.filter.paths.emplace_back(src_path1);
+    config.filter.paths.emplace_back(src_path2);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
     let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
@@ -17,6 +34,7 @@ TEST(BackupTest, BackupRestore) {
 }
 
 TEST(BackupTest, Magic) {
+    // read the magic number to check whether it is a zpods file
     let src_path = fmt::format("{}/single/man_pthreads.txt", zpods::test_data_path());
     EXPECT_EQ(zpods::restore(src_path.c_str(), zpods::temp_path()),
               zpods::Status::NOT_ZPODS_FILE);
@@ -28,6 +46,7 @@ TEST(BackupTest, BackupRestoreCompression) {
 
     zpods::BackupConfig config;
     config.compress = true;
+    config.filter.paths.emplace_back(src_path);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
     let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
@@ -42,6 +61,7 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
     zpods::BackupConfig config;
     config.compress = true;
     config.crypto_config = zpods::CryptoConfig("123456");
+    config.filter.paths.emplace_back(src_path);
 
     // backup with password
     {

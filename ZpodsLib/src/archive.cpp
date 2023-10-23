@@ -55,7 +55,7 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
     }
 
     for (let_ref path: file_paths) {
-        let rel = fs::relative(path.c_str(), collector.get_base(path).c_str());
+        let rel = collector.get_relative_path(path);
         relative_paths.push_back(rel);
         spdlog::info("archived file {}", rel);
         data_sizes.push_back(fs::get_file_size(path));

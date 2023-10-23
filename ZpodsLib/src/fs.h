@@ -90,7 +90,7 @@ namespace zpods {
 
         struct FilesFilter {
             std::vector<zpath> paths; ///< paths to backup
-            std::unordered_set<FileType> types;  ///< types to backup
+            std::unordered_set<FileType> types{FileType::regular};  ///< types to backup
             std::vector<std::string> re_list; // regular expressions
             std::chrono::year_month_day min_date = make_year_month_day(0, 1, 1);
             ///< only backup files that are modified after min_time
@@ -107,13 +107,13 @@ namespace zpods {
 
             explicit FileCollector(FilesFilter filter) : filter_(std::move(filter)) {
                 for (const auto &item: filter_.paths) {
-                    parent_.insert({item, item});
-                    root_ = item;
+                    base_map_.insert({item, item});
+                    current_root_ = item;
                     scan_path(item);
                 }
             }
 
-            inline auto file_time_to_date(std::filesystem::file_time_type time) {
+            static inline auto file_time_to_date(std::filesystem::file_time_type time) {
                 let sys_time = decltype(time)::clock::to_sys(time);
                 let tt = std::chrono::system_clock::to_time_t(sys_time);
                 let tm = std::localtime(&tt);
@@ -134,10 +134,13 @@ namespace zpods {
                 FileType type = status.type();
 
                 spdlog::debug("PATH: {}, TYPE: {}", path, (int) type);
+
+                // filter with file type
                 if (!filter_.types.contains(type)) {
                     return false;
                 }
 
+                // filter with size
                 uintmax_t bytes_cnt = 0;
 
                 if (status.type() != FileType::directory) {
@@ -147,6 +150,7 @@ namespace zpods {
                     }
                 }
 
+                // filter with date
                 std::filesystem::file_time_type time = std::filesystem::last_write_time(path);
                 let date = file_time_to_date(time);
 
@@ -154,6 +158,7 @@ namespace zpods {
                     return false;
                 }
 
+                // filter with names
                 if (!filter_.re_list.empty()) {
                     bool found = false;
                     for (const auto &item: filter_.re_list) {
@@ -172,21 +177,21 @@ namespace zpods {
                 path_set_.insert(path);
                 paths_.emplace_back(path);
 
-                if (parent_.count(path) == 0) {
-                    parent_.insert({path, root_});
+                if (base_map_.count(path) == 0) {
+                    base_map_.insert({path, current_root_});
                 } else {
-                    if (strlen(parent_[path].c_str()) > strlen(root_.c_str())) {
-                        parent_[path] = root_;
+                    if (strlen(base_map_[path].c_str()) > strlen(current_root_.c_str())) {
+                        base_map_[path] = current_root_;
                     }
                 }
 
                 return true;
             }
 
-            auto get_base(zpath path) const {
-                let it = parent_.find(path);
-                ZPODS_ASSERT(it != parent_.end());
-                return it->second;
+            auto get_relative_path(ref<zpath> path) const {
+                let it = base_map_.find(path);
+                ZPODS_ASSERT(it != base_map_.end());
+                return fs::relative(path.c_str(), it->second.parent_path().c_str());
             }
 
             void scan_path(ref<std::string> path) {
@@ -213,8 +218,8 @@ namespace zpods {
             std::vector<zpath> paths_;
             std::unordered_set<zpath> path_set_;
             FilesFilter filter_;
-            std::unordered_map<zpath, zpath> parent_;
-            zpath root_;
+            std::unordered_map<zpath, zpath> base_map_;
+            zpath current_root_;
         };
     }
 

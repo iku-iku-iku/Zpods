@@ -134,7 +134,6 @@ int main(int argc, char **argv) {
             }
         }
 
-
         do {
             if (*encrypt_password) {
                 config.crypto_config = zpods::CryptoConfig(password);
@@ -165,6 +164,7 @@ int main(int argc, char **argv) {
     });
 
     // restore
+    std::string src_path;
     restore->add_option("-s,--src", src_path, "source path")->required();
 
     restore->add_option("-t,--target", target_dir, "target directory")->required();

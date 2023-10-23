@@ -102,7 +102,9 @@ Status zpods::backup(const char *target_dir, ref <BackupConfig> config) {
 
         let_mut header = config.get_header();
         calculate_checksum(header.checksum, {(p_byte) bytes.data(), bytes.size()});
-        calculate_password_verify_token(header, config.crypto_config->key_);
+        if (config.crypto_config) {
+            calculate_password_verify_token(header, config.crypto_config->key_);
+        }
         ofs.write(as_c_str(header), sizeof(header));
         ofs << bytes;
     }
@@ -149,8 +151,8 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
         }
     }
 
-    // check password validity
-    {
+    // check password validity if encrypted
+    if (header.backup_policy & BackupConfig::ENCRYPT) {
         let current_password_verify_token = std::string{as_c_str(header.password_verify_token),
                                                         sizeof(header.password_verify_token)};
         calculate_password_verify_token(header, config.crypto_config->key_);
