@@ -14,6 +14,10 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
 
     size_t total_size = 0;
 
+    if (config.filter.paths.empty()) {
+        return Status::EMPTY;
+    }
+
     let_mut collector = zpods::fs::FileCollector{config.filter};
 //    let_mut iter = FileCollector{config.filter};
     const std::vector file_paths(collector.begin(), collector.end());
@@ -66,6 +70,10 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
 Status zpods::unarchive(const char *src_path, const char *target_dir) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
+
+    if (!fs::exists(src_path)) {
+        return Status::PATH_NOT_EXIST;
+    }
     ZPODS_ASSERT(!fs::is_directory(src_path));
 
     let content = fs::read_from_file(src_path);

@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     CLI::App *backup = app.add_subcommand("backup", "backup a directory (or a file) to a single file");
     CLI::App *restore = app.add_subcommand("restore", "restore a archive file to a directory");
 
-    std::string src_path_list;
+    std::vector<std::string> src_path_list;
     std::string target_dir;
     std::string password;
     zpods::BackupConfig config;
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     });
 
     // backup
-    backup->add_option("-s,--src-list", src_path_list, "source path")->required();
+    backup->add_option("-s,--src-list", src_path_list, "a list of source paths, separated by spaces")->required();
     backup->add_option("-t,--target", target_dir, "target directory")->required();
 
     let compress = backup->add_flag("-c,--compress", "compress the backup file");
@@ -74,29 +74,29 @@ int main(int argc, char **argv) {
     let encrypt_password = backup->add_option("-p,--password", password, "password for encryption/decryption");
     let periodic = backup->add_option("-i,--interval", interval, "interval for periodic backup (in seconds)");
 
-    let min_size_opt = backup->add_option("-min,--min-size", config.filter.min_size, "minimum size of file to be backed up");
-    let max_size_opt = backup->add_option("-max,--max-size", config.filter.max_size, "maximum size of file to be backed up");
-    let min_date_opt = backup->add_option("-min-date", min_date, "minimum date of file to be backed up");
-    let max_date_opt = backup->add_option("-max-date", max_date, "maximum date of file to be backed up");
+    (void) backup->add_option("--min-size", config.filter.min_size, "minimum size of file to be backed up");
+    (void) backup->add_option("--max-size", config.filter.max_size, "maximum size of file to be backed up");
+    let min_date_opt = backup->add_option("--min-date", min_date,
+                                          "minimum date of file to be backed up, like '2023-10-24'");
+    let max_date_opt = backup->add_option("--max-date", max_date,
+                                          "maximum date of file to be backed up, like '2023-10-24'");
 
     backup->callback([&] {
-        // config path
-        std::vector<std::string> src_paths;
+        if (!zpods::fs::is_directory(target_dir)) {
+            let target_path = zpods::fs::path(target_dir.c_str());
+            config.backup_filename = target_path.filename();
+            target_dir = target_path.parent_path();
+        }
+        // config paths
         if (src_path_list.empty()) {
             spdlog::error("src path list is empty!");
             return;
         }
-        std::string_view sv = src_path_list;
-        while (!sv.empty()) {
-            let pos = sv.find(',');
-            if (pos == std::string_view::npos) {
-                src_paths.emplace_back(sv);
-                break;
-            }
-            src_paths.emplace_back(sv.substr(0, pos));
-            sv = sv.substr(pos + 1);
+        if (src_path_list.size() > 1 && !config.backup_filename.has_value()) {
+            spdlog::error("you specified multiple src paths, but you didn't specify the target backup filename");
+            return;
         }
-        config.filter.paths = std::vector<zpods::fs::zpath>(src_paths.begin(), src_paths.end());
+        config.filter.paths = std::vector<zpods::fs::zpath>(src_path_list.begin(), src_path_list.end());
         // config date
         if (*min_date_opt) {
             let year = std::stoi(min_date.substr(0, 4));
