@@ -28,7 +28,7 @@ make test
 ## install cli
 ``` sh
 # the following command with install cli in /usr/local/bin (which is in $PATH),
-# so you can directly use 'zpods.cli' without specify the path
+# so you can directly use 'zpods.cli' without specifying the path
 sudo make install_cli
 ```
 
