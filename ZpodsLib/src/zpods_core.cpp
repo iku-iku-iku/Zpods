@@ -114,14 +114,14 @@ Status zpods::process_origin_zpods_bytes(const char *path, ref_mut <BackupConfig
     return func(bytes);
 }
 
-Status zpods::foreach_file_in_zpods_file(const char *path, ref_mut <BackupConfig> config,
-                                         ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func) {
-    return process_origin_zpods_bytes(path, config, [&](auto &bytes) {
-        return foreach_file_in_zpods_bytes(as_p_byte(bytes.c_str()), func);
-    });
-}
+//Status zpods::foreach_file_in_zpods_file(const char *path, ref_mut <BackupConfig> config,
+//                                         ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func) {
+//    return process_origin_zpods_bytes(path, config, [&](auto &bytes) {
+//        return foreach_file_in_zpods_bytes(as_p_byte(bytes.c_str()), func);
+//    });
+//}
 
-void zpods::calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref<std::string> password) {
+void zpods::calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <std::string> password) {
     let_mut cipher = zpods::encrypt(
             {as_c_str(header), sizeof(header)},
             password,
@@ -131,17 +131,18 @@ void zpods::calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref<st
     memcpy(header.password_verify_token, cipher->c_str(), sizeof(header.password_verify_token));
 }
 
-Status zpods::foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func) {
+Status zpods::foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref < PodHeader > )>> func) {
     let_mut p = bytes;
     PodHeader *header;
     while (!(header = PodHeader::as_header(p))->empty()) {
-        p += header->size();
-        let file_size = header->data_len;
-        let rel_path = header->get_path();
+        {
+            let st = func(*header);
+            if (st != Status::OK) {
+                return st;
+            }
+        }
 
-        func(fs::path(rel_path.c_str()), {as_c_str(p), file_size});
-
-        p += header->data_len;
+        p += header->size() + header->data_len;
     }
     return Status::OK;
 }

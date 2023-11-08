@@ -29,7 +29,7 @@ Status zpods::backup(const char *target_dir, ref <BackupConfig> config) {
         }
     }
 
-    // decide backup file name
+    // if not specified backup file name, deduce from path
     if (!config.backup_filename.has_value()) {
         config.backup_filename = fmt::format("{}{}", config.filter.paths[0].filename().c_str(),
                                              PODS_FILE_SUFFIX);
@@ -38,10 +38,14 @@ Status zpods::backup(const char *target_dir, ref <BackupConfig> config) {
     let archive_path = target / *config.backup_filename;
 
     // delta backup
-    if (fs::exists(target.c_str())) {
+    if (fs::exists(archive_path.c_str())) {
         // need delta backup
-        // get paths from backup file and all delta backup files
-        fs::get_file_family(target.c_str());
+        if (config.delta_backup) {
+            // get paths from backup file and all delta backup files
+            fs::get_file_family(archive_path.c_str());
+        } else {
+            fs::remove_file(archive_path.c_str());
+        }
     }
 
     // 1. archive files of src_path to a single file in target_dir

@@ -47,8 +47,12 @@ namespace zpods {
             }
         }
 
+        inline auto remove_file(const char* path) {
+            return std::filesystem::remove(path);
+        }
+
         inline auto remove_all(const char *path) {
-            std::filesystem::remove_all(path);
+            return std::filesystem::remove_all(path);
         }
 
         auto get_file_name(const char *path) -> const char *;
@@ -67,7 +71,7 @@ namespace zpods {
             return std::filesystem::directory_iterator(path);
         }
 
-        // given a file: xx/yy/zz, retrieve all files like: xx/yy/zz*
+        // given a file with path: "xx/yy/zz", retrieve all files with path like: "xx/yy/zz*"
         inline auto get_file_family(const char* file_path) {
             std::vector<zpath> paths;
             let dir = path(file_path).parent_path();

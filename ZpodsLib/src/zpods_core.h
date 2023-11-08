@@ -13,8 +13,10 @@
 namespace zpods {
 
     inline constexpr auto CHECKSUM_SIZE = ZpodsHeader::CHECKSUM_SIZE;
+
     void calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> bytes);
-    void calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref<std::string> password);
+
+    void calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <std::string> password);
 
 
     Status read_zpods_file(const char *path, zpods::ZpodsHeader &header, std::string &bytes);
@@ -22,8 +24,10 @@ namespace zpods {
     Status process_origin_zpods_bytes(const char *path, ref_mut <BackupConfig> config,
                                       ref <std::function<Status(std::string & )>> func);
 
-    Status foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func);
-    Status foreach_file_in_zpods_file(const char *path, ref_mut<BackupConfig> config, ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func);
+    Status foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref<PodHeader>)>> func);
+
+//    Status foreach_file_in_zpods_file(const char *path, ref_mut <BackupConfig> config,
+//                                      ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func);
 }
 
 #endif //ZPODS_ZPODS_CORE_H

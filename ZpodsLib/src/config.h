@@ -44,25 +44,33 @@ namespace zpods {
     };
 
     struct PodHeader {
+        constexpr static auto CHECKSUM_SIZE = 16;
+
         size_t data_len;
         uint8_t path_len;
+        byte checksum[CHECKSUM_SIZE];
         char path[];
 
-        static auto as_header(auto*p )  {
-            return reinterpret_cast<PodHeader*>(p);
+        static auto as_header(auto *p) {
+            return reinterpret_cast<PodHeader *>(p);
         }
 
-        static constexpr auto real_size() {
-            return sizeof(PodHeader::data_len) + sizeof(PodHeader::path_len);
+        static constexpr auto compact_size() {
+            return sizeof(PodHeader::data_len) + sizeof(PodHeader::path_len) + sizeof(checksum);
         }
 
-        auto get_path() {
-            let p = reinterpret_cast<const char *>(this) + real_size();
+        auto get_path() const {
+            let p = reinterpret_cast<const char *>(this) + compact_size();
             return std::string(p, path_len);
         }
 
         [[nodiscard]] auto size() const {
-            return real_size() + path_len;
+            return compact_size() + path_len;
+        }
+
+        auto get_data() -> std::string_view const {
+            let p = as_c_str(this);
+            return {p + size(), data_len};
         }
 
         [[nodiscard]] auto empty() const {
@@ -78,6 +86,8 @@ namespace zpods {
         };
 
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
+
+        bool delta_backup = false;
 
         bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file

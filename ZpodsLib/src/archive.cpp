@@ -38,7 +38,7 @@ Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
         path_sizes.push_back(strlen(rel));
     }
 
-    constexpr let header_size = PodHeader::real_size();
+    constexpr let header_size = PodHeader::compact_size();
     total_size += std::accumulate(data_sizes.begin(), data_sizes.end(), 0ul);
     total_size += std::accumulate(path_sizes.begin(), path_sizes.end(), 0ul);
     total_size += (file_cnt + 1) * header_size;
@@ -82,7 +82,8 @@ Status zpods::unarchive(const char *src_path, const char *target_dir) {
 }
 
 Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
-    return foreach_file_in_zpods_bytes(src_bytes.data(), [&](auto &path, auto bytes) {
+    return foreach_file_in_zpods_bytes(src_bytes.data(), [&](ref<PodHeader> header) {
+        let path = header.get_path();
         let full_path = fs::path(target_dir) / path;
         spdlog::info("unarchived file {}", full_path.c_str());
 
@@ -93,6 +94,7 @@ Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
         std::ofstream ofs(full_path);
         ZPODS_ASSERT(ofs.is_open());
 
+        let bytes = header.get_path();
         ofs.write((char *) bytes.data(), bytes.size());
         return Status::OK;
     });

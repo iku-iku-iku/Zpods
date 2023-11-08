@@ -7,6 +7,7 @@
 #include "zpods_lib.h"
 
 using namespace zpods;
+using namespace zpods::fs;
 
 TEST(FsTest, BasicTest) {
     std::string path = test_data_path();
@@ -19,6 +20,11 @@ TEST(FsTest, BasicTest) {
     EXPECT_STREQ(fs::get_base_name("/home/a.txt").c_str(), "/home");
     EXPECT_TRUE(fs::exists("/home"));
     EXPECT_FALSE(fs::exists("/me"));
+}
+
+TEST(FsTest, DeltaBackupTest) {
+    let file_path = path(test_data_path()) / path("tiny/a.txt");
+    EXPECT_EQ(2, get_file_family(file_path.c_str()).size());
 }
 
 auto filtered_paths_expect_eq(std::unordered_set<std::string> paths, fs::FilesFilter filter) {
