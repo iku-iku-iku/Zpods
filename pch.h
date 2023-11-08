@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <type_traits>
 #include <cstdint>
+#include <utility>
 #include <string>
 #include <vector>
 #include <ranges>
@@ -86,25 +87,25 @@ namespace zpods {
 
 namespace zpods {
 
-    template<typename T>
-    using ref = const std::remove_cvref_t<T> &;
+//    template<typename T>
+//    using ref = const std::remove_cvref_t<T> &;
+//
+//    template<typename T>
+//    using ref_mut = std::remove_cvref_t<T> &;
 
-    template<typename T>
-    using ref_mut = std::remove_cvref_t<T> &;
+//    static_assert(std::is_same_v<ref<int>, const int &>);
+//    static_assert(std::is_same_v<ref<int &>, const int &>);
+//    static_assert(std::is_same_v<ref<int &&>, const int &>);
+//    static_assert(std::is_same_v<ref<const int>, const int &>);
+//    static_assert(std::is_same_v<ref<const int &>, const int &>);
+//    static_assert(std::is_same_v<ref<const int &&>, const int &>);
 
-    static_assert(std::is_same_v<ref<int>, const int &>);
-    static_assert(std::is_same_v<ref<int &>, const int &>);
-    static_assert(std::is_same_v<ref<int &&>, const int &>);
-    static_assert(std::is_same_v<ref<const int>, const int &>);
-    static_assert(std::is_same_v<ref<const int &>, const int &>);
-    static_assert(std::is_same_v<ref<const int &&>, const int &>);
-
-    static_assert(std::is_same_v<ref_mut<int>, int &>);
-    static_assert(std::is_same_v<ref_mut<int &>, int &>);
-    static_assert(std::is_same_v<ref_mut<int &&>, int &>);
-    static_assert(std::is_same_v<ref_mut<const int>, int &>);
-    static_assert(std::is_same_v<ref_mut<const int &>, int &>);
-    static_assert(std::is_same_v<ref_mut<const int &&>, int &>);
+//    static_assert(std::is_same_v<ref_mut<int>, int &>);
+//    static_assert(std::is_same_v<ref_mut<int &>, int &>);
+//    static_assert(std::is_same_v<ref_mut<int &&>, int &>);
+//    static_assert(std::is_same_v<ref_mut<const int>, int &>);
+//    static_assert(std::is_same_v<ref_mut<const int &>, int &>);
+//    static_assert(std::is_same_v<ref_mut<const int &&>, int &>);
 
     using byte = unsigned char;
     using p_cbyte = const byte *;

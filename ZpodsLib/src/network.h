@@ -31,18 +31,18 @@ namespace zpods {
          * @param json_str json string
          * @return response
          */
-        auto post_with_json(const char *path, ref<std::string> json_str) {
+        auto post_with_json(const char *path, const std::string& json_str) {
             let headers = json_header();
 
             let_mut res = client_.Post(path, headers, json_str, "application/json");
             return res;
         }
 
-        auto post_with_file(const char *path, ref<httplib::MultipartFormDataItems> items) {
+        auto post_with_file(const char *path, const httplib::MultipartFormDataItems& items) {
             return client_.Post(path, items);
         }
 
-        auto get(ref<std::string> path) {
+        auto get(const std::string& path) {
             return client_.Get(path);
         }
 
@@ -63,7 +63,7 @@ namespace zpods {
 
         auto to_json_str() const -> std::string;
 
-        void dump_res(ref<httplib::Result> res, const char *path = "") const {
+        void dump_res(const httplib::Result& res, const char *path = "") const {
             if (res) {
                 spdlog::info("[{}]: {}", path, res->body);
             }
@@ -82,11 +82,11 @@ namespace zpods {
         Status download_file(const char *hdfs_path, const char *local_dir);
     };
 
-    inline Status user_register(ref<User> user) {
+    inline Status user_register(const User& user) {
         return user.register_();
     }
 
-    inline Status user_login(ref<User> user) {
+    inline Status user_login(const User& user) {
         return user.login();
     }
 

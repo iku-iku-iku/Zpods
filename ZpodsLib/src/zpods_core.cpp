@@ -8,7 +8,7 @@
 namespace {
     using namespace zpods;
 
-    Status check_header(ref <zpods::ZpodsHeader> header) {
+    Status check_header(const zpods::ZpodsHeader &header) {
         let std_header = zpods::ZpodsHeader();
         if (memcmp(header.magic, std_header.magic, sizeof(header.magic)) != 0) {
             return Status::NOT_ZPODS_FILE;
@@ -40,8 +40,8 @@ void zpods::calculate_checksum(byte (&checksum)[16], std::span<byte> bytes) {
     }
 }
 
-Status zpods::process_origin_zpods_bytes(const char *path, ref_mut <BackupConfig> config,
-                                         ref <std::function<Status(std::string & )>> func) {
+Status zpods::process_origin_zpods_bytes(const char *path, BackupConfig &config,
+                                         const std::function<Status(std::string & )> &func) {
     ZpodsHeader header;
     std::string bytes;
 
@@ -121,7 +121,7 @@ Status zpods::process_origin_zpods_bytes(const char *path, ref_mut <BackupConfig
 //    });
 //}
 
-void zpods::calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <std::string> password) {
+void zpods::calculate_password_verify_token(ZpodsHeader& header, const std::string &password) {
     let_mut cipher = zpods::encrypt(
             {as_c_str(header), sizeof(header)},
             password,
@@ -131,7 +131,7 @@ void zpods::calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <s
     memcpy(header.password_verify_token, cipher->c_str(), sizeof(header.password_verify_token));
 }
 
-Status zpods::foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref < PodHeader > )>> func) {
+Status zpods::foreach_file_in_zpods_bytes(byte *bytes, const std::function<Status(const PodHeader &)> &func) {
     let_mut p = bytes;
     PodHeader *header;
     while (!(header = PodHeader::as_header(p))->empty()) {

@@ -35,7 +35,7 @@ namespace zpods {
      * @param dst_path is the path to the destination file
      * @return OK if success, otherwise return the error code
      */
-    Status encrypt_file(const char *src_path, const char *dst_path, ref<CryptoConfig> config);
+    Status encrypt_file(const char *src_path, const char *dst_path, const CryptoConfig& config);
 
     /*
      * @brief raw_decrypt the ciphertext to plaintext
@@ -60,7 +60,7 @@ namespace zpods {
      * @param dst_path is the path to the destination file
      * @return OK if success, otherwise return the error code
      */
-    Status decrypt_file(const char *src_path, const char *dst_path, ref<CryptoConfig> config);
+    Status decrypt_file(const char *src_path, const char *dst_path, const CryptoConfig& config);
 }
 
 #endif //ZPODS_CRYPTO_H

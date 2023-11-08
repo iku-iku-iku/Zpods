@@ -102,7 +102,7 @@ auto zpods::decrypt(std::string_view ciphertext, std::string_view key,
     return std::string(plain_buf.begin(), plain_buf.begin() + plaintext_len);
 }
 
-zpods::Status zpods::encrypt_file(const char *src_path, const char *dst_path, ref <CryptoConfig> config) {
+zpods::Status zpods::encrypt_file(const char *src_path, const char *dst_path, const CryptoConfig& config) {
     let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
     if (!ifs.is_open()) {
         spdlog::error("cannot open file: {}", src_path);
@@ -130,7 +130,7 @@ zpods::Status zpods::encrypt_file(const char *src_path, const char *dst_path, re
     return Status::OK;
 }
 
-Status zpods::decrypt_file(const char *src_path, const char *dst_path, ref <CryptoConfig> config) {
+Status zpods::decrypt_file(const char *src_path, const char *dst_path, const CryptoConfig& config) {
     let_mut ifs = fs::open_or_create_file_as_ifs(src_path, std::ios::binary);
     if (!ifs.is_open()) {
         spdlog::error("cannot open file: {}", src_path);

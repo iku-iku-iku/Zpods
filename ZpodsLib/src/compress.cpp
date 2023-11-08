@@ -45,7 +45,7 @@ namespace {
         HuffmanDictEntry() = default;
 
         template<size_t ValBits>
-        auto fill(ref_mut <BitStream> bs) {
+        auto fill(BitStream& bs) {
             bs.append_bits(&code.len, CodeLenBits);
             bs.append_bits(&code.bits, code.len);
             bs.append_bits(&val, ValBits);
@@ -59,7 +59,7 @@ namespace {
          * @return true if the entry is the end of the dictionary, false otherwise
          */
         template<size_t ValBits>
-        bool read(ref_mut <BitStream> bs) {
+        bool read(BitStream& bs) {
             code.len = bs.read_bits(CodeLenBits);
             if (code.len == 0) {
                 return true;
@@ -71,7 +71,7 @@ namespace {
     };
 
     template<size_t ValBits, typename T>
-    auto fill_dict(ref_mut <BitStream> bs, const std::unordered_map<T, Code> &dict) {
+    auto fill_dict(BitStream& bs, const std::unordered_map<T, Code> &dict) {
         size_t write_bits = 0;
         for (const auto &[val, code]: dict) {
             write_bits += HuffmanDictEntry<T>(code, val).template fill<ValBits>(bs);
@@ -85,7 +85,7 @@ namespace {
     }
 
     template<size_t ValBits>
-    auto read_dict(ref_mut <BitStream> bs) {
+    auto read_dict(BitStream& bs) {
         std::unordered_map<Code, size_t> dict;
 
         HuffmanDictEntry<size_t> entry;
@@ -100,7 +100,7 @@ namespace {
     }
 
     template<typename T>
-    std::pair<T, Code> read_with_dict(ref_mut <BitStream> bs, const std::unordered_map<Code, T> &dict) {
+    std::pair<T, Code> read_with_dict(BitStream& bs, const std::unordered_map<Code, T> &dict) {
         size_t bits = 0;
         size_t len = 0;
         while (true) {

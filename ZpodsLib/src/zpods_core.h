@@ -16,15 +16,15 @@ namespace zpods {
 
     void calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> bytes);
 
-    void calculate_password_verify_token(ref_mut <ZpodsHeader> header, ref <std::string> password);
+    void calculate_password_verify_token(ZpodsHeader& header, const std::string& password);
 
 
     Status read_zpods_file(const char *path, zpods::ZpodsHeader &header, std::string &bytes);
 
-    Status process_origin_zpods_bytes(const char *path, ref_mut <BackupConfig> config,
-                                      ref <std::function<Status(std::string & )>> func);
+    Status process_origin_zpods_bytes(const char *path, BackupConfig& config,
+                                      const std::function<Status(std::string & )>& func);
 
-    Status foreach_file_in_zpods_bytes(byte *bytes, ref <std::function<Status(ref<PodHeader>)>> func);
+    Status foreach_file_in_zpods_bytes(byte *bytes, const std::function<Status(const PodHeader&)>& func);
 
 //    Status foreach_file_in_zpods_file(const char *path, ref_mut <BackupConfig> config,
 //                                      ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func);

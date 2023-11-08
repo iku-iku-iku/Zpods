@@ -16,7 +16,7 @@ namespace zpods {
      *
      * @note src_path must exist
      */
-    Status backup(const char *target_dir, ref<BackupConfig> config);
+    Status backup(const char *target_dir, const BackupConfig& config);
 
     /*
      * @brief sync backup the src_path to target_dir
@@ -25,7 +25,7 @@ namespace zpods {
      * @param config is the config of backup, default to BackupConfig::DEFAULT
      * @return Status::OK if backup successfully, otherwise Status::ERROR
      */
-    Status sync_backup(const char *target_dir, ref<BackupConfig> config);
+    Status sync_backup(const char *target_dir, const BackupConfig& config);
 
     /*
      * @brief restore the backup file to target_dir

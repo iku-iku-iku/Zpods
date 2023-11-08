@@ -5,9 +5,8 @@
 #ifndef ZPODS_COMPRESS_H
 #define ZPODS_COMPRESS_H
 
-#include <utility>
-
 #include "pch.h"
+
 #include "bit_ops.h"
 
 namespace zpods {
@@ -120,8 +119,8 @@ namespace zpods {
             pq.emplace(node1.freq + node2.freq, 0, false, std::make_shared<Term>(node1), std::make_shared<Term>(node2));
         }
 
-        auto dfs_huffman_tree = [](auto& self, ref<Node<Value>> root,
-                                   ref_mut<std::unordered_map<Value, Code>> huffman_dict,
+        auto dfs_huffman_tree = [](auto& self, const Node<Value>& root,
+                                   std::unordered_map<Value, Code>& huffman_dict,
                                    Code code = {0, 0}) {
             if (root.is_leaf) {
                 huffman_dict[root.val] = code;

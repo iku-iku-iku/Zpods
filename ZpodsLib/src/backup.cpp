@@ -12,7 +12,7 @@ using namespace zpods::fs;
 namespace {
 }
 
-Status zpods::backup(const char *target_dir, ref <BackupConfig> config) {
+Status zpods::backup(const char *target_dir, const BackupConfig& config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
     let target = fs::path(target_dir);
@@ -99,7 +99,7 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
     });
 }
 
-Status zpods::sync_backup(const char *target_dir, ref <BackupConfig> config) {
+Status zpods::sync_backup(const char *target_dir, const BackupConfig& config) {
     // make sure the backup file is up-to-date
     zpods::backup(target_dir, config);
 

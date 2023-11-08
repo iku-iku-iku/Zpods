@@ -63,11 +63,11 @@ namespace zpods {
 
         auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream;
 
-        inline bool is_directory(ref<std::string> path) {
+        inline bool is_directory(const std::string& path) {
             return std::filesystem::is_directory(path);
         }
 
-        inline auto directory_iterator(ref<std::string> path) {
+        inline auto directory_iterator(const std::string& path) {
             return std::filesystem::directory_iterator(path);
         }
 
@@ -85,7 +85,7 @@ namespace zpods {
             return paths;
         }
 
-        inline auto get_file_size(ref<zpath> path) {
+        inline auto get_file_size(const zpath& path) {
             return std::filesystem::file_size(path);
         }
 
@@ -144,7 +144,7 @@ namespace zpods {
                 return date;
             }
 
-            bool add_path(ref<std::string> path) {
+            bool add_path(const std::string& path) {
                 if (path_set_.contains(path)) {
                     return false;
                 }
@@ -206,13 +206,13 @@ namespace zpods {
                 return true;
             }
 
-            auto get_relative_path(ref<zpath> path) const {
+            auto get_relative_path(const zpath& path) const {
                 let it = base_map_.find(path);
                 ZPODS_ASSERT(it != base_map_.end());
                 return fs::relative(path.c_str(), it->second.parent_path().c_str());
             }
 
-            void scan_path(ref<std::string> path) {
+            void scan_path(const std::string& path) {
                 add_path(path);
 
                 // for non dir, no need to dfs

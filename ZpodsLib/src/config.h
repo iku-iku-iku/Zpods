@@ -110,7 +110,7 @@ namespace zpods {
             return header;
         }
 
-        auto read_header(ref<ZpodsHeader> header) {
+        auto read_header(const ZpodsHeader& header) {
             this->compress = !!(header.backup_policy & COMPRESS);
             if (header.backup_policy & ENCRYPT) {
                 if (!this->crypto_config.has_value()) {

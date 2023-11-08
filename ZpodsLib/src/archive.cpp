@@ -8,7 +8,7 @@
 
 using namespace zpods;
 
-Status zpods::archive(const char *target_dir, ref <BackupConfig> config) {
+Status zpods::archive(const char *target_dir, const BackupConfig& config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
 
@@ -82,7 +82,7 @@ Status zpods::unarchive(const char *src_path, const char *target_dir) {
 }
 
 Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
-    return foreach_file_in_zpods_bytes(src_bytes.data(), [&](ref<PodHeader> header) {
+    return foreach_file_in_zpods_bytes(src_bytes.data(), [&](const PodHeader& header) {
         let path = header.get_path();
         let full_path = fs::path(target_dir) / path;
         spdlog::info("unarchived file {}", full_path.c_str());
