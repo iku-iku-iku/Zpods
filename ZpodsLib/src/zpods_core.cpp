@@ -31,7 +31,7 @@ zpods::Status zpods::read_zpods_file(const char *path, zpods::ZpodsHeader &heade
     return Status::OK;
 }
 
-void zpods::calculate_checksum(byte (&checksum)[16], std::span<byte> bytes) {
+void zpods::calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> bytes) {
     memset(checksum, 0, sizeof(checksum));
     ssize_t i = 0;
     for (let_ref byte: bytes) {
@@ -64,7 +64,7 @@ Status zpods::process_origin_zpods_bytes(const char *path, BackupConfig &config,
 
         // parse header
         {
-            let status = config.read_header(header);
+            let status = header.fill_config(config);
             if (status != Status::OK) {
                 return status;
             }
@@ -142,7 +142,7 @@ Status zpods::foreach_file_in_zpods_bytes(byte *bytes, const std::function<Statu
             }
         }
 
-        p += header->size() + header->data_len;
+        p += header->size() + header->get_data_len();
     }
     return Status::OK;
 }

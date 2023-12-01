@@ -33,8 +33,17 @@ namespace zpods {
             std::filesystem::copy(src, target, options);
         }
 
-        inline auto path(const char *path) {
-            return std::filesystem::path(path);
+        inline auto path(const char *path) -> zpath {
+            return {path};
+        }
+
+        inline auto last_modified_timestamp(const char *path) -> uint32_t {
+            let t = std::filesystem::last_write_time(path);
+            // 将文件最后修改时间从时间点转换为时间戳
+            let duration = t.time_since_epoch();
+            let modTimeTimestamp = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+
+            return static_cast<uint32_t>(modTimeTimestamp);
         }
 
         inline auto exists(const char *path) {
@@ -47,7 +56,7 @@ namespace zpods {
             }
         }
 
-        inline auto remove_file(const char* path) {
+        inline auto remove_file(const char *path) {
             return std::filesystem::remove(path);
         }
 
@@ -63,16 +72,16 @@ namespace zpods {
 
         auto open_or_create_file_as_ifs(const char *path, openmode mode) -> std::ifstream;
 
-        inline bool is_directory(const std::string& path) {
+        inline bool is_directory(const std::string &path) {
             return std::filesystem::is_directory(path);
         }
 
-        inline auto directory_iterator(const std::string& path) {
+        inline auto directory_iterator(const std::string &path) {
             return std::filesystem::directory_iterator(path);
         }
 
         // given a file with path: "xx/yy/zz", retrieve all files with path like: "xx/yy/zz*"
-        inline auto get_file_family(const char* file_path) {
+        inline auto get_file_family(const char *file_path) {
             std::vector<zpath> paths;
             let dir = path(file_path).parent_path();
 
@@ -85,7 +94,7 @@ namespace zpods {
             return paths;
         }
 
-        inline auto get_file_size(const zpath& path) {
+        inline auto get_file_size(const zpath &path) {
             return std::filesystem::file_size(path);
         }
 
@@ -145,7 +154,7 @@ namespace zpods {
                 }
             }
 
-            bool add_path(const std::string& path) {
+            bool add_path(const std::string &path) {
                 if (path_set_.contains(path)) {
                     return false;
                 }
@@ -207,13 +216,13 @@ namespace zpods {
                 return true;
             }
 
-            auto get_relative_path(const zpath& path) const {
+            auto get_relative_path(const char* path) const {
                 let it = base_map_.find(path);
                 ZPODS_ASSERT(it != base_map_.end());
-                return fs::relative(path.c_str(), it->second.parent_path().c_str());
+                return fs::relative(path, it->second.parent_path().c_str());
             }
 
-            void scan_path(const std::string& path) {
+            void scan_path(const std::string &path) {
                 add_path(path);
 
                 // for non dir, no need to dfs
@@ -225,14 +234,9 @@ namespace zpods {
                 }
             }
 
-            iterator begin() {
-                return paths_.begin();
+            std::vector<zpath> paths() {
+                return std::move(paths_);
             }
-
-            iterator end() {
-                return paths_.end();
-            }
-
         private:
             std::vector<zpath> paths_;
             std::unordered_set<zpath> path_set_;
@@ -259,7 +263,7 @@ namespace zpods {
             fs::FilesFilter filter;
             filter.paths.emplace_back(path_);
             filter.types.insert(fs::FileType::directory);
-            for (let_ref p: fs::FileCollector(std::move(filter))) {
+            for (let_ref p: fs::FileCollector(std::move(filter)).paths()) {
                 // add watch for all directories
                 add_watch_for(p.c_str());
             }

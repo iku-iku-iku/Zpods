@@ -28,7 +28,7 @@ TEST(FsTest, DeltaBackupTest) {
 }
 
 auto filtered_paths_expect_eq(std::unordered_set<std::string> paths, fs::FilesFilter filter) {
-    let_mut iter = fs::FileCollector(std::move(filter));
+    let_mut iter = fs::FileCollector(std::move(filter)).paths();
     let filtered_paths = std::unordered_set(iter.begin(), iter.end());
     for (const auto &item: filtered_paths) {
         spdlog::info("file: {}", item.filename().c_str());

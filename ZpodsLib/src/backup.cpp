@@ -4,13 +4,12 @@
 #include "fs.h"
 #include "crypto.h"
 #include "zpods_core.h"
+#include "manager.h"
 
 using namespace zpods;
 
 using namespace zpods::fs;
 
-namespace {
-}
 
 Status zpods::backup(const char *target_dir, const BackupConfig& config) {
     fs::create_directory_if_not_exist(target_dir);
@@ -78,7 +77,7 @@ Status zpods::backup(const char *target_dir, const BackupConfig& config) {
     {
         let_mut ofs = fs::open_or_create_file_as_ofs(archive_path.c_str(), fs::ios::binary);
 
-        let_mut header = config.get_header();
+        let_mut header = ZpodsHeader::from(config);
         calculate_checksum(header.checksum, {(p_byte) bytes.data(), bytes.size()});
         if (config.crypto_config) {
             calculate_password_verify_token(header, config.crypto_config->key_);

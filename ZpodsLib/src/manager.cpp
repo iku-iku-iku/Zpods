@@ -28,7 +28,7 @@ void PodsManager::load_pods(const std::string &path) {
                 });
 
             } else {
-                let pod = Pod{pod_header.last_modified_ts, pod_header.get_path()};
+                let pod = Pod{pod_header.get_last_modified_ts(), pod_header.get_path()};
                 current_pods_.insert(std::move(pod));
             }
             return Status::OK;
