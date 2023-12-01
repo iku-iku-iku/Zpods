@@ -17,12 +17,12 @@ Status zpods::backup(const char *target_dir, const BackupConfig& config) {
     ZPODS_ASSERT(fs::is_directory(target_dir));
     let target = fs::path(target_dir);
 
-    // check src not empty
+    // we must have something to back up!
     if (config.filter.paths.empty()) {
         return Status::EMPTY;
     }
 
-    // check src exist
+    // what we back up must really exist!
     for (const auto &item: config.filter.paths) {
         if (!fs::exists(item.c_str())) {
             return Status::PATH_NOT_EXIST;
@@ -34,16 +34,16 @@ Status zpods::backup(const char *target_dir, const BackupConfig& config) {
         config.backup_filename = fmt::format("{}{}", config.filter.paths[0].filename().c_str(),
                                              PODS_FILE_SUFFIX);
     }
-
     let archive_path = target / *config.backup_filename;
 
-    // delta backup
+    // if there exist the pods file
     if (fs::exists(archive_path.c_str())) {
         // need delta backup
         if (config.delta_backup) {
             // get paths from backup file and all delta backup files
-            fs::get_file_family(archive_path.c_str());
+            config.pods_manager->load_pods(archive_path);
         } else {
+            // if not enabled delta backup, just remove it.
             fs::remove_file(archive_path.c_str());
         }
     }

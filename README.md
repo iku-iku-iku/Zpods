@@ -54,13 +54,13 @@ zpods.cli register --help
 ```shell
 zpods.cli backup --src-list test_data/single --target ./tmp
 # or specify a target backup filename
-zpods.cli backup --src-list test_data/single --target ./tmp/haha.pods
+zpods.cli backup --src-list test_data/single --target ./tmp/haha.map
 ```
 
 #### backup multiple paths
 ```shell
 # in this case, you must specify the target backup filename!
-zpods.cli backup --src-list test_data/tiny test_data/middle --target ./tmp/multiple.pods
+zpods.cli backup --src-list test_data/tiny test_data/middle --target ./tmp/multiple.map
 ```
 
 #### backup with compression
@@ -79,7 +79,7 @@ zpods.cli backup --src-list test_data/single --target ./tmp -c -p 1234
 
 ```shell
 # the restore can automatically uncompress if needed
-zpods.cli restore --src ./tmp/single.pods --target ./tmp
+zpods.cli restore --src ./tmp/single.map --target ./tmp
 # if your backup is encrypted, you must use '-p' to specify the password used in encryption
-zpods.cli restore --src ./tmp/single.pods --target ./tmp -p 1234
+zpods.cli restore --src ./tmp/single.map --target ./tmp -p 1234
 ```

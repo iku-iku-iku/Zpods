@@ -106,6 +106,20 @@ namespace zpods {
                                                std::chrono::day(day));
         }
 
+        static inline auto file_time_to_date(std::filesystem::file_time_type time) {
+            let sys_time = decltype(time)::clock::to_sys(time);
+            let tt = std::chrono::system_clock::to_time_t(sys_time);
+            let tm = std::localtime(&tt);
+
+            let year = std::chrono::year(tm->tm_year + 1900);
+            let month = std::chrono::month(tm->tm_mon + 1);
+            let day = std::chrono::day(tm->tm_mday);
+
+            let date = std::chrono::year_month_day(year, month, day);
+            return date;
+        }
+
+
         struct FilesFilter {
             std::vector<zpath> paths; ///< paths to backup
             std::unordered_set<FileType> types{FileType::regular};  ///< types to backup
@@ -129,19 +143,6 @@ namespace zpods {
                     current_root_ = item;
                     scan_path(item);
                 }
-            }
-
-            static inline auto file_time_to_date(std::filesystem::file_time_type time) {
-                let sys_time = decltype(time)::clock::to_sys(time);
-                let tt = std::chrono::system_clock::to_time_t(sys_time);
-                let tm = std::localtime(&tt);
-
-                let year = std::chrono::year(tm->tm_year + 1900);
-                let month = std::chrono::month(tm->tm_mon + 1);
-                let day = std::chrono::day(tm->tm_mday);
-
-                let date = std::chrono::year_month_day(year, month, day);
-                return date;
             }
 
             bool add_path(const std::string& path) {

@@ -37,7 +37,7 @@ namespace zpods {
         constexpr static auto CHECKSUM_SIZE = 16;
         constexpr static auto PASSWORD_VERIFY_SIZE = 16;
         byte magic[MAGIC_SIZE] = {'Z', 'P', 'O', 'D'};
-        byte iv[IV_SIZE]{};
+        byte iv[IV_SIZE]{}; // iv is also taken as pods' id!
         byte checksum[CHECKSUM_SIZE]{};
         byte password_verify_token[PASSWORD_VERIFY_SIZE]{};
         byte backup_policy = 0;
@@ -46,17 +46,23 @@ namespace zpods {
     struct PodHeader {
         constexpr static auto CHECKSUM_SIZE = 16;
 
-        size_t data_len;
-        uint8_t path_len;
-        byte checksum[CHECKSUM_SIZE];
-        char path[];
+        uint32_t last_modified_ts; // the last modified timestamp of file
+        size_t data_len; // the length of data
+        uint8_t path_len; // the length of path
+        uint8_t flags; // 0: normal, 1: delete
+        byte checksum[CHECKSUM_SIZE]; // checksum of data
+        char path[]; // the path of file
 
         static auto as_header(auto *p) {
             return reinterpret_cast<PodHeader *>(p);
         }
 
         static constexpr auto compact_size() {
-            return sizeof(PodHeader::data_len) + sizeof(PodHeader::path_len) + sizeof(checksum);
+            return sizeof(last_modified_ts) + sizeof(data_len) + sizeof(path_len) + sizeof(flags) + sizeof(checksum);
+        }
+
+        bool is_delete() const {
+            return flags & 1;
         }
 
         auto get_path() const {
@@ -85,6 +91,8 @@ namespace zpods {
             ENCRYPT = 1 << 1,
         };
 
+        class PodsManager* pods_manager;
+
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
 
         bool delta_backup = false;
@@ -97,13 +105,13 @@ namespace zpods {
         ///< will be overwritten by the real name after backup
         fs::FilesFilter filter; ///< filter the files to backup
 
+        // make up a header according to the backup config
         auto get_header() const -> ZpodsHeader {
             let_mut header = ZpodsHeader();
             if (this->compress) {
                 header.backup_policy |= COMPRESS;
             }
             if (this->crypto_config) {
-                ZPODS_ASSERT(this->crypto_config.has_value());
                 header.backup_policy |= ENCRYPT;
                 memcpy(header.iv, this->crypto_config->iv_.c_str(), IV_SIZE);
             }
