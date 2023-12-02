@@ -9,79 +9,83 @@
 
 using namespace zpods;
 
-Status zpods::archive(const char *target_dir, const BackupConfig &config) {
-    ZPODS_ASSERT(fs::is_directory(target_dir));
+Status zpods::archive(const char *src_dir, const char *dest_dir, const BackupConfig &config) {
+    ZPODS_ASSERT(fs::is_directory(dest_dir));
 
-    size_t total_size = 0;
+    size_t pod_total_size = 0;
 
-    let_mut collector = zpods::fs::FileCollector{config.dir_to_backup, config.filter};
-    let file_paths = collector.paths();
+    let_mut collector = zpods::fs::FileCollector{src_dir, config.filter};
+    let pea_paths = collector.paths();
 
-    std::unordered_set<Pea> pods;
+    std::unordered_set<Pea> pod;
 
-    for (const auto &item: config.filter.paths) {
-        ZPODS_ASSERT(item.c_str()[strlen(item.c_str()) - 1] != '/');
-    }
-
-    for (let_ref path: file_paths) {
-        let rel = fs::relative(path.c_str(), config.dir_to_backup.c_str());
-        Pea pod{
+//    for (const auto &item: config.filter.paths) {
+//        ZPODS_ASSERT(item.c_str()[strlen(item.c_str()) - 1] != '/');
+//    }
+//
+    for (let_ref path: pea_paths) {
+        let rel = fs::relative(path.c_str(), src_dir);
+        Pea pea{
                 .last_modified_ts = fs::last_modified_timestamp(path.c_str()),
                 .rel_path = rel,
                 .abs_path = path,
         };
-        pods.emplace(std::move(pod));
+        pod.emplace(std::move(pea));
     }
 
-    for (const auto &item: pods) {
-        spdlog::info("file collected before filtered: {}", item);
+    for (const auto &pea: pod) {
+        spdlog::info("pea collected before filtered: {}", pea);
     }
 
-    pods = PodsManager::Instance()->filter_archived_pods(target_dir, pods);
+    pod = PodsManager::Instance()->filter_archived_peas(dest_dir, pod);
+    let pea_cnt = pod.size();
+    if (pea_cnt == 0) {
+        spdlog::info("no new pea to archive");
+        return Status::NO_NEW_TO_ARCHIVE;
+    }
 
-    let file_cnt = pods.size();
-    for (let_ref pod: pods) {
-        spdlog::info("archived file {}", pod);
+    for (let_ref pea: pod) {
+        spdlog::info("archived file {}", pea);
 
-        total_size += fs::get_file_size(pod.abs_path);
-        total_size += pod.rel_path.size();
+        pod_total_size += fs::get_file_size(pea.abs_path);
+        pod_total_size += pea.rel_path.size();
     }
 
     constexpr let header_size = PeaHeader::compact_size();
-    total_size += (file_cnt + 1) * header_size;
+    pod_total_size += (pea_cnt + 1) * header_size;
     // align total size to 16 bytes
-    total_size = (total_size + 15) & ~15ul;
+    pod_total_size = (pod_total_size + 15) & ~15ul;
 
-    let buffer = std::unique_ptr<byte[]>(new byte[total_size]);
+    let buffer = std::unique_ptr<byte[]>(new byte[pod_total_size]);
     p_byte p = buffer.get();
 
-    for (let_ref pod: pods) {
-        let_mut_ref header = *PeaHeader::as_header(p);
-        let data_size = fs::get_file_size(pod.abs_path);
-        header.set_data_len(data_size);
-        header.set_normal();
-        header.set_path_len(pod.rel_path.size());
-        header.set_last_modified_ts(pod.last_modified_ts);
+    for (let_ref pea: pod) {
+        let_mut_ref pea_header = *PeaHeader::as_header(p);
+        let data_size = fs::get_file_size(pea.abs_path);
+        pea_header.set_data_len(data_size);
+        pea_header.set_normal();
+        pea_header.set_path_len(pea.rel_path.size());
+        pea_header.set_last_modified_ts(pea.last_modified_ts);
 
-        memcpy(p + header_size, pod.rel_path.c_str(), pod.rel_path.size());
+        memcpy(p + header_size, pea.rel_path.c_str(), pea.rel_path.size());
         p += PeaHeader::as_header(p)->size();
-        std::ifstream ifs(pod.abs_path);
+        std::ifstream ifs(pea.abs_path);
         ifs.read((char *) p, (long) data_size);
         p += data_size;
 
-        ZPODS_ASSERT(p - buffer.get() <= total_size);
+        ZPODS_ASSERT(p - buffer.get() <= pod_total_size);
     }
 
     memset(p, 0, header_size);
     let_mut ofs = fs::open_or_create_file_as_ofs(config.archive_path.c_str(), fs::ios::binary);
-    ofs.write((char *) buffer.get(), (long) total_size);
+    ofs.write((char *) buffer.get(), (long) pod_total_size);
 
     return Status::OK;
 }
 
-Status zpods::unarchive(const char *src_path, const char *target_dir) {
-    fs::create_directory_if_not_exist(target_dir);
-    ZPODS_ASSERT(fs::is_directory(target_dir));
+Status zpods::unarchive(const char *src_path, const char *dest_dir) {
+    fs::create_directory_if_not_exist(dest_dir);
+    ZPODS_ASSERT(fs::is_directory(dest_dir));
 
     if (!fs::exists(src_path)) {
         return Status::PATH_NOT_EXIST;
@@ -90,7 +94,7 @@ Status zpods::unarchive(const char *src_path, const char *target_dir) {
 
     let content = fs::read_from_file(src_path);
 
-    return unarchive({(p_byte) content.data(), content.size()}, target_dir);
+    return unarchive({(p_byte) content.data(), content.size()}, dest_dir);
 }
 
 Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {

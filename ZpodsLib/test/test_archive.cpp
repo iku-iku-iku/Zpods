@@ -5,22 +5,23 @@
 #include "gtest/gtest.h"
 #include "archive.h"
 
-TEST(ArchiveTest, test_archive_and_unarchive) {
+using namespace zpods;
+
+void test_helper(const char *dir) {
     zpods::BackupConfig config;
-    config.filter.paths.emplace_back(fmt::format("{}/single", zpods::test_data_path()));
-    config.archive_path = "single.zpods";
-    EXPECT_EQ(zpods::Status::OK, zpods::archive(zpods::temp_path(), config));
-    EXPECT_EQ(zpods::Status::OK,
-              zpods::unarchive(fmt::format("{}/{}", zpods::temp_path(), *config.archive_path).c_str(),
-                               zpods::temp_path()));
+    let src_dir = fmt::format("{}/{}", test_data_path(), dir);
+    config.archive_path = fs::path(temp_path()) / fmt::format("{}.zpods", dir);
+    EXPECT_EQ(zpods::Status::OK, zpods::archive(src_dir.c_str(), zpods::temp_path(), config) );
+    EXPECT_EQ(zpods::Status::OK, zpods::unarchive(config.archive_path.c_str(), zpods::temp_path()) );
+}
+
+//
+TEST(ArchiveTest, test_archive_and_unarchive) {
+    let dir = "single";
+    test_helper(dir);
 }
 
 TEST(ArchiveTest, test_recursive_archive_and_unarchive) {
-    zpods::BackupConfig config;
-    config.filter.paths.emplace_back(fmt::format("{}/recursive", zpods::test_data_path()));
-    config.archive_path = "recursive.zpods";
-    EXPECT_EQ(zpods::Status::OK, zpods::archive(zpods::temp_path(), config));
-    EXPECT_EQ(zpods::Status::OK,
-              zpods::unarchive(fmt::format("{}/{}", zpods::temp_path(), *config.archive_path).c_str(),
-                               zpods::temp_path()));
+    let dir = "recursive";
+    test_helper(dir);
 }

@@ -27,42 +27,23 @@ namespace {
     }
 }
 
-static Status backup_one(const char *target_dir, const BackupConfig &config) {
-    // if not specified backup file name, deduce from path
-    // TODO: deduce is compulsion
-//    if (!config.backup_filename.has_value()) {
-//        config.backup_filename = fmt::format("{}{}", config.dir_to_backup.filename().c_str(),
-//                                             POD_FILE_SUFFIX);
-//    }
-    PodsManager::Instance()->load_pods(target_dir);
+static Status backup_one(const char *src_dir, const char *target_dir, const BackupConfig &config) {
+    Status status;
+
+    PodsManager::Instance()->load_pods(target_dir, config);
 
     do {
         config.archive_path = fs::path(target_dir) / fmt::format("{}{}", get_current_timestamp(), POD_FILE_SUFFIX);
     } while (fs::exists(config.archive_path.c_str()));
 
-
-//    if (fs::exists(archive_path.c_str())) {
-//        spdlog::info("existed pods {}", archive_path.c_str());
-//        PodsManager::Instance()->load_pods(archive_path);
-//        for (const auto &item: PodsManager::Instance()->current_pods()) {
-//            spdlog::info("detected archived file {}", item);
-//        }
-//    }
-
-    // if there exist the pods file
-//    if (fs::exists(archive_path.c_str())) {
-//        // need delta backup
-//        if (config.delta_backup) {
-//            // get paths from backup file and all delta backup files
-//            PodsManager::Instance()->load_pods(archive_path);
-//        } else {
-//            // if not enabled delta backup, just remove it.
-//            fs::remove_file(archive_path.c_str());
-//        }
-//    }
-
     // 1. archive files of src_path to a single file in target_dir
-    zpods::archive(target_dir, config);
+
+    status = zpods::archive(src_dir, target_dir, config);
+    if (status == Status::NO_NEW_TO_ARCHIVE) {
+        return Status::OK;
+    } else if (status != Status::OK) {
+        return status;
+    }
 
     let_mut bytes = fs::read_from_file(config.archive_path.c_str());
     std::unique_ptr<byte[]> buf;
@@ -99,35 +80,36 @@ static Status backup_one(const char *target_dir, const BackupConfig &config) {
         ofs << bytes;
     }
 
+    spdlog::info("successfully backup {} to {}", src_dir, target_dir);
     return Status::OK;
 }
 
-Status zpods::backup(const char *target_dir, const BackupConfig &config) {
-    fs::create_directory_if_not_exist(target_dir);
-    ZPODS_ASSERT(fs::is_directory(target_dir));
+Status zpods::backup(const char *dest_dir, const BackupConfig &config) {
+    fs::create_directory_if_not_exist(dest_dir);
+    ZPODS_ASSERT(fs::is_directory(dest_dir));
 
-    // we must have something to back up!
-    if (config.filter.paths.empty()) {
-        return Status::EMPTY;
-    }
-
-    // what we back up must really exist!
-    for (const auto &item: config.filter.paths) {
-        if (!fs::exists(item.c_str())) {
-            return Status::PATH_NOT_EXIST;
-        }
-    }
+//    // we must have something to back up!
+//    if (config.filter.paths.empty()) {
+//        return Status::EMPTY;
+//    }
+//
+//    // what we back up must really exist!
+//    for (const auto &item: config.filter.paths) {
+//        if (!fs::exists(item.c_str())) {
+//            return Status::PATH_NOT_EXIST;
+//        }
+//    }
 
     for (const auto &dir_to_backup: config.filter.paths) {
-        let pods_dir = fs::path(target_dir) / fmt::format("{}-PODS", dir_to_backup.c_str());
+        let pods_dir_name = fmt::format("{}-PODS", dir_to_backup.filename().c_str());
+        let pods_dir = fs::path(dest_dir) / pods_dir_name;
 
         if (!fs::exists(pods_dir.c_str())) {
             PodsManager::Instance()->create_pods(pods_dir);
         }
         PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
 
-        config.dir_to_backup = dir_to_backup;
-        let st = backup_one(pods_dir.c_str(), config);
+        let st = backup_one(dir_to_backup.c_str(), pods_dir.c_str(), config);
         if (st != Status::OK) {
             return st;
         }
@@ -136,13 +118,43 @@ Status zpods::backup(const char *target_dir, const BackupConfig &config) {
     return Status::OK;
 }
 
-Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig config) {
+Status zpods::restore(const char *pods_dir, const char *target_dir, BackupConfig config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
 
-    return zpods::process_origin_zpods_bytes(src_path, config, [target_dir](auto &bytes) {
-        return zpods::unarchive({(p_byte) bytes.data(), bytes.size()}, target_dir);
-    });
+    PodsManager::Instance()->load_pods(pods_dir, config);
+
+    // record the residing pod paths of the peas
+    std::unordered_map<fs::zpath, std::unordered_set<Pea>> pod_to_peas;
+    for (const auto &pea: PodsManager::Instance()->current_pod(pods_dir)) {
+        pod_to_peas[pea.resident_pod_path].insert(pea);
+    }
+
+    for (const auto &[pod_path, pea_set]: pod_to_peas) {
+        let status = zpods::process_origin_zpods_bytes(pod_path.c_str(), config, [&](auto &bytes) {
+            return zpods::foreach_pea_in_pod_bytes((p_byte) bytes.c_str(), [&](const PeaHeader &header) {
+                let pea = Pea{
+                        .last_modified_ts = header.get_last_modified_ts(),
+                        .rel_path = header.get_path()
+                };
+                if (!pea_set.contains(pea)) { return Status::OK; }
+                let path = header.get_path();
+                let full_path = fs::path(target_dir) / path;
+                spdlog::info("unarchived file {}", full_path.c_str());
+                let base_name = fs::get_base_name(full_path.c_str());
+                fs::create_directory_if_not_exist(base_name.c_str());
+                std::ofstream ofs(full_path);
+                let bytes = header.get_data();
+                ofs.write((char *) bytes.data(), bytes.size());
+                return Status::OK;
+            });
+        });
+        if (status != Status::OK) {
+            return status;
+        }
+    }
+
+    return Status::OK;
 }
 
 Status zpods::sync_backup(const char *target_dir, const BackupConfig &config) {

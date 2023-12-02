@@ -10,12 +10,12 @@
 
 namespace zpods {
     /*
-     * @brief archive a directory (or a file) indicated by src_path to a single file in target_dir
-     * @param src_path the path of the directory (or a file) to be archived
-     * @param target_dir the directory to store the archived file
+     * @brief archive a directory indicated by src_dir to a single file in dest_dir
+     * @param src_dir the path of the directory to be archived
+     * @param dest_dir the directory to store the archived file
      * @return Status::OK if success, otherwise Status::ERROR
      */
-    Status archive(const char *target_dir, const BackupConfig& config = {});
+    Status archive(const char *src_dir, const char *dest_dir, const BackupConfig &config = {});
 
     /*
      * @brief unarchive a archive file indicated by src_path to a directory in target_dir
@@ -23,7 +23,7 @@ namespace zpods {
      * @param target_dir the directory to store the unarchived files
      * @return Status::OK if success, otherwise Status::ERROR
      */
-    Status unarchive(const char *src_path, const char *target_dir);
+    Status unarchive(const char *src_path, const char *dest_dir);
 
     Status unarchive(std::span<byte> src_bytes, const char *target_dir);
 }

@@ -131,21 +131,16 @@ namespace zpods {
     };
 
     struct Pea {
-        using Id = std::string;
         long last_modified_ts;
-        Id rel_path;
+        std::string rel_path;
         std::string abs_path;
 
+        // one pea will only be archived in one pod
+        fs::zpath resident_pod_path;
+
         bool operator==(const Pea &rhs) const {
-            return rel_path == rhs.rel_path;
+            return rel_path == rhs.rel_path && last_modified_ts == rhs.last_modified_ts;
         }
-    };
-
-    struct Pods {
-        using Id = std::string;
-        Id pods_id;
-
-        std::unordered_map<Pea::Id, Pea> map;
     };
 
     void calculate_password_verify_token(PodHeader &header, const std::string &password);

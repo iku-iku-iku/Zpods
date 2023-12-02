@@ -16,7 +16,7 @@ namespace zpods {
      *
      * @note src_path must exist
      */
-    Status backup(const char *target_dir, const BackupConfig& config);
+    Status backup(const char *dest_dir, const BackupConfig& config);
 
     /*
      * @brief sync backup the src_path to target_dir
@@ -29,17 +29,9 @@ namespace zpods {
 
     /*
      * @brief restore the backup file to target_dir
-     * @param src_path is the path to the backup file
+     * @param pods_dir is the path to the pods dir
      * @param target_dir is the path to restore
      * @return Status::OK if restore successfully, otherwise Status::ERROR
-     *
-     * e.g. restore("/home/code4love/tmp/Zpods.pods", "/home/code4love/PROGRAM/cpp/")
-     * this will restore the backup file to /home/code4love/PROGRAM/cpp/Zpods
-     * if the file (/home/code4love/PROGRAM/cpp/Zpods) already exists, it will be overwritten by the new one!
-     * no need to care whether the backup file is encrypted or compressed, this function will handle it,
-     * i.e. raw_decrypt or decompress it automatically if needed
-     *
-     * @note src_path must exist and must be a valid pods file, target_dir must be a directory
      */
-    Status restore(const char *src_path, const char *target_dir, BackupConfig config = {});
+    Status restore(const char *pods_dir, const char *target_dir, BackupConfig config = {});
 }

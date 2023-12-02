@@ -16,7 +16,7 @@ namespace zpods {
 
         void load_pods_from_tracked_paths();
 
-        void load_pods(const fs::zpath &pea);
+        void load_pods(const fs::zpath &pea, const BackupConfig &config);
 
         void load_pods_path();
 
@@ -35,11 +35,14 @@ namespace zpods {
         }
 
         std::unordered_set<Pea>
-        filter_archived_pods(const fs::zpath &pod_path, const std::unordered_set<Pea> &in_pod) const {
+        filter_archived_peas(const fs::zpath &pod_path, const std::unordered_set<Pea> &in_pod) const {
+            if (!cur_state_of_peas_per_pods.contains(pod_path)) {
+                return in_pod;
+            }
             std::unordered_set<Pea> res;
             let_ref cur_pod = current_pod(pod_path);
             for (const auto &pea: in_pod) {
-                if (cur_pod.contains(pea)) {
+                if (!cur_pod.contains(pea)) {
                     res.insert(pea);
                 }
             }
@@ -47,7 +50,6 @@ namespace zpods {
         }
 
     private:
-        std::unordered_map<Pods::Id, Pods> pods_map_;
         // maintain current state of peas for each pods
         std::unordered_map<fs::zpath, std::unordered_set<Pea>> cur_state_of_peas_per_pods;
         std::unordered_map<fs::zpath, fs::zpath> path_mapping_;

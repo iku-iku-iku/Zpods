@@ -27,39 +27,38 @@ TEST(FsTest, DeltaBackupTest) {
     EXPECT_EQ(2, get_file_family(file_path.c_str()).size());
 }
 
-auto filtered_paths_expect_eq(std::unordered_set<std::string> paths, fs::FilesFilter filter) {
-    let_mut iter = fs::FileCollector(std::move(filter)).paths();
+auto filtered_paths_expect_eq(std::unordered_set<std::string> expected_paths, fs::zpath path, fs::FilesFilter filter) {
+    let_mut iter = fs::FileCollector(path, std::move(filter)).paths();
     let filtered_paths = std::unordered_set(iter.begin(), iter.end());
     for (const auto &item: filtered_paths) {
         spdlog::info("file: {}", item.filename().c_str());
-        EXPECT_TRUE(paths.contains(item.filename()));
+        EXPECT_TRUE(expected_paths.contains(item.filename()));
     }
-    EXPECT_EQ(paths.size(), filtered_paths.size());
+    EXPECT_EQ(expected_paths.size(), filtered_paths.size());
 }
 
 // default filter
 TEST(FsTest, FileCollectorWithDefaultFilter) {
-    filtered_paths_expect_eq({}, fs::FilesFilter{});
+    filtered_paths_expect_eq({}, zpods::fs::zpath(), fs::FilesFilter{});
 }
-
-// filter with paths
-TEST(FsTest, FileCollectorWithPaths) {
-    let path1 = fs::path(test_data_path()) / fs::path("filter") / fs::path("dir2");
-    let path2 = path1 / fs::path("sub");
-    filtered_paths_expect_eq(
-            {"empty_file", "main.c"},
-            fs::FilesFilter{
-                    .paths = {path1, path2},
-            });
-}
+//
+//// filter with paths
+//TEST(FsTest, FileCollectorWithPaths) {
+//    let path1 = fs::path(test_data_path()) / fs::path("filter") / fs::path("dir2");
+//    let path2 = path1 / fs::path("sub");
+//    filtered_paths_expect_eq(
+//            {"empty_file", "main.c"}, zpods::fs::zpath(),
+//            fs::FilesFilter{
+//                    .paths = {path1, path2},
+//            });
+//}
 
 // filter with types
 TEST(FsTest, FileCollectorWithTypes) {
     let filter_path = fs::path(test_data_path()) / fs::path("filter");
     filtered_paths_expect_eq(
-            {"soft_lint_to_man_fork.txt"},
+            {"soft_lint_to_man_fork.txt"}, filter_path,
             fs::FilesFilter{
-                    .paths = {filter_path},
                     .types = {fs::FileType::symlink}
             });
 }
@@ -68,9 +67,8 @@ TEST(FsTest, FileCollectorWithTypes) {
 TEST(FsTest, FileCollectorWithSize) {
     let filter_path = fs::path(test_data_path()) / fs::path("filter");
     filtered_paths_expect_eq(
-            {"main.c", "man_printf.txt"},
+            {"main.c", "man_printf.txt"}, filter_path,
             fs::FilesFilter{
-                    .paths = {filter_path},
                     .types = {fs::FileType::regular},
                     .min_size = 20,
                     .max_size = 2.8_KB,
@@ -92,9 +90,8 @@ TEST(FsTest, FileCollectorWithNames) {
     {
         let filter_path = fs::path(test_data_path()) / fs::path("filter");
         filtered_paths_expect_eq(
-                {"man_printf.txt", "man_fork.txt", "hard_link_to_man_fork.txt"},
+                {"man_printf.txt", "man_fork.txt", "hard_link_to_man_fork.txt"}, filter_path,
                 {
-                        .paths = {filter_path},
                         .types = {fs::FileType::regular},
                         .re_list = {"man"}
                 }

@@ -35,6 +35,7 @@ namespace zpods {
         USER_NOT_EXISTS,
         WRONG_PASSWORD,
         EMPTY,
+        NO_NEW_TO_ARCHIVE,
     };
 
 //    enum class FileType : std::uint8_t {

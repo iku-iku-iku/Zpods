@@ -131,7 +131,7 @@ namespace zpods {
 
         struct FilesFilter {
             // only support one path now!
-            std::vector<zpath> paths; ///< paths to backup
+            std::vector<fs::zpath> paths;
             std::unordered_set<FileType> types{FileType::regular};  ///< types to backup
             std::vector<std::string> re_list; // regular expressions
             std::chrono::year_month_day min_date = make_year_month_day(0, 1, 1);
@@ -238,9 +238,8 @@ namespace zpods {
             fd_ = inotify_init();
             ZPODS_ASSERT(fd_ >= 0);
             fs::FilesFilter filter;
-            filter.paths.emplace_back(path_);
             filter.types.insert(fs::FileType::directory);
-            for (let_ref p: fs::FileCollector(path, std::move(filter)).paths()) {
+            for (let_ref p: fs::FileCollector(path_, std::move(filter)).paths()) {
                 // add watch for all directories
                 add_watch_for(p.c_str());
             }

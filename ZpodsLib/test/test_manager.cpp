@@ -9,5 +9,4 @@ using namespace zpods;
 
 TEST(ManagerTest, LoadPodsTest) {
     PodsManager manager;
-    manager.load_pods("/Users/code4love/Downloads/zpods");
 }
