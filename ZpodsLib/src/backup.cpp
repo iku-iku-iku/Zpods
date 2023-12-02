@@ -18,6 +18,14 @@ static Status backup_one(const char *target_dir, const char *src_dir, const Back
     }
     let archive_path = fs::path(target_dir) / *config.backup_filename;
 
+    if (fs::exists(archive_path.c_str())) {
+        spdlog::info("existed pods {}", archive_path.c_str());
+        PodsManager::Instance()->load_pods(archive_path);
+        for (const auto &item: PodsManager::Instance()->current_pods()) {
+            spdlog::info("detected archived file {}", item);
+        }
+    }
+
     // if there exist the pods file
     if (fs::exists(archive_path.c_str())) {
         // need delta backup

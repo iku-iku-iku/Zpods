@@ -65,6 +65,18 @@ namespace zpods {
         uint8_t flags = 0; // 0: normal, 1: delete
         char path[]; // the path of file
 
+        void set_normal() {
+            flags = 0;
+        }
+
+        void set_delete() {
+            flags |= 1;
+        }
+
+        void set_path_len(uint8_t len) {
+            path_len = len;
+        }
+
         void set_last_modified_ts(uint32_t ts) {
             memcpy(last_modified_ts.bytes, &ts, sizeof(ts));
         }
@@ -108,7 +120,7 @@ namespace zpods {
             return compact_size() + path_len;
         }
 
-        auto get_data() -> std::string_view const {
+        std::string_view get_data() const {
             let p = as_c_str(this);
             return {p + size(), get_data_len()};
         }
@@ -121,8 +133,8 @@ namespace zpods {
     struct Pod {
         using Id = std::string;
         long last_modified_ts;
-
         Id rel_path;
+        std::string abs_path;
 
         bool operator==(const Pod &rhs) const {
             return rel_path == rhs.rel_path;
@@ -157,9 +169,21 @@ namespace std {
     template<>
     struct hash<zpods::Pod> {
         size_t operator()(const zpods::Pod &pod) const {
-            return hash<std::string>()(pod.rel_path);
+            return hash<std::string>()(pod.rel_path) ^ hash<long>()(pod.last_modified_ts);
         }
     };
 }
+
+template<>
+struct fmt::formatter<zpods::Pod> {
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.end();
+    }
+
+    template<typename FormatContext>
+    auto format(const zpods::Pod &p, FormatContext &ctx) const {
+        return format_to(ctx.out(), "rel_path: {}, last_modified_ts: {}", p.rel_path, p.last_modified_ts);
+    }
+};
 
 #endif //ZPODS_ZPODS_CORE_H

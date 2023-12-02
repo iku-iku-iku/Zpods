@@ -5,6 +5,7 @@
 #include "archive.h"
 #include "fs.h"
 #include "zpods_core.h"
+#include "manager.h"
 
 using namespace zpods;
 
@@ -18,28 +19,45 @@ Status zpods::archive(const char *target_dir, const BackupConfig &config) {
         return Status::EMPTY;
     }
 
+    ZPODS_ASSERT(config.backup_filename.has_value());
+    let archive_path = fs::path(target_dir) / *config.backup_filename;
+
+
+
     let_mut collector = zpods::fs::FileCollector{config.filter};
     let file_paths = collector.paths();
-    std::vector<std::string> relative_paths;
-    std::vector<size_t> data_sizes;
-    std::vector<size_t> path_sizes;
 
-    let file_cnt = file_paths.size();
+    std::unordered_set<Pod> pods;
+
     for (const auto &item: config.filter.paths) {
         ZPODS_ASSERT(item.c_str()[strlen(item.c_str()) - 1] != '/');
     }
 
     for (let_ref path: file_paths) {
         let rel = collector.get_relative_path(path.c_str());
-        relative_paths.emplace_back(rel);
-        spdlog::info("archived file {}", rel);
-        data_sizes.push_back(fs::get_file_size(path));
-        path_sizes.push_back(strlen(rel));
+        Pod pod {
+            .last_modified_ts = fs::last_modified_timestamp(path.c_str()),
+            .rel_path = rel,
+            .abs_path = path,
+        };
+        pods.emplace(std::move(pod));
+    }
+
+    for (const auto &item: pods) {
+        spdlog::info("file collected before filtered: {}", item);
+    }
+
+    pods = PodsManager::Instance()->filter_archived_pods(pods);
+
+    let file_cnt = pods.size();
+    for (let_ref pod : pods) {
+        spdlog::info("archived file {}", pod);
+
+        total_size += fs::get_file_size(pod.abs_path);
+        total_size += pod.rel_path.size();
     }
 
     constexpr let header_size = PodHeader::compact_size();
-    total_size += std::accumulate(data_sizes.begin(), data_sizes.end(), 0ul);
-    total_size += std::accumulate(path_sizes.begin(), path_sizes.end(), 0ul);
     total_size += (file_cnt + 1) * header_size;
     // align total size to 16 bytes
     total_size = (total_size + 15) & ~15ul;
@@ -47,27 +65,25 @@ Status zpods::archive(const char *target_dir, const BackupConfig &config) {
     let buffer = std::unique_ptr<byte[]>(new byte[total_size]);
     p_byte p = buffer.get();
 
-    for (size_t i = 0; i < file_cnt; i++) {
+    for (let_ref pod:pods) {
         let_mut_ref header = *PodHeader::as_header(p);
-        header.set_data_len(data_sizes[i]);
-        ZPODS_ASSERT(path_sizes[i] < 256); // since we use uint8_t to store path_len
-        header.path_len = static_cast<uint8_t>(path_sizes[i]);
-        header.set_last_modified_ts(fs::last_modified_timestamp(file_paths[i].c_str()));
+        let data_size = fs::get_file_size(pod.abs_path);
+        header.set_data_len(data_size);
+        header.set_normal();
+        header.set_path_len(pod.rel_path.size());
+        header.set_last_modified_ts(pod.last_modified_ts);
 
-        memcpy(p + header_size, relative_paths[i].c_str(), path_sizes[i]);
+        memcpy(p + header_size, pod.rel_path.c_str(), pod.rel_path.size());
         p += PodHeader::as_header(p)->size();
-        std::ifstream ifs(file_paths[i]);
-        ifs.read((char *) p, (long) data_sizes[i]);
-        p += data_sizes[i];
+        std::ifstream ifs(pod.abs_path);
+        ifs.read((char *) p, (long) data_size);
+        p += data_size;
 
         ZPODS_ASSERT(p - buffer.get() <= total_size);
     }
 
     memset(p, 0, header_size);
-    ZPODS_ASSERT(config.backup_filename.has_value());
-    let ofs_path = fs::path(target_dir) / *config.backup_filename;
-
-    let_mut ofs = fs::open_or_create_file_as_ofs(ofs_path.c_str(), fs::ios::binary);
+    let_mut ofs = fs::open_or_create_file_as_ofs(archive_path.c_str(), fs::ios::binary);
     ofs.write((char *) buffer.get(), (long) total_size);
 
     return Status::OK;
@@ -100,7 +116,7 @@ Status zpods::unarchive(std::span<byte> src_bytes, const char *target_dir) {
         std::ofstream ofs(full_path);
         ZPODS_ASSERT(ofs.is_open());
 
-        let bytes = header.get_path();
+        let bytes = header.get_data();
         ofs.write((char *) bytes.data(), bytes.size());
         return Status::OK;
     });

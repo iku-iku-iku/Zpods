@@ -22,9 +22,10 @@ void PodsManager::load_pods(const std::string &path) {
 
         read_zpods_file(pod_path.c_str(), header, bytes);
 
-        let key = std::string((const char*)header.iv, 16);
+//        let key = std::string((const char*)header.iv, 16);
 
         foreach_file_in_zpods_bytes((byte *) bytes.c_str(), [&](const PodHeader&pod_header) {
+            spdlog::info("GET {}", pod_header.get_path());
             if (pod_header.is_delete()) {
                 let path = pod_header.get_path();
 
@@ -33,19 +34,12 @@ void PodsManager::load_pods(const std::string &path) {
                 });
 
             } else {
-                let pod = Pod{pod_header.get_last_modified_ts(), pod_header.get_path()};
+                let_mut pod = Pod{pod_header.get_last_modified_ts(), pod_header.get_path()};
                 current_pods_.insert(std::move(pod));
             }
             return Status::OK;
         });
     }
-}
-
-std::vector<Pod> PodsManager::get_pods() const {
-    std::vector<Pod> res;
-    for (const auto &[_, pods] : pods_map_) {
-    }
-    return res;
 }
 
 void PodsManager::load_pods_path() {
@@ -70,4 +64,19 @@ void PodsManager::store_pods_path() {
 void PodsManager::record_mapping(const fs::zpath &src_path, const fs::zpath &dst_path) {
     path_mapping_[src_path] = dst_path;
     store_pods_path();
+}
+
+void PodsManager::load_pods_from_tracked_paths() {
+    load_pods_path();
+
+    for (const auto &[k, v]: path_mapping_) {
+        for (const auto &entry: fs::directory_iterator(v)) {
+            if (entry.is_regular_file()) {
+                let_ref path = entry.path();
+                if (path.string().ends_with(PODS_FILE_SUFFIX)) {
+                    load_pods(path);
+                }
+            }
+        }
+    }
 }
