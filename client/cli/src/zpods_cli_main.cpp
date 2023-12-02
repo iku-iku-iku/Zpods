@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     backup->callback([&] {
         if (!zpods::fs::is_directory(target_dir)) {
             let target_path = zpods::fs::path(target_dir.c_str());
-            config.backup_filename = target_path.filename();
+            config.archive_path = target_path.filename();
             target_dir = target_path.parent_path();
         }
         // config paths
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
             spdlog::error("src path list is empty!");
             return;
         }
-        if (src_path_list.size() > 1 && !config.backup_filename.has_value()) {
+        if (src_path_list.size() > 1 && !config.archive_path.has_value()) {
             spdlog::error("you specified multiple src paths, but you didn't specify the target backup filename");
             return;
         }
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
             } else {
                 zpods::backup(target_dir.c_str(), config);
             }
-            let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.backup_filename->c_str());
+            let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.archive_path->c_str());
 
             if (*remote) {
                 let status = user.upload_file(backup_file_path.c_str());

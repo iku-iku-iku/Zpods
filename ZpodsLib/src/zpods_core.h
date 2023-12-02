@@ -12,7 +12,7 @@
 
 namespace zpods {
     constexpr static auto CHECKSUM_SIZE = 16;
-    struct ZpodsHeader {
+    struct PodHeader {
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
         constexpr static auto MAGIC_SIZE = 4;
         constexpr static auto CHECKSUM_SIZE = 16;
@@ -25,8 +25,8 @@ namespace zpods {
 
 
         // make up a header according to the backup config
-        static auto from(const BackupConfig& config) -> ZpodsHeader {
-            let_mut header = ZpodsHeader();
+        static auto from(const BackupConfig& config) -> PodHeader {
+            let_mut header = PodHeader();
             if (config.compress) {
                 header.backup_policy |= BackupConfig::COMPRESS;
             }
@@ -51,7 +51,7 @@ namespace zpods {
         }
     };
 
-    struct PodHeader {
+    struct PeaHeader {
         union {
 //            uint32_t data;
             uint8_t bytes[4];
@@ -98,13 +98,13 @@ namespace zpods {
         }
 
         static auto as_header(auto *p) {
-            return reinterpret_cast<PodHeader *>(p);
+            return reinterpret_cast<PeaHeader *>(p);
         }
 
         static constexpr auto compact_size() {
             static_assert(
-                    sizeof(last_modified_ts) + sizeof(data_len) + sizeof(path_len) + sizeof(flags) == sizeof(PodHeader));
-            return sizeof(PodHeader);
+                    sizeof(last_modified_ts) + sizeof(data_len) + sizeof(path_len) + sizeof(flags) == sizeof(PeaHeader));
+            return sizeof(PeaHeader);
         }
 
         bool is_delete() const {
@@ -130,13 +130,13 @@ namespace zpods {
         }
     };
 
-    struct Pod {
+    struct Pea {
         using Id = std::string;
         long last_modified_ts;
         Id rel_path;
         std::string abs_path;
 
-        bool operator==(const Pod &rhs) const {
+        bool operator==(const Pea &rhs) const {
             return rel_path == rhs.rel_path;
         }
     };
@@ -145,20 +145,20 @@ namespace zpods {
         using Id = std::string;
         Id pods_id;
 
-        std::unordered_map<Pod::Id, Pod> map;
+        std::unordered_map<Pea::Id, Pea> map;
     };
 
-    void calculate_password_verify_token(ZpodsHeader &header, const std::string &password);
+    void calculate_password_verify_token(PodHeader &header, const std::string &password);
 
     void calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> bytes);
 
     // TODO: refactor std::string to span<byte>
-    Status read_zpods_file(const char *path, zpods::ZpodsHeader &header, std::string &bytes);
+    Status read_pod_file(const char *path, zpods::PodHeader &header, std::string &bytes);
 
     Status process_origin_zpods_bytes(const char *path, BackupConfig &config,
                                       const std::function<Status(std::string & )> &func);
 
-    Status foreach_file_in_zpods_bytes(byte *bytes, const std::function<Status(const PodHeader &)> &func);
+    Status foreach_pea_in_pod_bytes(byte *bytes, const std::function<Status(const PeaHeader &)> &func);
 
 //    Status foreach_file_in_zpods_file(const char *path, ref_mut <BackupConfig> config,
 //                                      ref <std::function<Status(ref < fs::zpath > , std::string_view)>> func);
@@ -167,21 +167,21 @@ namespace zpods {
 
 namespace std {
     template<>
-    struct hash<zpods::Pod> {
-        size_t operator()(const zpods::Pod &pod) const {
+    struct hash<zpods::Pea> {
+        size_t operator()(const zpods::Pea &pod) const {
             return hash<std::string>()(pod.rel_path) ^ hash<long>()(pod.last_modified_ts);
         }
     };
 }
 
 template<>
-struct fmt::formatter<zpods::Pod> {
+struct fmt::formatter<zpods::Pea> {
     constexpr auto parse(format_parse_context &ctx) {
         return ctx.end();
     }
 
     template<typename FormatContext>
-    auto format(const zpods::Pod &p, FormatContext &ctx) const {
+    auto format(const zpods::Pea &p, FormatContext &ctx) const {
         return format_to(ctx.out(), "rel_path: {}, last_modified_ts: {}", p.rel_path, p.last_modified_ts);
     }
 };

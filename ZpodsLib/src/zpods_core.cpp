@@ -8,8 +8,8 @@
 namespace {
     using namespace zpods;
 
-    Status check_header(const zpods::ZpodsHeader &header) {
-        let std_header = zpods::ZpodsHeader();
+    Status check_header(const zpods::PodHeader &header) {
+        let std_header = zpods::PodHeader();
         if (memcmp(header.magic, std_header.magic, sizeof(header.magic)) != 0) {
             return Status::NOT_ZPODS_FILE;
         }
@@ -18,7 +18,7 @@ namespace {
     }
 }
 
-zpods::Status zpods::read_zpods_file(const char *path, zpods::ZpodsHeader &header, std::string &bytes) {
+zpods::Status zpods::read_pod_file(const char *path, zpods::PodHeader &header, std::string &bytes) {
     let_mut ifs = fs::open_or_create_file_as_ifs(path, fs::ios::binary);
     if (!ifs.is_open()) {
         return Status::ERROR;
@@ -42,11 +42,11 @@ void zpods::calculate_checksum(byte (&checksum)[CHECKSUM_SIZE], std::span<byte> 
 
 Status zpods::process_origin_zpods_bytes(const char *path, BackupConfig &config,
                                          const std::function<Status(std::string & )> &func) {
-    ZpodsHeader header;
+    PodHeader header;
     std::string bytes;
 
     {
-        let status = read_zpods_file(path, header, bytes);
+        let status = read_pod_file(path, header, bytes);
         if (status != Status::OK) {
             return status;
         }
@@ -87,7 +87,7 @@ Status zpods::process_origin_zpods_bytes(const char *path, BackupConfig &config,
         calculate_password_verify_token(header, config.crypto_config->key_);
         if (memcmp(header.password_verify_token,
                    current_password_verify_token.c_str(),
-                   ZpodsHeader::PASSWORD_VERIFY_SIZE) != 0) {
+                   PodHeader::PASSWORD_VERIFY_SIZE) != 0) {
             return Status::WRONG_PASSWORD;
         }
     }
@@ -121,7 +121,7 @@ Status zpods::process_origin_zpods_bytes(const char *path, BackupConfig &config,
 //    });
 //}
 
-void zpods::calculate_password_verify_token(ZpodsHeader& header, const std::string &password) {
+void zpods::calculate_password_verify_token(PodHeader& header, const std::string &password) {
     let_mut cipher = zpods::encrypt(
             {as_c_str(header), sizeof(header)},
             password,
@@ -131,10 +131,10 @@ void zpods::calculate_password_verify_token(ZpodsHeader& header, const std::stri
     memcpy(header.password_verify_token, cipher->c_str(), sizeof(header.password_verify_token));
 }
 
-Status zpods::foreach_file_in_zpods_bytes(byte *bytes, const std::function<Status(const PodHeader &)> &func) {
+Status zpods::foreach_pea_in_pod_bytes(byte *bytes, const std::function<Status(const PeaHeader &)> &func) {
     let_mut p = bytes;
-    PodHeader *header;
-    while (!(header = PodHeader::as_header(p))->empty()) {
+    PeaHeader *header;
+    while (!(header = PeaHeader::as_header(p))->empty()) {
         {
             let st = func(*header);
             if (st != Status::OK) {

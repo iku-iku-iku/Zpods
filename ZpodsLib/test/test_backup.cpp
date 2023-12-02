@@ -12,7 +12,7 @@ TEST(BackupTest, BackupRestore) {
     config.filter.paths.emplace_back(src_path);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
-    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.archive_path.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
     EXPECT_EQ(status2, zpods::Status::OK);
 }
@@ -28,7 +28,7 @@ TEST(BackupTest, BackupRestoreMultiPath) {
     config.filter.paths.emplace_back(src_path2);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
-    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.archive_path.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
     EXPECT_EQ(status2, zpods::Status::OK);
 }
@@ -43,7 +43,7 @@ TEST(BackupTest, BackupRestoreSoftLink) {
     config.filter.paths.emplace_back(src_path);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
-    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.archive_path.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
     EXPECT_EQ(status2, zpods::Status::OK);
 }
@@ -64,7 +64,7 @@ TEST(BackupTest, BackupRestoreCompression) {
     config.filter.paths.emplace_back(src_path);
     let status1 = zpods::backup(target_path, config);
     EXPECT_EQ(status1, zpods::Status::OK);
-    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.archive_path.value());
     let status2 = zpods::restore(backup_path.c_str(), zpods::temp_path());
     EXPECT_EQ(status2, zpods::Status::OK);
 }
@@ -84,7 +84,7 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
                   zpods::Status::OK);
     }
 
-    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.backup_filename.value());
+    let backup_path = fmt::format("{}/{}", zpods::temp_path(), config.archive_path.value());
 
     // restore with right password
     {

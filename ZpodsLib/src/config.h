@@ -10,7 +10,7 @@
 
 namespace zpods {
 
-    constexpr auto PODS_FILE_SUFFIX = ".pods";
+    constexpr auto POD_FILE_SUFFIX = ".pod";
 
     struct CryptoConfig {
         std::string key_;
@@ -44,7 +44,8 @@ namespace zpods {
 
         bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file
-        mutable std::optional<std::string> backup_filename;
+        mutable fs::zpath archive_path;
+        mutable fs::zpath dir_to_backup;
         ///< the name of backup file,
         ///< if not set, default to ${src_path.filename()}.pods
         ///< will be overwritten by the real name after backup

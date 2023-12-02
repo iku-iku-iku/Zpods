@@ -10,28 +10,46 @@
 namespace zpods {
     class PodsManager {
     public:
-        static PodsManager* Instance();
+        static PodsManager *Instance();
+
+        void create_pods(const fs::zpath& pods_path);
+
         void load_pods_from_tracked_paths();
-        void load_pods(const std::string& path);
+
+        void load_pods(const fs::zpath &pea);
 
         void load_pods_path();
-        void store_pods_path();
-        void record_mapping(const fs::zpath& src_path, const fs::zpath& dst_path);
-        const std::unordered_set<Pod>& current_pods() const { return current_pods_; }
 
-        std::unordered_set<Pod> filter_archived_pods(const std::unordered_set<Pod>& pods) const {
-            std::unordered_set<Pod> res;
-            for (const auto& pod: pods) {
-                if (current_pods_.find(pod) == current_pods_.end()) {
-                    res.insert(pod);
+        void store_pods_path();
+
+        void record_mapping(const fs::zpath &src_path, const fs::zpath &dst_path);
+
+        const std::unordered_set<Pea> &current_pod(const fs::zpath &pod_path) const {
+            ZPODS_ASSERT(cur_state_of_peas_per_pods.contains(pod_path));
+            return cur_state_of_peas_per_pods.find(pod_path)->second;
+        }
+
+        std::unordered_set<Pea> &current_pod(const fs::zpath &pod_path) {
+            ZPODS_ASSERT(cur_state_of_peas_per_pods.contains(pod_path));
+            return cur_state_of_peas_per_pods.find(pod_path)->second;
+        }
+
+        std::unordered_set<Pea>
+        filter_archived_pods(const fs::zpath &pod_path, const std::unordered_set<Pea> &in_pod) const {
+            std::unordered_set<Pea> res;
+            let_ref cur_pod = current_pod(pod_path);
+            for (const auto &pea: in_pod) {
+                if (cur_pod.contains(pea)) {
+                    res.insert(pea);
                 }
             }
             return res;
         }
+
     private:
         std::unordered_map<Pods::Id, Pods> pods_map_;
-        // maintain a global view of all pods
-        std::unordered_set<Pod> current_pods_;
+        // maintain current state of peas for each pods
+        std::unordered_map<fs::zpath, std::unordered_set<Pea>> cur_state_of_peas_per_pods;
         std::unordered_map<fs::zpath, fs::zpath> path_mapping_;
     };
 }

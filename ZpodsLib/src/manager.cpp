@@ -5,37 +5,56 @@
 
 using namespace zpods;
 
-PodsManager* PodsManager::Instance() {
+PodsManager *PodsManager::Instance() {
     static PodsManager instance;
     return &instance;
 }
 
-void PodsManager::load_pods(const std::string &path) {
-    let_mut paths = fs::get_file_family(path.c_str());
-    std::sort(paths.begin(), paths.end(), [](const auto &lhs, const auto &rhs) {
-        return strcmp(lhs.c_str(), rhs.c_str()) < 0;
+void PodsManager::load_pods(const fs::zpath &pods_path) {
+//    let_mut paths = fs::get_file_family(pods_path.c_str());
+    ZPODS_ASSERT(fs::is_directory(pods_path));
+
+    std::vector<fs::zpath> pod_paths;
+    for (let_ref pod: fs::directory_iterator(pods_path)) {
+        let_ref pod_path = pod.path();
+        if (pod_path.string().ends_with(POD_FILE_SUFFIX)) {
+            pod_paths.push_back(pod_path);
+        }
+    }
+
+    std::sort(pod_paths.begin(), pod_paths.end(), [](const auto &lhs, const auto &rhs) {
+        let_mut ss1 = std::stringstream(lhs.filename().c_str());
+        let_mut ss2 = std::stringstream(rhs.filename().c_str());
+        long ts1, ts2;
+        ss1 >> ts1;
+        ss2 >> ts2;
+        return ts1 < ts2;
     });
 
-    for (const auto &pod_path: paths) {
-        ZpodsHeader header;
+    let_mut_ref cur_pod = current_pod(pods_path);
+    for (let_ref pod_path: pod_paths) {
+        PodHeader header;
         std::string bytes;
 
-        read_zpods_file(pod_path.c_str(), header, bytes);
+        read_pod_file(pod_path.c_str(), header, bytes);
 
 //        let key = std::string((const char*)header.iv, 16);
 
-        foreach_file_in_zpods_bytes((byte *) bytes.c_str(), [&](const PodHeader&pod_header) {
-            spdlog::info("GET {}", pod_header.get_path());
-            if (pod_header.is_delete()) {
-                let path = pod_header.get_path();
+        foreach_pea_in_pod_bytes((byte *) bytes.c_str(), [&](const PeaHeader &pea_header) {
+            spdlog::info("GET {}", pea_header.get_path());
+            if (pea_header.is_delete()) {
+                let path = pea_header.get_path();
 
-                erase_if(current_pods_, [&](const auto &pod) {
-                    return pod.rel_path == path;
+                erase_if(cur_pod, [&](const auto &pea) {
+                    return pea.rel_path == path;
                 });
 
             } else {
-                let_mut pod = Pod{pod_header.get_last_modified_ts(), pod_header.get_path()};
-                current_pods_.insert(std::move(pod));
+                let_mut pea = Pea{
+                        .last_modified_ts= pea_header.get_last_modified_ts(),
+                        .rel_path = pea_header.get_path()
+                };
+                cur_pod.insert(std::move(pea));
             }
             return Status::OK;
         });
@@ -55,7 +74,7 @@ void PodsManager::load_pods_path() {
 
 void PodsManager::store_pods_path() {
     let_mut ofs = fs::open_or_create_file_as_ofs("./pods_paths", fs::ios::binary);
-    for (const auto &[k,v ]: path_mapping_) {
+    for (const auto &[k, v]: path_mapping_) {
         ofs << k << '\n';
         ofs << v << '\n';
     }
@@ -73,10 +92,18 @@ void PodsManager::load_pods_from_tracked_paths() {
         for (const auto &entry: fs::directory_iterator(v)) {
             if (entry.is_regular_file()) {
                 let_ref path = entry.path();
-                if (path.string().ends_with(PODS_FILE_SUFFIX)) {
+                if (path.string().ends_with(POD_FILE_SUFFIX)) {
                     load_pods(path);
                 }
             }
         }
     }
+}
+
+void PodsManager::create_pods(const fs::zpath &pods_path) {
+    ZPODS_ASSERT(!fs::exists(pods_path.c_str()));
+
+    fs::create_directory_if_not_exist(pods_path.c_str());
+
+    cur_state_of_peas_per_pods.insert({pods_path, {}});
 }

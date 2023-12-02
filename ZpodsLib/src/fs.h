@@ -147,18 +147,11 @@ namespace zpods {
         public:
             using iterator = std::vector<zpath>::iterator;
 
-            explicit FileCollector(FilesFilter filter) : filter_(std::move(filter)) {
-                for (const auto &item: filter_.paths) {
-                    base_map_.insert({item, item});
-                    current_root_ = item;
-                    scan_path(item);
-                }
+            explicit FileCollector(const fs::zpath &path, FilesFilter filter) : filter_(std::move(filter)) {
+                scan_path(path);
             }
 
             bool add_path(const std::string &path) {
-                if (path_set_.contains(path)) {
-                    return false;
-                }
                 let status = std::filesystem::symlink_status(path);
                 FileType type = status.type();
 
@@ -203,24 +196,9 @@ namespace zpods {
 
                 spdlog::info("{}: {}-{}-{} size: {}", path, (int) date.year(), (unsigned) date.month(),
                              (unsigned) date.day(), bytes_cnt);
-                path_set_.insert(path);
                 paths_.emplace_back(path);
 
-                if (base_map_.count(path) == 0) {
-                    base_map_.insert({path, current_root_});
-                } else {
-                    if (strlen(base_map_[path].c_str()) > strlen(current_root_.c_str())) {
-                        base_map_[path] = current_root_;
-                    }
-                }
-
                 return true;
-            }
-
-            auto get_relative_path(const char* path) const {
-                let it = base_map_.find(path);
-                ZPODS_ASSERT(it != base_map_.end());
-                return fs::relative(path, it->second.parent_path().c_str());
             }
 
             void scan_path(const std::string &path) {
@@ -238,12 +216,10 @@ namespace zpods {
             std::vector<zpath> paths() {
                 return std::move(paths_);
             }
+
         private:
             std::vector<zpath> paths_;
-            std::unordered_set<zpath> path_set_;
             FilesFilter filter_;
-            std::unordered_map<zpath, zpath> base_map_;
-            zpath current_root_;
         };
     }
 
@@ -264,7 +240,7 @@ namespace zpods {
             fs::FilesFilter filter;
             filter.paths.emplace_back(path_);
             filter.types.insert(fs::FileType::directory);
-            for (let_ref p: fs::FileCollector(std::move(filter)).paths()) {
+            for (let_ref p: fs::FileCollector(path, std::move(filter)).paths()) {
                 // add watch for all directories
                 add_watch_for(p.c_str());
             }
