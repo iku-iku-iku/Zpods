@@ -130,6 +130,7 @@ namespace zpods {
 
 
         struct FilesFilter {
+            // only support one path now!
             std::vector<zpath> paths; ///< paths to backup
             std::unordered_set<FileType> types{FileType::regular};  ///< types to backup
             std::vector<std::string> re_list; // regular expressions

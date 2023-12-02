@@ -38,8 +38,6 @@ namespace zpods {
             ENCRYPT = 1 << 1,
         };
 
-        PodsManager* pods_manager;
-
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
 
         bool delta_backup = false;

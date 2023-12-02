@@ -18,12 +18,8 @@ Status zpods::archive(const char *target_dir, const BackupConfig &config) {
         return Status::EMPTY;
     }
 
-    std::vector<fs::zpath> file_paths;
     let_mut collector = zpods::fs::FileCollector{config.filter};
-    {
-        file_paths = collector.paths();
-    }
-//    const std::vector file_paths(collector.begin(), collector.end());
+    let file_paths = collector.paths();
     std::vector<std::string> relative_paths;
     std::vector<size_t> data_sizes;
     std::vector<size_t> path_sizes;
@@ -49,7 +45,6 @@ Status zpods::archive(const char *target_dir, const BackupConfig &config) {
     total_size = (total_size + 15) & ~15ul;
 
     let buffer = std::unique_ptr<byte[]>(new byte[total_size]);
-//    std::vector<byte> buffer(total_size);
     p_byte p = buffer.get();
 
     for (size_t i = 0; i < file_cnt; i++) {

@@ -10,37 +10,20 @@ using namespace zpods;
 
 using namespace zpods::fs;
 
-
-Status zpods::backup(const char *target_dir, const BackupConfig& config) {
-    fs::create_directory_if_not_exist(target_dir);
-    ZPODS_ASSERT(fs::is_directory(target_dir));
-    let target = fs::path(target_dir);
-
-    // we must have something to back up!
-    if (config.filter.paths.empty()) {
-        return Status::EMPTY;
-    }
-
-    // what we back up must really exist!
-    for (const auto &item: config.filter.paths) {
-        if (!fs::exists(item.c_str())) {
-            return Status::PATH_NOT_EXIST;
-        }
-    }
-
+static Status backup_one(const char *target_dir, const char *src_dir, const BackupConfig &config) {
     // if not specified backup file name, deduce from path
     if (!config.backup_filename.has_value()) {
-        config.backup_filename = fmt::format("{}{}", config.filter.paths[0].filename().c_str(),
+        config.backup_filename = fmt::format("{}{}", fs::path(src_dir).filename().c_str(),
                                              PODS_FILE_SUFFIX);
     }
-    let archive_path = target / *config.backup_filename;
+    let archive_path = fs::path(target_dir) / *config.backup_filename;
 
     // if there exist the pods file
     if (fs::exists(archive_path.c_str())) {
         // need delta backup
         if (config.delta_backup) {
             // get paths from backup file and all delta backup files
-            config.pods_manager->load_pods(archive_path);
+            PodsManager::Instance()->load_pods(archive_path);
         } else {
             // if not enabled delta backup, just remove it.
             fs::remove_file(archive_path.c_str());
@@ -89,6 +72,29 @@ Status zpods::backup(const char *target_dir, const BackupConfig& config) {
     return Status::OK;
 }
 
+
+Status zpods::backup(const char *target_dir, const BackupConfig &config) {
+    fs::create_directory_if_not_exist(target_dir);
+    ZPODS_ASSERT(fs::is_directory(target_dir));
+    let target = fs::path(target_dir);
+
+    // we must have something to back up!
+    if (config.filter.paths.empty()) {
+        return Status::EMPTY;
+    }
+
+    // what we back up must really exist!
+    for (const auto &item: config.filter.paths) {
+        if (!fs::exists(item.c_str())) {
+            return Status::PATH_NOT_EXIST;
+        }
+    }
+
+    PodsManager::Instance()->record_mapping(config.filter.paths[0], target_dir);
+
+    return backup_one(target_dir, config.filter.paths[0].c_str(), config);
+}
+
 Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig config) {
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
@@ -98,7 +104,7 @@ Status zpods::restore(const char *src_path, const char *target_dir, BackupConfig
     });
 }
 
-Status zpods::sync_backup(const char *target_dir, const BackupConfig& config) {
+Status zpods::sync_backup(const char *target_dir, const BackupConfig &config) {
     // make sure the backup file is up-to-date
     zpods::backup(target_dir, config);
 
