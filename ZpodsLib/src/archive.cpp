@@ -86,7 +86,7 @@ Status zpods::archive(const char *src_dir, const char *dest_dir, const BackupCon
     }
 
     memset(p, 0, header_size);
-    let_mut ofs = fs::open_or_create_file_as_ofs(config.archive_path.c_str(), fs::ios::binary);
+    let_mut ofs = fs::open_or_create_file_as_ofs(config.current_pod_path.c_str(), fs::ios::binary);
     ofs.write((char *) buffer.get(), (long) pod_total_size);
 
     return Status::OK;

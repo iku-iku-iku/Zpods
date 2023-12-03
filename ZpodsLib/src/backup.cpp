@@ -15,8 +15,8 @@ static Status backup_one(const char *src_dir, const char *target_dir, const Back
     if (status != Status::OK) { return status; }
 
     do {
-        config.archive_path = fs::path(target_dir) / fmt::format("{}{}", get_current_timestamp(), POD_FILE_SUFFIX);
-    } while (fs::exists(config.archive_path.c_str()));
+        config.current_pod_path = fs::path(target_dir) / fmt::format("{}{}", get_current_timestamp(), POD_FILE_SUFFIX);
+    } while (fs::exists(config.current_pod_path.c_str()));
 
     // 1. archive files of src_path to a single file in target_dir
 
@@ -27,14 +27,14 @@ static Status backup_one(const char *src_dir, const char *target_dir, const Back
         return status;
     }
 
-    let_mut bytes = fs::read_from_file(config.archive_path.c_str());
+    let_mut bytes = fs::read_from_file(config.current_pod_path.c_str());
     std::unique_ptr<byte[]> buf;
     size_t buf_len;
     // 2. compress if needed
     if (config.compress) {
         std::tie(buf_len, buf) = compress({(p_byte) bytes.data(), bytes.size()});
         bytes = {as_c_str(buf.get()), buf_len};
-        spdlog::info("file compression succeeded : {}", config.archive_path.c_str());
+        spdlog::info("file compression succeeded : {}", config.current_pod_path.c_str());
     }
 
     // 3. encrypt if needed
@@ -42,16 +42,16 @@ static Status backup_one(const char *src_dir, const char *target_dir, const Back
         let_ref conf = config.crypto_config;
         let cipher = encrypt({as_c_str(bytes.data()), bytes.size()}, conf->key_, conf->iv_);
         if (!cipher.has_value()) {
-            spdlog::error("file encryption failed: {}", config.archive_path.c_str());
+            spdlog::error("file encryption failed: {}", config.current_pod_path.c_str());
             return Status::ERROR;
         }
         bytes = {cipher->data(), cipher->size()};
-        spdlog::info("file encryption succeeded : {}", config.archive_path.c_str());
+        spdlog::info("file encryption succeeded : {}", config.current_pod_path.c_str());
     }
 
     // output to target file
     {
-        let_mut ofs = fs::open_or_create_file_as_ofs(config.archive_path.c_str(), fs::ios::binary);
+        let_mut ofs = fs::open_or_create_file_as_ofs(config.current_pod_path.c_str(), fs::ios::binary);
 
         let_mut header = PodHeader::from(config);
         calculate_checksum(header.checksum, {(p_byte) bytes.data(), bytes.size()});
@@ -70,31 +70,19 @@ Status zpods::backup(const char *dest_dir, const BackupConfig &config) {
     fs::create_directory_if_not_exist(dest_dir);
     ZPODS_ASSERT(fs::is_directory(dest_dir));
 
-//    // we must have something to back up!
-//    if (config.filter.paths.empty()) {
-//        return Status::EMPTY;
-//    }
-//
-//    // what we back up must really exist!
-//    for (const auto &item: config.filter.paths) {
-//        if (!fs::exists(item.c_str())) {
-//            return Status::PATH_NOT_EXIST;
-//        }
-//    }
+    let dir_to_backup = config.dir_to_backup;
 
-    for (const auto &dir_to_backup: config.filter.paths) {
-        let pods_dir_name = fmt::format("{}-PODS", dir_to_backup.filename().c_str());
-        let pods_dir = fs::path(dest_dir) / pods_dir_name;
+    let pods_dir_name = fmt::format("{}-PODS", dir_to_backup.filename().c_str());
+    let pods_dir = fs::path(dest_dir) / pods_dir_name;
 
-        if (!fs::exists(pods_dir.c_str())) {
-            PodsManager::Instance()->create_pods(pods_dir);
-        }
-        PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
+    if (!fs::exists(pods_dir.c_str())) {
+        PodsManager::Instance()->create_pods(pods_dir);
+    }
+    PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
 
-        let st = backup_one(dir_to_backup.c_str(), pods_dir.c_str(), config);
-        if (st != Status::OK) {
-            return st;
-        }
+    let st = backup_one(dir_to_backup.c_str(), pods_dir.c_str(), config);
+    if (st != Status::OK) {
+        return st;
     }
 
     return Status::OK;
@@ -152,20 +140,19 @@ Status zpods::sync_backup(const char *target_dir, const BackupConfig &config) {
     };
 
     // create a watcher in a thread for each path
-    std::vector<std::thread> threads;
-    threads.reserve(config.filter.paths.size());
-    for (let_ref path: config.filter.paths) {
-        threads.emplace_back([=] {
-            FsWatcher watcher(path.c_str(), {
-                    .on_file_create = callback,
-                    .on_file_delete = callback,
-                    .on_file_modify = callback,
-                    .on_dir_create = callback,
-                    .on_dir_delete = callback,
-            });
-        });
-    }
-    for (let_mut_ref item: threads) { item.join(); }
+//    std::vector<std::thread> threads;
+//    for (let_ref path: config.filter.paths) {
+//        threads.emplace_back([=] {
+//            FsWatcher watcher(path.c_str(), {
+//                    .on_file_create = callback,
+//                    .on_file_delete = callback,
+//                    .on_file_modify = callback,
+//                    .on_dir_create = callback,
+//                    .on_dir_delete = callback,
+//            });
+//        });
+//    }
+//    for (let_mut_ref item: threads) { item.join(); }
 
     return Status::OK;
 }

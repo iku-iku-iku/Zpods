@@ -16,7 +16,7 @@ TEST(BackupTest, BackupRestore) {
 
     BackupConfig config;
     config.compress = false;
-    config.filter.paths.emplace_back(src_path);
+    config.dir_to_backup = src_path;
     status = backup(dest_path, config);
     EXPECT_EQ(status, zpods::Status::OK);
 
@@ -35,7 +35,7 @@ TEST(BackupTest, BackupRestoreSoftLink) {
     zpods::BackupConfig config;
     config.compress = false;
     config.filter.types.emplace(zpods::fs::FileType::symlink);
-    config.filter.paths.emplace_back(src_path);
+    config.dir_to_backup = src_path;
     status = backup(dest_path, config);
     EXPECT_EQ(status, zpods::Status::OK);
 
@@ -53,7 +53,7 @@ TEST(BackupTest, BackupRestoreCompression) {
 
     BackupConfig config;
     config.compress = true;
-    config.filter.paths.emplace_back(src_path);
+    config.dir_to_backup = src_path;
     status = backup(dest_path, config);
     EXPECT_EQ(status, zpods::Status::OK);
 
@@ -71,7 +71,7 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
     BackupConfig config;
     config.compress = true;
     config.crypto_config = zpods::CryptoConfig("123456");
-    config.filter.paths.emplace_back(src_path);
+    config.dir_to_backup = src_path;
 
     // backup with password
     EXPECT_EQ(backup(dest_path, config), Status::OK);
@@ -97,7 +97,7 @@ TEST(BackupTest, DeltaBackup) {
     BackupConfig config;
     config.compress = true;
     config.crypto_config = CryptoConfig("123456");
-    config.filter.paths.emplace_back(src_path);
+    config.dir_to_backup = src_path;
 
     // backup with password
     EXPECT_EQ(backup(dest_path, config), Status::OK);

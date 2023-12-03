@@ -129,11 +129,10 @@ namespace zpods {
         }
 
 
+        // filter files with given conditions
         struct FilesFilter {
-            // only support one path now!
-            std::vector<fs::zpath> paths;
             std::unordered_set<FileType> types{FileType::regular};  ///< types to backup
-            std::vector<std::string> re_list; // regular expressions
+            std::vector<std::string> re_list; ///< regular expressions for names filtering
             std::chrono::year_month_day min_date = make_year_month_day(0, 1, 1);
             ///< only backup files that are modified after min_time
             std::chrono::year_month_day max_date = make_year_month_day(9999, 12, 31);

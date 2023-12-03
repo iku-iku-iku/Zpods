@@ -10,9 +10,9 @@ using namespace zpods;
 void test_helper(const char *dir) {
     zpods::BackupConfig config;
     let src_dir = fmt::format("{}/{}", test_data_path(), dir);
-    config.archive_path = fs::path(temp_path()) / fmt::format("{}.zpods", dir);
+    config.current_pod_path = fs::path(temp_path()) / fmt::format("{}.zpods", dir);
     EXPECT_EQ(zpods::Status::OK, zpods::archive(src_dir.c_str(), zpods::temp_path(), config) );
-    EXPECT_EQ(zpods::Status::OK, zpods::unarchive(config.archive_path.c_str(), zpods::temp_path()) );
+    EXPECT_EQ(zpods::Status::OK, zpods::unarchive(config.current_pod_path.c_str(), zpods::temp_path()) );
 }
 
 //

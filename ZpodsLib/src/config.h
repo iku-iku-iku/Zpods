@@ -44,7 +44,8 @@ namespace zpods {
 
         bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file
-        mutable fs::zpath archive_path;
+        mutable fs::zpath current_pod_path;
+        mutable fs::zpath dir_to_backup;
         ///< the name of backup file,
         ///< if not set, default to ${src_path.filename()}.pods
         ///< will be overwritten by the real name after backup

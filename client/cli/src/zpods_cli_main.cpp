@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     backup->callback([&] {
         if (!zpods::fs::is_directory(target_dir)) {
             let target_path = zpods::fs::path(target_dir.c_str());
-            config.archive_path = target_path.filename();
+            config.current_pod_path = target_path.filename();
             target_dir = target_path.parent_path();
         }
         // config paths
@@ -92,11 +92,7 @@ int main(int argc, char **argv) {
             spdlog::error("src path list is empty!");
             return;
         }
-        if (src_path_list.size() > 1 && !config.archive_path.has_value()) {
-            spdlog::error("you specified multiple src paths, but you didn't specify the target backup filename");
-            return;
-        }
-        config.filter.paths = std::vector<zpods::fs::zpath>(src_path_list.begin(), src_path_list.end());
+
         // config date
         if (*min_date_opt) {
             let year = std::stoi(min_date.substr(0, 4));
@@ -141,19 +137,23 @@ int main(int argc, char **argv) {
             if (*compress) {
                 config.compress = true;
             }
-            if (*sync) {
-                zpods::sync_backup(target_dir.c_str(), config);
-            } else {
-                zpods::backup(target_dir.c_str(), config);
-            }
-            let backup_file_path = fmt::format("{}/{}", target_dir.c_str(), config.archive_path->c_str());
 
-            if (*remote) {
-                let status = user.upload_file(backup_file_path.c_str());
-                if (status == zpods::Status::OK) {
-                    spdlog::info("upload successfully!");
+            for (const auto &item: src_path_list) {
+                config.dir_to_backup = item;
+                if (*sync) {
+                    zpods::sync_backup(target_dir.c_str(), config);
                 } else {
-                    spdlog::info("fail to upload");
+                    zpods::backup(target_dir.c_str(), config);
+                }
+                let backup_file_path = zpods::fs::path(target_dir.c_str()) / config.current_pod_path;
+
+                if (*remote) {
+                    let status = user.upload_file(backup_file_path.c_str());
+                    if (status == zpods::Status::OK) {
+                        spdlog::info("upload successfully!");
+                    } else {
+                        spdlog::info("fail to upload");
+                    }
                 }
             }
 
