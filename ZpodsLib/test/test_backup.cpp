@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <filesystem>
 #include "zpods_lib.h"
-#include "zpods_core.h"
+#include "ZpodsLib/src/core/zpods_core.h"
 
 using namespace zpods;
 

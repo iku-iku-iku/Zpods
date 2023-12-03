@@ -3,7 +3,7 @@
 //
 #include "pch.h"
 
-#include <network.h>
+#include <ZpodsLib/src/network/network.h>
 #include "CLI11.hpp"
 #include "zpods_lib.h"
 #include "termios.h"

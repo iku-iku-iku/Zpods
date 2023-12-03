@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "crypto.h"
+#include "ZpodsLib/src/base/crypto.h"
 
 TEST(CryptoTest, EncryptDecrypt1) {
     unsigned char key[] = "01234567890123456789012345678901";

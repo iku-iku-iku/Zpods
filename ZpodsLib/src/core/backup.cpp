@@ -1,9 +1,9 @@
 #include "backup.h"
-#include "compress.h"
+#include "ZpodsLib/src/base/compress.h"
 #include "archive.h"
-#include "fs.h"
-#include "crypto.h"
-#include "zpods_core.h"
+#include "ZpodsLib/src/base/fs.h"
+#include "ZpodsLib/src/base/crypto.h"
+#include "ZpodsLib/src/core/zpods_core.h"
 #include "manager.h"
 
 using namespace zpods;

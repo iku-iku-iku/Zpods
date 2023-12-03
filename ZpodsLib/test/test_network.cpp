@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "network.h"
+#include "ZpodsLib/src/network/network.h"
 
 using namespace zpods;
 

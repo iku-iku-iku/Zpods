@@ -1,2 +1,5 @@
-#include "backup.h"
-#include "compress.h"
+#include "ZpodsLib/src/core/backup.h"
+#include "ZpodsLib/src/base/compress.h"
+#include "ZpodsLib/src/base/crypto.h"
+#include "ZpodsLib/src/base/fs.h"
+#include "ZpodsLib/src/core/zpods_core.h"

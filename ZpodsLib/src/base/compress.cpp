@@ -2,7 +2,7 @@
 // Created by code4love on 23-9-20.
 //
 #include "compress.h"
-#include "bit_ops.h"
+#include "ZpodsLib/src/base/bit_ops.h"
 #include "fs.h"
 
 using namespace zpods;

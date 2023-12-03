@@ -6,7 +6,7 @@
 #define ZPODS_CONFIG_H
 
 #include "pch.h"
-#include "fs.h"
+#include "ZpodsLib/src/base/fs.h"
 
 namespace zpods {
 

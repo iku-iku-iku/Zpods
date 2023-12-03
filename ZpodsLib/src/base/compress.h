@@ -5,7 +5,7 @@
 #ifndef ZPODS_COMPRESS_H
 #define ZPODS_COMPRESS_H
 
-#include "pch.h"
+#include "../../../pch.h"
 
 #include "bit_ops.h"
 

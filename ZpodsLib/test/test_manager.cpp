@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "manager.h"
+#include "ZpodsLib/src/core/manager.h"
 
 using namespace zpods;
 

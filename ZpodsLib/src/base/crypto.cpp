@@ -2,9 +2,9 @@
 // Created by code4love on 23-9-23.
 //
 
-#include "crypto.h"
+#include "ZpodsLib/src/base/crypto.h"
 #include "fs.h"
-#include "config.h"
+#include "ZpodsLib/src/core/config.h"
 #include <openssl/err.h>
 
 using namespace zpods;

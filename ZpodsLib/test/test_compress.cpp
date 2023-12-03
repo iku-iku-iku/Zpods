@@ -4,8 +4,8 @@
 
 #include <gtest/gtest.h>
 #include <cstring>
-#include "compress.h"
-#include "fs.h"
+#include "ZpodsLib/src/base/compress.h"
+#include "ZpodsLib/src/base/fs.h"
 
 using namespace zpods;
 

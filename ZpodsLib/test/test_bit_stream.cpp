@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <cstring>
-#include "bit_ops.h"
+#include "ZpodsLib/src/base/bit_ops.h"
 
 TEST(BitStreamTest, test_read_write1) {
     zpods::BitStream bs;

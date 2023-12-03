@@ -2,7 +2,7 @@
 // Created by code4love on 23-11-15.
 //
 #include "manager.h"
-#include "zpods_core.h"
+#include "ZpodsLib/src/core/zpods_core.h"
 
 using namespace zpods;
 

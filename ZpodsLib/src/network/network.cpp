@@ -2,7 +2,7 @@
 // Created by code4love on 23-10-9.
 //
 
-#include "network.h"
+#include "ZpodsLib/src/network/network.h"
 
 auto zpods::User::to_json_str() const -> std::string {
     nlohmann::json json_obj;

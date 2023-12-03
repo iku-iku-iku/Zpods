@@ -5,7 +5,7 @@
 #ifndef ZPODS_MANAGER_H
 #define ZPODS_MANAGER_H
 
-#include "zpods_core.h"
+#include "ZpodsLib/src/core/zpods_core.h"
 
 namespace zpods {
     class PodsManager {

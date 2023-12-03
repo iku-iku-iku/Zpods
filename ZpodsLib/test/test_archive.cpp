@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "archive.h"
+#include "ZpodsLib/src/core/archive.h"
 
 using namespace zpods;
 

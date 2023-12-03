@@ -3,8 +3,8 @@
 //
 
 #include "archive.h"
-#include "fs.h"
-#include "zpods_core.h"
+#include "ZpodsLib/src/base/fs.h"
+#include "ZpodsLib/src/core/zpods_core.h"
 #include "manager.h"
 
 using namespace zpods;
