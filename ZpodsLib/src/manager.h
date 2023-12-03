@@ -16,7 +16,7 @@ namespace zpods {
 
         void load_pods_from_tracked_paths();
 
-        void load_pods(const fs::zpath &pea, const BackupConfig &config);
+        Status load_pods(const fs::zpath &pods_path, const BackupConfig &config);
 
         void load_pods_path();
 
@@ -44,6 +44,17 @@ namespace zpods {
             for (const auto &pea: in_pod) {
                 if (!cur_pod.contains(pea)) {
                     res.insert(pea);
+                }
+            }
+
+            std::unordered_set<fs::zpath> in_pea_paths;
+            for (const auto &item: in_pod) {
+                in_pea_paths.insert(item.rel_path);
+            }
+
+            for (const auto &pea : cur_pod) {
+                if (!in_pea_paths.contains(pea.rel_path)) {
+                    const_cast<Pea&>(*res.insert(pea).first).deleted = true;
                 }
             }
             return res;

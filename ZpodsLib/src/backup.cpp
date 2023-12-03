@@ -28,9 +28,8 @@ namespace {
 }
 
 static Status backup_one(const char *src_dir, const char *target_dir, const BackupConfig &config) {
-    Status status;
-
-    PodsManager::Instance()->load_pods(target_dir, config);
+    Status status = PodsManager::Instance()->load_pods(target_dir, config);
+    if (status != Status::OK) { return status; }
 
     do {
         config.archive_path = fs::path(target_dir) / fmt::format("{}{}", get_current_timestamp(), POD_FILE_SUFFIX);
@@ -122,7 +121,10 @@ Status zpods::restore(const char *pods_dir, const char *target_dir, BackupConfig
     fs::create_directory_if_not_exist(target_dir);
     ZPODS_ASSERT(fs::is_directory(target_dir));
 
-    PodsManager::Instance()->load_pods(pods_dir, config);
+    Status status = PodsManager::Instance()->load_pods(pods_dir, config);
+    if (status != Status::OK) {
+        return status;
+    }
 
     // record the residing pod paths of the peas
     std::unordered_map<fs::zpath, std::unordered_set<Pea>> pod_to_peas;
@@ -131,7 +133,7 @@ Status zpods::restore(const char *pods_dir, const char *target_dir, BackupConfig
     }
 
     for (const auto &[pod_path, pea_set]: pod_to_peas) {
-        let status = zpods::process_origin_zpods_bytes(pod_path.c_str(), config, [&](auto &bytes) {
+        status = zpods::process_origin_zpods_bytes(pod_path.c_str(), config, [&](auto &bytes) {
             return zpods::foreach_pea_in_pod_bytes((p_byte) bytes.c_str(), [&](const PeaHeader &header) {
                 let pea = Pea{
                         .last_modified_ts = header.get_last_modified_ts(),

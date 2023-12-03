@@ -45,10 +45,13 @@ Status zpods::archive(const char *src_dir, const char *dest_dir, const BackupCon
     }
 
     for (let_ref pea: pod) {
-        spdlog::info("archived file {}", pea);
-
-        pod_total_size += fs::get_file_size(pea.abs_path);
         pod_total_size += pea.rel_path.size();
+        if (pea.deleted) {
+            spdlog::info("file {} is deleted", pea);
+        } else {
+            spdlog::info("archived file {}", pea);
+            pod_total_size += fs::get_file_size(pea.abs_path);
+        }
     }
 
     constexpr let header_size = PeaHeader::compact_size();
@@ -61,17 +64,23 @@ Status zpods::archive(const char *src_dir, const char *dest_dir, const BackupCon
 
     for (let_ref pea: pod) {
         let_mut_ref pea_header = *PeaHeader::as_header(p);
-        let data_size = fs::get_file_size(pea.abs_path);
+        let data_size = pea.deleted ? 0 : fs::get_file_size(pea.abs_path);
         pea_header.set_data_len(data_size);
-        pea_header.set_normal();
+        if (pea.deleted) {
+            pea_header.set_delete();
+        } else {
+            pea_header.set_normal();
+        }
         pea_header.set_path_len(pea.rel_path.size());
         pea_header.set_last_modified_ts(pea.last_modified_ts);
 
         memcpy(p + header_size, pea.rel_path.c_str(), pea.rel_path.size());
         p += PeaHeader::as_header(p)->size();
-        std::ifstream ifs(pea.abs_path);
-        ifs.read((char *) p, (long) data_size);
-        p += data_size;
+        if (!pea.deleted) {
+            std::ifstream ifs(pea.abs_path);
+            ifs.read((char *) p, (long) data_size);
+            p += data_size;
+        }
 
         ZPODS_ASSERT(p - buffer.get() <= pod_total_size);
     }

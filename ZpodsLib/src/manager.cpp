@@ -11,7 +11,7 @@ PodsManager *PodsManager::Instance() {
     return &instance;
 }
 
-void PodsManager::load_pods(const fs::zpath &pods_path, const BackupConfig &config) {
+Status PodsManager::load_pods(const fs::zpath &pods_path, const BackupConfig &config) {
 //    let_mut paths = fs::get_file_family(pods_path.c_str());
     ZPODS_ASSERT(fs::is_directory(pods_path));
     if (!cur_state_of_peas_per_pods.contains(pods_path)) {
@@ -38,12 +38,11 @@ void PodsManager::load_pods(const fs::zpath &pods_path, const BackupConfig &conf
 
 
     let_mut_ref cur_pod = current_pod(pods_path);
+    cur_pod.clear();
 
     std::unordered_map<std::string, decltype(cur_pod.begin())> pea_map;
     for (let_ref pod_path: pod_paths) {
-        PodHeader header;
-
-        process_origin_zpods_bytes(pod_path.c_str(), const_cast<BackupConfig &>(config), [&](auto &bytes) {
+        let status = process_origin_zpods_bytes(pod_path.c_str(), const_cast<BackupConfig &>(config), [&](auto &bytes) {
             return foreach_pea_in_pod_bytes((byte *) bytes.c_str(), [&](const PeaHeader &pea_header) {
                 if (pea_header.is_delete()) {
                     let path = pea_header.get_path();
@@ -67,7 +66,12 @@ void PodsManager::load_pods(const fs::zpath &pods_path, const BackupConfig &conf
                 return Status::OK;
             });
         });
+        if (status != Status::OK) {
+            return status;
+        }
     }
+
+    return Status::OK;
 }
 
 void PodsManager::load_pods_path() {

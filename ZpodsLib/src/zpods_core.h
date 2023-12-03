@@ -134,6 +134,7 @@ namespace zpods {
         long last_modified_ts;
         std::string rel_path;
         std::string abs_path;
+        bool deleted = false;
 
         // one pea will only be archived in one pod
         fs::zpath resident_pod_path;

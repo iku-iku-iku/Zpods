@@ -17,10 +17,11 @@ zpods::BitStream::BitStream(char *ptr) : base_ptr_(reinterpret_cast<unit_pointer
 
 void zpods::BitStream::append_bit(unit_type bit) {
     if (floor_write_bytes() == bytes_buf_len) {
+        let old_bytes_buf_len = bytes_buf_len;
         bytes_buf_len = (size_t) ((float)bytes_buf_len * 1.5f);
         let new_base_ptr = new byte[bytes_buf_len]{0};
 
-        memcpy(new_base_ptr, bytes_buf_.get(), bytes_buf_len);
+        memcpy(new_base_ptr, bytes_buf_.get(), old_bytes_buf_len);
         base_ptr_ = new_base_ptr;
         bytes_buf_.reset(new_base_ptr);
     }
