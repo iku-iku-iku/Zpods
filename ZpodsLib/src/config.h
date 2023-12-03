@@ -40,7 +40,7 @@ namespace zpods {
 
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
 
-        bool delta_backup = false;
+        long timestamp = -1;
 
         bool compress = false; ///< compress the backup file
         std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file

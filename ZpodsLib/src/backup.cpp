@@ -10,23 +10,6 @@ using namespace zpods;
 
 using namespace zpods::fs;
 
-namespace {
-    // 获取当前的Unix时间戳
-    long get_current_timestamp() {
-        // 获取当前时间点
-        let now = std::chrono::system_clock::now();
-
-        // 转换为时间戳
-        let duration = now.time_since_epoch();
-
-        // 将时间戳转换为秒
-        let seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
-
-        // 返回秒数
-        return seconds.count();
-    }
-}
-
 static Status backup_one(const char *src_dir, const char *target_dir, const BackupConfig &config) {
     Status status = PodsManager::Instance()->load_pods(target_dir, config);
     if (status != Status::OK) { return status; }

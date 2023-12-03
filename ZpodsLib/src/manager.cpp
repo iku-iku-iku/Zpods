@@ -36,6 +36,15 @@ Status PodsManager::load_pods(const fs::zpath &pods_path, const BackupConfig &co
         return ts1 < ts2;
     });
 
+    // filter pods newer than ts
+    if (config.timestamp != -1) {
+        erase_if(pod_paths, [&](const auto &pod_path) {
+            let_mut ss = std::stringstream(pod_path.filename().c_str());
+            long ts;
+            ss >> ts;
+            return ts > config.timestamp;
+        });
+    }
 
     let_mut_ref cur_pod = current_pod(pods_path);
     cur_pod.clear();

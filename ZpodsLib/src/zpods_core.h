@@ -11,6 +11,22 @@
 #include "compress.h"
 
 namespace zpods {
+
+    // 获取当前的Unix时间戳
+    inline long get_current_timestamp() {
+        // 获取当前时间点
+        let now = std::chrono::system_clock::now();
+
+        // 转换为时间戳
+        let duration = now.time_since_epoch();
+
+        // 将时间戳转换为秒
+        let seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+
+        // 返回秒数
+        return seconds.count();
+    }
+
     constexpr static auto CHECKSUM_SIZE = 16;
     struct PodHeader {
         static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;

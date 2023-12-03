@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <filesystem>
 #include "zpods_lib.h"
+#include "zpods_core.h"
 
 using namespace zpods;
 
@@ -143,7 +144,10 @@ TEST(BackupTest, DeltaBackup) {
     EXPECT_TRUE(fs::exists(restored_new_file_path.c_str()));
     EXPECT_EQ("hello world", fs::read_from_file(restored_new_file_path.c_str()));
 
-//    // ***and the last, delete the new file***
+    // ***and the last, delete the new file***
+    let ts_before_remove_file = get_current_timestamp();
+    // sleep one second to make the ts different
+    sleep(1);
     ASSERT_TRUE(fs::remove_file(new_file.c_str()));
     // do a delta backup
     EXPECT_EQ(backup(dest_path, config), Status::OK);
@@ -156,7 +160,13 @@ TEST(BackupTest, DeltaBackup) {
     EXPECT_GT(fs::get_file_size(paths[2]), fs::get_file_size(paths[3]));
     // for simplicity, we do not automatically delete the file in the restore process, so we must manually delete it
     fs::remove_file(restored_new_file_path.c_str());
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
     // if the delta backup works, we will not get it back
     EXPECT_FALSE(fs::exists(restored_new_file_path.c_str()));
+
+    // ***because we have implemented delta backup, we can restore from a given timestamp! ***
+    config.timestamp = ts_before_remove_file;
+    EXPECT_EQ(restore(pods_path.c_str(), temp_path(), config), Status::OK);
+    EXPECT_TRUE(fs::exists(restored_new_file_path.c_str()));
+    // Amazing! We had done a time travel to get it back!
 }
