@@ -7,3 +7,6 @@
 [submodule "extern/ormpp"]
 	path = extern/ormpp
 	url = https://github.com/qicosmos/ormpp.git
+[submodule "extern/rocksdb"]
+	path = extern/rocksdb
+	url = https://github.com/facebook/rocksdb.git
