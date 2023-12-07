@@ -2,6 +2,7 @@
 // Created by code4love on 23-9-30.
 //
 #include "pch.h"
+#include "../../grpc_client.h"
 
 #include "CLI11.hpp"
 #include "zpods_lib.h"
@@ -44,23 +45,23 @@ int main(int argc, char **argv) {
     std::string target_dir;
     std::string password;
     zpods::BackupConfig config;
-//    zpods::User user;
+    zpods::RpcUser user;
     std::string min_date;
     std::string max_date;
     int interval = -1;
 
     // register
     register_->callback([&] {
-//        user.username = get_username();
-//        user.password = get_password();
-//        let status = user.register_();
-//        if (status == zpods::Status::USER_ALREADY_EXISTS) {
-//            spdlog::info("user already exists!");
-//        } else if (status == zpods::Status::OK) {
-//            spdlog::info("register succeeded!");
-//        } else {
-//            spdlog::info("register failed!");
-//        }
+        user.username = get_username();
+        user.password = get_password();
+        let status = user.register_();
+        if (status == zpods::Status::USER_ALREADY_EXISTS) {
+            spdlog::info("user already exists!");
+        } else if (status == zpods::Status::OK) {
+            spdlog::info("register succeeded!");
+        } else {
+            spdlog::info("register failed!");
+        }
     });
 
     // backup
@@ -108,25 +109,25 @@ int main(int argc, char **argv) {
 
         // login
         if (*remote) {
-//            user.username = get_username();
-//            user.password = get_password();
-//            let status = user.login();
-//            switch (status) {
-//                case zpods::Status::WRONG_PASSWORD:
-//                    spdlog::info("wrong password!");
-//                    return;
-//                case zpods::Status::USER_NOT_EXISTS:
-//                    spdlog::info("user not exist");
-//                    return;
-//                case zpods::Status::ERROR:
-//                    spdlog::info("network error");
-//                    return;
-//                case zpods::Status::OK:
-//                    spdlog::info("login succeeded");
-//                    break;
-//                default:
-//                    spdlog::info("unknown error");
-//            }
+            user.username = get_username();
+            user.password = get_password();
+            let status = user.login();
+            switch (status) {
+                case zpods::Status::WRONG_PASSWORD:
+                    spdlog::info("wrong password!");
+                    return;
+                case zpods::Status::USER_NOT_EXISTS:
+                    spdlog::info("user not exist");
+                    return;
+                case zpods::Status::ERROR:
+                    spdlog::info("network error");
+                    return;
+                case zpods::Status::OK:
+                    spdlog::info("login succeeded");
+                    break;
+                default:
+                    spdlog::info("unknown error");
+            }
         }
 
         do {
