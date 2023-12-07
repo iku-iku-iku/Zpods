@@ -19,5 +19,4 @@ include_directories(extern/spdlog/include ./)
 set(PCH_PATH ${CMAKE_SOURCE_DIR}/pch.h)
 
 add_subdirectory(ZpodsLib)
-add_subdirectory(server)
-add_subdirectory(client)
+add_subdirectory(network)
