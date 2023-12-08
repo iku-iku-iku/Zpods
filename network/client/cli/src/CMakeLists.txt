@@ -6,5 +6,5 @@ FILE(GLOB_RECURSE SRC *.cpp *.c)
 include_directories_from_global_property(ZPODS_LIB_INCLUDE_DIRS)
 
 add_executable(${PROJECT_NAME} ${SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE zpods_lib gtest gtest_main spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE zpods_lib zpods_grpc_client gtest gtest_main spdlog)
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${PCH_PATH})

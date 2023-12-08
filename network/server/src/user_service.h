@@ -5,6 +5,7 @@
 #ifndef ZPODS_USER_SERVICE_H
 #define ZPODS_USER_SERVICE_H
 
+#include "pch.h"
 #include "server_pch.h"
 
 using zpods::UserService;
@@ -78,7 +79,7 @@ public:
         if (s.ok()) {
             response->set_success(false);
             response->set_message("User already exists");
-            return grpc::Status::OK;
+            return grpc::Status(grpc::StatusCode::ALREADY_EXISTS, "User already exists");
         }
 
         // Put in a database
@@ -86,6 +87,8 @@ public:
 
         response->set_success(true);
         response->set_message("User registered successfully");
+
+        spdlog::info("A user registered: username: {}, password: {}", request->username(), request->password());
         return grpc::Status::OK;
     }
 
@@ -99,9 +102,11 @@ public:
         if (s.ok() && stored_password == password) {
             response->set_success(true);
             response->set_message("Login successful");
+            spdlog::info("A user loginned: username: {}, password: {}", request->username(), request->password());
         } else {
             response->set_success(false);
             response->set_message("Invalid username or password");
+            return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "Invalid username or password");
         }
         return grpc::Status::OK;
     }

@@ -8,8 +8,12 @@
 #include "zpods_lib.h"
 #include "termios.h"
 
-std::string get_password() {
-    std::cout << "Password: ";
+std::string get_password(bool second_time = false) {
+    if (second_time) {
+        std::cout << "Repeat Password: ";
+    } else {
+        std::cout << "Password: ";
+    }
 
     termios oldt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -38,6 +42,7 @@ int main(int argc, char **argv) {
     app.require_subcommand(1);
 
     CLI::App *register_ = app.add_subcommand("register", "register a user");
+    CLI::App *login = app.add_subcommand("login", "login a user");
     CLI::App *backup = app.add_subcommand("backup", "backup a directory (or a file) to a single file");
     CLI::App *restore = app.add_subcommand("restore", "restore a archive file to a directory");
 
@@ -54,14 +59,15 @@ int main(int argc, char **argv) {
     register_->callback([&] {
         user.username = get_username();
         user.password = get_password();
-        let status = user.register_();
-        if (status == zpods::Status::USER_ALREADY_EXISTS) {
-            spdlog::info("user already exists!");
-        } else if (status == zpods::Status::OK) {
-            spdlog::info("register succeeded!");
-        } else {
-            spdlog::info("register failed!");
-        }
+        user.password = get_password(true);
+        (void)user.register_();
+    });
+
+    // login
+    login->callback([&] {
+        user.username = get_username();
+        user.password = get_password();
+        (void)user.login();
     });
 
     // backup

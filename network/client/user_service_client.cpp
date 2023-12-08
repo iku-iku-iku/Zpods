@@ -4,7 +4,7 @@
 
 #include "user_service_client.h"
 
-void UserServiceClient::Register(const std::string &user, const std::string &password) {
+zpods::Status UserServiceClient::Register(const std::string &user, const std::string &password) {
     zpods::RegisterRequest request;
     request.set_username(user);
     request.set_password(password);
@@ -14,14 +14,15 @@ void UserServiceClient::Register(const std::string &user, const std::string &pas
 
     grpc::Status status = stub_->Register(&context, request, &response);
 
-    if (status.ok()) {
-        std::cout << "Register status: " << response.message() << std::endl;
-    } else {
+    if (!status.ok()) {
         std::cout << "Register failed: " << status.error_code() << ": " << status.error_message() << std::endl;
+        return zpods::Status::ERROR;
     }
+
+    return zpods::Status::OK;
 }
 
-void UserServiceClient::Login(const std::string &user, const std::string &password) {
+zpods::Status UserServiceClient::Login(const std::string &user, const std::string &password) {
     zpods::LoginRequest request;
     request.set_username(user);
     request.set_password(password);
@@ -31,9 +32,10 @@ void UserServiceClient::Login(const std::string &user, const std::string &passwo
 
     grpc::Status status = stub_->Login(&context, request, &response);
 
-    if (status.ok()) {
-        std::cout << "Login status: " << response.message() << std::endl;
-    } else {
+    if (!status.ok()) {
         std::cout << "Login failed: " << status.error_code() << ": " << status.error_message() << std::endl;
+        return zpods::Status::ERROR;
     }
+
+    return zpods::Status::OK;
 }
