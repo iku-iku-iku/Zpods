@@ -1,5 +1,5 @@
 #include "user_service.h"
-#include "file_service.h"
+#include "pod_service.h"
 
 ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
 
@@ -39,7 +39,7 @@ void RunServer(uint16_t port) {
     builder.AddListeningPort(server_address, MakeServerSslCredentials());
     // Register "service" as the instance through which we'll communicate with clients.
     // In this case, it corresponds to a *synchronous* service.
-    FileServiceImpl file_service;
+    PodServiceImpl file_service;
     UserServiceImpl user_service;
     builder.RegisterService(&file_service);
     builder.RegisterService(&user_service);

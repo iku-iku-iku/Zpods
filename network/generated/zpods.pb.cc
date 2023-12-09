@@ -87,9 +87,42 @@ struct RegisterRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RegisterRequestDefaultTypeInternal _RegisterRequest_default_instance_;
 
+inline constexpr Pod::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : pods_name_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        pod_name_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        token_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        content_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR Pod::Pod(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct PodDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR PodDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~PodDefaultTypeInternal() {}
+  union {
+    Pod _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PodDefaultTypeInternal _Pod_default_instance_;
+
 inline constexpr LoginResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : message_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        token_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         success_{false},
@@ -132,30 +165,6 @@ struct LoginRequestDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
-
-inline constexpr FileChunk::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : filename_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        content_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR FileChunk::FileChunk(::_pbi::ConstantInitialized)
-    : _impl_(::_pbi::ConstantInitialized()) {}
-struct FileChunkDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR FileChunkDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~FileChunkDefaultTypeInternal() {}
-  union {
-    FileChunk _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 FileChunkDefaultTypeInternal _FileChunk_default_instance_;
 }  // namespace zpods
 static ::_pb::Metadata file_level_metadata_zpods_2eproto[6];
 static constexpr const ::_pb::EnumDescriptor**
@@ -165,15 +174,17 @@ static constexpr const ::_pb::ServiceDescriptor**
 const ::uint32_t TableStruct_zpods_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
     protodesc_cold) = {
     ~0u,  // no _has_bits_
-    PROTOBUF_FIELD_OFFSET(::zpods::FileChunk, _internal_metadata_),
+    PROTOBUF_FIELD_OFFSET(::zpods::Pod, _internal_metadata_),
     ~0u,  // no _extensions_
     ~0u,  // no _oneof_case_
     ~0u,  // no _weak_field_map_
     ~0u,  // no _inlined_string_donated_
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::zpods::FileChunk, _impl_.filename_),
-    PROTOBUF_FIELD_OFFSET(::zpods::FileChunk, _impl_.content_),
+    PROTOBUF_FIELD_OFFSET(::zpods::Pod, _impl_.pods_name_),
+    PROTOBUF_FIELD_OFFSET(::zpods::Pod, _impl_.pod_name_),
+    PROTOBUF_FIELD_OFFSET(::zpods::Pod, _impl_.token_),
+    PROTOBUF_FIELD_OFFSET(::zpods::Pod, _impl_.content_),
     ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::zpods::UploadStatus, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -223,20 +234,21 @@ const ::uint32_t TableStruct_zpods_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::zpods::LoginResponse, _impl_.success_),
     PROTOBUF_FIELD_OFFSET(::zpods::LoginResponse, _impl_.message_),
+    PROTOBUF_FIELD_OFFSET(::zpods::LoginResponse, _impl_.token_),
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-        {0, -1, -1, sizeof(::zpods::FileChunk)},
-        {10, -1, -1, sizeof(::zpods::UploadStatus)},
-        {19, -1, -1, sizeof(::zpods::RegisterRequest)},
-        {29, -1, -1, sizeof(::zpods::RegisterResponse)},
-        {39, -1, -1, sizeof(::zpods::LoginRequest)},
-        {49, -1, -1, sizeof(::zpods::LoginResponse)},
+        {0, -1, -1, sizeof(::zpods::Pod)},
+        {12, -1, -1, sizeof(::zpods::UploadStatus)},
+        {21, -1, -1, sizeof(::zpods::RegisterRequest)},
+        {31, -1, -1, sizeof(::zpods::RegisterResponse)},
+        {41, -1, -1, sizeof(::zpods::LoginRequest)},
+        {51, -1, -1, sizeof(::zpods::LoginResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-    &::zpods::_FileChunk_default_instance_._instance,
+    &::zpods::_Pod_default_instance_._instance,
     &::zpods::_UploadStatus_default_instance_._instance,
     &::zpods::_RegisterRequest_default_instance_._instance,
     &::zpods::_RegisterResponse_default_instance_._instance,
@@ -244,27 +256,28 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::zpods::_LoginResponse_default_instance_._instance,
 };
 const char descriptor_table_protodef_zpods_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    "\n\013zpods.proto\022\005zpods\".\n\tFileChunk\022\020\n\010fil"
-    "ename\030\001 \001(\t\022\017\n\007content\030\002 \001(\014\"\037\n\014UploadSt"
-    "atus\022\017\n\007success\030\001 \001(\010\"5\n\017RegisterRequest"
-    "\022\020\n\010username\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"4\n\020"
-    "RegisterResponse\022\017\n\007success\030\001 \001(\010\022\017\n\007mes"
-    "sage\030\002 \001(\t\"2\n\014LoginRequest\022\020\n\010username\030\001"
-    " \001(\t\022\020\n\010password\030\002 \001(\t\"1\n\rLoginResponse\022"
-    "\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t2F\n\013Fil"
-    "eService\0227\n\nUploadFile\022\020.zpods.FileChunk"
-    "\032\023.zpods.UploadStatus\"\000(\0012\202\001\n\013UserServic"
-    "e\022=\n\010Register\022\026.zpods.RegisterRequest\032\027."
-    "zpods.RegisterResponse\"\000\0224\n\005Login\022\023.zpod"
-    "s.LoginRequest\032\024.zpods.LoginResponse\"\000B6"
-    "\n\033io.grpc.examples.helloworldB\017HelloWorl"
-    "dProtoP\001\242\002\003HLWb\006proto3"
+    "\n\013zpods.proto\022\005zpods\"J\n\003Pod\022\021\n\tpods_name"
+    "\030\001 \001(\t\022\020\n\010pod_name\030\002 \001(\t\022\r\n\005token\030\003 \001(\t\022"
+    "\017\n\007content\030\004 \001(\014\"\037\n\014UploadStatus\022\017\n\007succ"
+    "ess\030\001 \001(\010\"5\n\017RegisterRequest\022\020\n\010username"
+    "\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"4\n\020RegisterResp"
+    "onse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\"2"
+    "\n\014LoginRequest\022\020\n\010username\030\001 \001(\t\022\020\n\010pass"
+    "word\030\002 \001(\t\"@\n\rLoginResponse\022\017\n\007success\030\001"
+    " \001(\010\022\017\n\007message\030\002 \001(\t\022\r\n\005token\030\003 \001(\t2>\n\n"
+    "PodService\0220\n\tUploadPod\022\n.zpods.Pod\032\023.zp"
+    "ods.UploadStatus\"\000(\0012\202\001\n\013UserService\022=\n\010"
+    "Register\022\026.zpods.RegisterRequest\032\027.zpods"
+    ".RegisterResponse\"\000\0224\n\005Login\022\023.zpods.Log"
+    "inRequest\032\024.zpods.LoginResponse\"\000B6\n\033io."
+    "grpc.examples.helloworldB\017HelloWorldProt"
+    "oP\001\242\002\003HLWb\006proto3"
 };
 static ::absl::once_flag descriptor_table_zpods_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_zpods_2eproto = {
     false,
     false,
-    582,
+    617,
     descriptor_table_protodef_zpods_2eproto,
     "zpods.proto",
     &descriptor_table_zpods_2eproto_once,
@@ -299,69 +312,77 @@ static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_zpods_2eproto(&descriptor
 namespace zpods {
 // ===================================================================
 
-class FileChunk::_Internal {
+class Pod::_Internal {
  public:
 };
 
-FileChunk::FileChunk(::google::protobuf::Arena* arena)
+Pod::Pod(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:zpods.FileChunk)
+  // @@protoc_insertion_point(arena_constructor:zpods.Pod)
 }
-inline PROTOBUF_NDEBUG_INLINE FileChunk::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE Pod::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from)
-      : filename_(arena, from.filename_),
+      : pods_name_(arena, from.pods_name_),
+        pod_name_(arena, from.pod_name_),
+        token_(arena, from.token_),
         content_(arena, from.content_),
         _cached_size_{0} {}
 
-FileChunk::FileChunk(
+Pod::Pod(
     ::google::protobuf::Arena* arena,
-    const FileChunk& from)
+    const Pod& from)
     : ::google::protobuf::Message(arena) {
-  FileChunk* const _this = this;
+  Pod* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
 
-  // @@protoc_insertion_point(copy_constructor:zpods.FileChunk)
+  // @@protoc_insertion_point(copy_constructor:zpods.Pod)
 }
-inline PROTOBUF_NDEBUG_INLINE FileChunk::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE Pod::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : filename_(arena),
+      : pods_name_(arena),
+        pod_name_(arena),
+        token_(arena),
         content_(arena),
         _cached_size_{0} {}
 
-inline void FileChunk::SharedCtor(::_pb::Arena* arena) {
+inline void Pod::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
-FileChunk::~FileChunk() {
-  // @@protoc_insertion_point(destructor:zpods.FileChunk)
+Pod::~Pod() {
+  // @@protoc_insertion_point(destructor:zpods.Pod)
   _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-inline void FileChunk::SharedDtor() {
+inline void Pod::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
-  _impl_.filename_.Destroy();
+  _impl_.pods_name_.Destroy();
+  _impl_.pod_name_.Destroy();
+  _impl_.token_.Destroy();
   _impl_.content_.Destroy();
   _impl_.~Impl_();
 }
 
-PROTOBUF_NOINLINE void FileChunk::Clear() {
-// @@protoc_insertion_point(message_clear_start:zpods.FileChunk)
+PROTOBUF_NOINLINE void Pod::Clear() {
+// @@protoc_insertion_point(message_clear_start:zpods.Pod)
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.filename_.ClearToEmpty();
+  _impl_.pods_name_.ClearToEmpty();
+  _impl_.pod_name_.ClearToEmpty();
+  _impl_.token_.ClearToEmpty();
   _impl_.content_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* FileChunk::_InternalParse(
+const char* Pod::_InternalParse(
     const char* ptr, ::_pbi::ParseContext* ctx) {
   ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
@@ -369,63 +390,93 @@ const char* FileChunk::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 32, 2> FileChunk::_table_ = {
+const ::_pbi::TcParseTable<2, 4, 0, 40, 2> Pod::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
-    &_FileChunk_default_instance_._instance,
+    &_Pod_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // bytes content = 2;
+    // bytes content = 4;
     {::_pbi::TcParser::FastBS1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(FileChunk, _impl_.content_)}},
-    // string filename = 1;
+     {34, 63, 0, PROTOBUF_FIELD_OFFSET(Pod, _impl_.content_)}},
+    // string pods_name = 1;
     {::_pbi::TcParser::FastUS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(FileChunk, _impl_.filename_)}},
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(Pod, _impl_.pods_name_)}},
+    // string pod_name = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(Pod, _impl_.pod_name_)}},
+    // string token = 3;
+    {::_pbi::TcParser::FastUS1,
+     {26, 63, 0, PROTOBUF_FIELD_OFFSET(Pod, _impl_.token_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // string filename = 1;
-    {PROTOBUF_FIELD_OFFSET(FileChunk, _impl_.filename_), 0, 0,
+    // string pods_name = 1;
+    {PROTOBUF_FIELD_OFFSET(Pod, _impl_.pods_name_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // bytes content = 2;
-    {PROTOBUF_FIELD_OFFSET(FileChunk, _impl_.content_), 0, 0,
+    // string pod_name = 2;
+    {PROTOBUF_FIELD_OFFSET(Pod, _impl_.pod_name_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string token = 3;
+    {PROTOBUF_FIELD_OFFSET(Pod, _impl_.token_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // bytes content = 4;
+    {PROTOBUF_FIELD_OFFSET(Pod, _impl_.content_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\17\10\0\0\0\0\0\0"
-    "zpods.FileChunk"
-    "filename"
+    "\11\11\10\5\0\0\0\0"
+    "zpods.Pod"
+    "pods_name"
+    "pod_name"
+    "token"
   }},
 };
 
-::uint8_t* FileChunk::_InternalSerialize(
+::uint8_t* Pod::_InternalSerialize(
     ::uint8_t* target,
     ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:zpods.FileChunk)
+  // @@protoc_insertion_point(serialize_to_array_start:zpods.Pod)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // string filename = 1;
-  if (!this->_internal_filename().empty()) {
-    const std::string& _s = this->_internal_filename();
+  // string pods_name = 1;
+  if (!this->_internal_pods_name().empty()) {
+    const std::string& _s = this->_internal_pods_name();
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.FileChunk.filename");
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.Pod.pods_name");
     target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
-  // bytes content = 2;
+  // string pod_name = 2;
+  if (!this->_internal_pod_name().empty()) {
+    const std::string& _s = this->_internal_pod_name();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.Pod.pod_name");
+    target = stream->WriteStringMaybeAliased(2, _s, target);
+  }
+
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    const std::string& _s = this->_internal_token();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.Pod.token");
+    target = stream->WriteStringMaybeAliased(3, _s, target);
+  }
+
+  // bytes content = 4;
   if (!this->_internal_content().empty()) {
     const std::string& _s = this->_internal_content();
-    target = stream->WriteBytesMaybeAliased(2, _s, target);
+    target = stream->WriteBytesMaybeAliased(4, _s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -433,25 +484,37 @@ const ::_pbi::TcParseTable<1, 2, 0, 32, 2> FileChunk::_table_ = {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:zpods.FileChunk)
+  // @@protoc_insertion_point(serialize_to_array_end:zpods.Pod)
   return target;
 }
 
-::size_t FileChunk::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:zpods.FileChunk)
+::size_t Pod::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:zpods.Pod)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string filename = 1;
-  if (!this->_internal_filename().empty()) {
+  // string pods_name = 1;
+  if (!this->_internal_pods_name().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                    this->_internal_filename());
+                                    this->_internal_pods_name());
   }
 
-  // bytes content = 2;
+  // string pod_name = 2;
+  if (!this->_internal_pod_name().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_pod_name());
+  }
+
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_token());
+  }
+
+  // bytes content = 4;
   if (!this->_internal_content().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                     this->_internal_content());
@@ -460,24 +523,30 @@ const ::_pbi::TcParseTable<1, 2, 0, 32, 2> FileChunk::_table_ = {
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-const ::google::protobuf::Message::ClassData FileChunk::_class_data_ = {
-    FileChunk::MergeImpl,
+const ::google::protobuf::Message::ClassData Pod::_class_data_ = {
+    Pod::MergeImpl,
     nullptr,  // OnDemandRegisterArenaDtor
 };
-const ::google::protobuf::Message::ClassData* FileChunk::GetClassData() const {
+const ::google::protobuf::Message::ClassData* Pod::GetClassData() const {
   return &_class_data_;
 }
 
-void FileChunk::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
-  auto* const _this = static_cast<FileChunk*>(&to_msg);
-  auto& from = static_cast<const FileChunk&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:zpods.FileChunk)
+void Pod::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<Pod*>(&to_msg);
+  auto& from = static_cast<const Pod&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:zpods.Pod)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_filename().empty()) {
-    _this->_internal_set_filename(from._internal_filename());
+  if (!from._internal_pods_name().empty()) {
+    _this->_internal_set_pods_name(from._internal_pods_name());
+  }
+  if (!from._internal_pod_name().empty()) {
+    _this->_internal_set_pod_name(from._internal_pod_name());
+  }
+  if (!from._internal_token().empty()) {
+    _this->_internal_set_token(from._internal_token());
   }
   if (!from._internal_content().empty()) {
     _this->_internal_set_content(from._internal_content());
@@ -485,30 +554,32 @@ void FileChunk::MergeImpl(::google::protobuf::Message& to_msg, const ::google::p
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void FileChunk::CopyFrom(const FileChunk& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:zpods.FileChunk)
+void Pod::CopyFrom(const Pod& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:zpods.Pod)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-PROTOBUF_NOINLINE bool FileChunk::IsInitialized() const {
+PROTOBUF_NOINLINE bool Pod::IsInitialized() const {
   return true;
 }
 
-::_pbi::CachedSize* FileChunk::AccessCachedSize() const {
+::_pbi::CachedSize* Pod::AccessCachedSize() const {
   return &_impl_._cached_size_;
 }
-void FileChunk::InternalSwap(FileChunk* PROTOBUF_RESTRICT other) {
+void Pod::InternalSwap(Pod* PROTOBUF_RESTRICT other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.filename_, &other->_impl_.filename_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pods_name_, &other->_impl_.pods_name_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pod_name_, &other->_impl_.pod_name_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.token_, &other->_impl_.token_, arena);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.content_, &other->_impl_.content_, arena);
 }
 
-::google::protobuf::Metadata FileChunk::GetMetadata() const {
+::google::protobuf::Metadata Pod::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
       file_level_metadata_zpods_2eproto[0]);
@@ -1350,6 +1421,7 @@ inline PROTOBUF_NDEBUG_INLINE LoginResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from)
       : message_(arena, from.message_),
+        token_(arena, from.token_),
         _cached_size_{0} {}
 
 LoginResponse::LoginResponse(
@@ -1369,6 +1441,7 @@ inline PROTOBUF_NDEBUG_INLINE LoginResponse::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : message_(arena),
+        token_(arena),
         _cached_size_{0} {}
 
 inline void LoginResponse::SharedCtor(::_pb::Arena* arena) {
@@ -1383,6 +1456,7 @@ LoginResponse::~LoginResponse() {
 inline void LoginResponse::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
   _impl_.message_.Destroy();
+  _impl_.token_.Destroy();
   _impl_.~Impl_();
 }
 
@@ -1394,6 +1468,7 @@ PROTOBUF_NOINLINE void LoginResponse::Clear() {
   (void) cached_has_bits;
 
   _impl_.message_.ClearToEmpty();
+  _impl_.token_.ClearToEmpty();
   _impl_.success_ = false;
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1406,26 +1481,30 @@ const char* LoginResponse::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 35, 2> LoginResponse::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 40, 2> LoginResponse::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_LoginResponse_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // string message = 2;
-    {::_pbi::TcParser::FastUS1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.message_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(LoginResponse, _impl_.success_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.success_)}},
+    // string message = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.message_)}},
+    // string token = 3;
+    {::_pbi::TcParser::FastUS1,
+     {26, 63, 0, PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.token_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1435,12 +1514,16 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> LoginResponse::_table_ = {
     // string message = 2;
     {PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.message_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string token = 3;
+    {PROTOBUF_FIELD_OFFSET(LoginResponse, _impl_.token_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\23\0\7\0\0\0\0\0"
+    "\23\0\7\5\0\0\0\0"
     "zpods.LoginResponse"
     "message"
+    "token"
   }},
 };
 
@@ -1466,6 +1549,14 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> LoginResponse::_table_ = {
     target = stream->WriteStringMaybeAliased(2, _s, target);
   }
 
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    const std::string& _s = this->_internal_token();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.LoginResponse.token");
+    target = stream->WriteStringMaybeAliased(3, _s, target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1487,6 +1578,12 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> LoginResponse::_table_ = {
   if (!this->_internal_message().empty()) {
     total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                     this->_internal_message());
+  }
+
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_token());
   }
 
   // bool success = 1;
@@ -1516,6 +1613,9 @@ void LoginResponse::MergeImpl(::google::protobuf::Message& to_msg, const ::googl
   if (!from._internal_message().empty()) {
     _this->_internal_set_message(from._internal_message());
   }
+  if (!from._internal_token().empty()) {
+    _this->_internal_set_token(from._internal_token());
+  }
   if (from._internal_success() != 0) {
     _this->_internal_set_success(from._internal_success());
   }
@@ -1542,6 +1642,7 @@ void LoginResponse::InternalSwap(LoginResponse* PROTOBUF_RESTRICT other) {
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.token_, &other->_impl_.token_, arena);
         swap(_impl_.success_, other->_impl_.success_);
 }
 

@@ -9,7 +9,8 @@ configure:
 
 build:
 	./scripts/build.sh
-
+	cp build/network/client/cli/src/zpods_cli .
+	cp build/network/server/src/zpods_server .
 uninstall:
 	rm -rf /usr/local/bin/zpods.cli
 

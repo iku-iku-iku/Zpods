@@ -56,15 +56,15 @@ struct TableStruct_zpods_2eproto {
 extern const ::google::protobuf::internal::DescriptorTable
     descriptor_table_zpods_2eproto;
 namespace zpods {
-class FileChunk;
-struct FileChunkDefaultTypeInternal;
-extern FileChunkDefaultTypeInternal _FileChunk_default_instance_;
 class LoginRequest;
 struct LoginRequestDefaultTypeInternal;
 extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
 class LoginResponse;
 struct LoginResponseDefaultTypeInternal;
 extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
+class Pod;
+struct PodDefaultTypeInternal;
+extern PodDefaultTypeInternal _Pod_default_instance_;
 class RegisterRequest;
 struct RegisterRequestDefaultTypeInternal;
 extern RegisterRequestDefaultTypeInternal _RegisterRequest_default_instance_;
@@ -654,6 +654,241 @@ class RegisterRequest final :
   friend struct ::TableStruct_zpods_2eproto;
 };// -------------------------------------------------------------------
 
+class Pod final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:zpods.Pod) */ {
+ public:
+  inline Pod() : Pod(nullptr) {}
+  ~Pod() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR Pod(::google::protobuf::internal::ConstantInitialized);
+
+  inline Pod(const Pod& from)
+      : Pod(nullptr, from) {}
+  Pod(Pod&& from) noexcept
+    : Pod() {
+    *this = ::std::move(from);
+  }
+
+  inline Pod& operator=(const Pod& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Pod& operator=(Pod&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Pod& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Pod* internal_default_instance() {
+    return reinterpret_cast<const Pod*>(
+               &_Pod_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(Pod& a, Pod& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Pod* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Pod* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Pod* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Pod>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Pod& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const Pod& from) {
+    Pod::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(Pod* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "zpods.Pod";
+  }
+  protected:
+  explicit Pod(::google::protobuf::Arena* arena);
+  Pod(::google::protobuf::Arena* arena, const Pod& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPodsNameFieldNumber = 1,
+    kPodNameFieldNumber = 2,
+    kTokenFieldNumber = 3,
+    kContentFieldNumber = 4,
+  };
+  // string pods_name = 1;
+  void clear_pods_name() ;
+  const std::string& pods_name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_pods_name(Arg_&& arg, Args_... args);
+  std::string* mutable_pods_name();
+  PROTOBUF_NODISCARD std::string* release_pods_name();
+  void set_allocated_pods_name(std::string* value);
+
+  private:
+  const std::string& _internal_pods_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_pods_name(
+      const std::string& value);
+  std::string* _internal_mutable_pods_name();
+
+  public:
+  // string pod_name = 2;
+  void clear_pod_name() ;
+  const std::string& pod_name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_pod_name(Arg_&& arg, Args_... args);
+  std::string* mutable_pod_name();
+  PROTOBUF_NODISCARD std::string* release_pod_name();
+  void set_allocated_pod_name(std::string* value);
+
+  private:
+  const std::string& _internal_pod_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_pod_name(
+      const std::string& value);
+  std::string* _internal_mutable_pod_name();
+
+  public:
+  // string token = 3;
+  void clear_token() ;
+  const std::string& token() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_token(Arg_&& arg, Args_... args);
+  std::string* mutable_token();
+  PROTOBUF_NODISCARD std::string* release_token();
+  void set_allocated_token(std::string* value);
+
+  private:
+  const std::string& _internal_token() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(
+      const std::string& value);
+  std::string* _internal_mutable_token();
+
+  public:
+  // bytes content = 4;
+  void clear_content() ;
+  const std::string& content() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_content(Arg_&& arg, Args_... args);
+  std::string* mutable_content();
+  PROTOBUF_NODISCARD std::string* release_content();
+  void set_allocated_content(std::string* value);
+
+  private:
+  const std::string& _internal_content() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_content(
+      const std::string& value);
+  std::string* _internal_mutable_content();
+
+  public:
+  // @@protoc_insertion_point(class_scope:zpods.Pod)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 0,
+      40, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr pods_name_;
+    ::google::protobuf::internal::ArenaStringPtr pod_name_;
+    ::google::protobuf::internal::ArenaStringPtr token_;
+    ::google::protobuf::internal::ArenaStringPtr content_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_zpods_2eproto;
+};// -------------------------------------------------------------------
+
 class LoginResponse final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:zpods.LoginResponse) */ {
  public:
@@ -787,6 +1022,7 @@ class LoginResponse final :
 
   enum : int {
     kMessageFieldNumber = 2,
+    kTokenFieldNumber = 3,
     kSuccessFieldNumber = 1,
   };
   // string message = 2;
@@ -805,6 +1041,22 @@ class LoginResponse final :
   std::string* _internal_mutable_message();
 
   public:
+  // string token = 3;
+  void clear_token() ;
+  const std::string& token() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_token(Arg_&& arg, Args_... args);
+  std::string* mutable_token();
+  PROTOBUF_NODISCARD std::string* release_token();
+  void set_allocated_token(std::string* value);
+
+  private:
+  const std::string& _internal_token() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(
+      const std::string& value);
+  std::string* _internal_mutable_token();
+
+  public:
   // bool success = 1;
   void clear_success() ;
   bool success() const;
@@ -821,8 +1073,8 @@ class LoginResponse final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      35, 2>
+      2, 3, 0,
+      40, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -839,6 +1091,7 @@ class LoginResponse final :
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr message_;
+    ::google::protobuf::internal::ArenaStringPtr token_;
     bool success_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -1044,205 +1297,6 @@ class LoginRequest final :
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_zpods_2eproto;
-};// -------------------------------------------------------------------
-
-class FileChunk final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:zpods.FileChunk) */ {
- public:
-  inline FileChunk() : FileChunk(nullptr) {}
-  ~FileChunk() override;
-  template<typename = void>
-  explicit PROTOBUF_CONSTEXPR FileChunk(::google::protobuf::internal::ConstantInitialized);
-
-  inline FileChunk(const FileChunk& from)
-      : FileChunk(nullptr, from) {}
-  FileChunk(FileChunk&& from) noexcept
-    : FileChunk() {
-    *this = ::std::move(from);
-  }
-
-  inline FileChunk& operator=(const FileChunk& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline FileChunk& operator=(FileChunk&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetArena() == from.GetArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const FileChunk& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const FileChunk* internal_default_instance() {
-    return reinterpret_cast<const FileChunk*>(
-               &_FileChunk_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    0;
-
-  friend void swap(FileChunk& a, FileChunk& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(FileChunk* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() != nullptr &&
-        GetArena() == other->GetArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() == other->GetArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(FileChunk* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  FileChunk* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<FileChunk>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const FileChunk& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const FileChunk& from) {
-    FileChunk::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  ::size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
-  void SharedCtor(::google::protobuf::Arena* arena);
-  void SharedDtor();
-  void InternalSwap(FileChunk* other);
-
-  private:
-  friend class ::google::protobuf::internal::AnyMetadata;
-  static ::absl::string_view FullMessageName() {
-    return "zpods.FileChunk";
-  }
-  protected:
-  explicit FileChunk(::google::protobuf::Arena* arena);
-  FileChunk(::google::protobuf::Arena* arena, const FileChunk& from);
-  public:
-
-  static const ClassData _class_data_;
-  const ::google::protobuf::Message::ClassData*GetClassData() const final;
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kFilenameFieldNumber = 1,
-    kContentFieldNumber = 2,
-  };
-  // string filename = 1;
-  void clear_filename() ;
-  const std::string& filename() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_filename(Arg_&& arg, Args_... args);
-  std::string* mutable_filename();
-  PROTOBUF_NODISCARD std::string* release_filename();
-  void set_allocated_filename(std::string* value);
-
-  private:
-  const std::string& _internal_filename() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_filename(
-      const std::string& value);
-  std::string* _internal_mutable_filename();
-
-  public:
-  // bytes content = 2;
-  void clear_content() ;
-  const std::string& content() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_content(Arg_&& arg, Args_... args);
-  std::string* mutable_content();
-  PROTOBUF_NODISCARD std::string* release_content();
-  void set_allocated_content(std::string* value);
-
-  private:
-  const std::string& _internal_content() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_content(
-      const std::string& value);
-  std::string* _internal_mutable_content();
-
-  public:
-  // @@protoc_insertion_point(class_scope:zpods.FileChunk)
- private:
-  class _Internal;
-
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      32, 2>
-      _table_;
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-
-        inline explicit constexpr Impl_(
-            ::google::protobuf::internal::ConstantInitialized) noexcept;
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena);
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::ArenaStringPtr filename_;
-    ::google::protobuf::internal::ArenaStringPtr content_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_zpods_2eproto;
 };
 
 // ===================================================================
@@ -1259,104 +1313,210 @@ class FileChunk final :
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
-// FileChunk
+// Pod
 
-// string filename = 1;
-inline void FileChunk::clear_filename() {
+// string pods_name = 1;
+inline void Pod::clear_pods_name() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.filename_.ClearToEmpty();
+  _impl_.pods_name_.ClearToEmpty();
 }
-inline const std::string& FileChunk::filename() const
+inline const std::string& Pod::pods_name() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:zpods.FileChunk.filename)
-  return _internal_filename();
+  // @@protoc_insertion_point(field_get:zpods.Pod.pods_name)
+  return _internal_pods_name();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void FileChunk::set_filename(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void Pod::set_pods_name(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.filename_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:zpods.FileChunk.filename)
+  _impl_.pods_name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.Pod.pods_name)
 }
-inline std::string* FileChunk::mutable_filename() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_filename();
-  // @@protoc_insertion_point(field_mutable:zpods.FileChunk.filename)
+inline std::string* Pod::mutable_pods_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_pods_name();
+  // @@protoc_insertion_point(field_mutable:zpods.Pod.pods_name)
   return _s;
 }
-inline const std::string& FileChunk::_internal_filename() const {
+inline const std::string& Pod::_internal_pods_name() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.filename_.Get();
+  return _impl_.pods_name_.Get();
 }
-inline void FileChunk::_internal_set_filename(const std::string& value) {
+inline void Pod::_internal_set_pods_name(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  _impl_.filename_.Set(value, GetArena());
+  _impl_.pods_name_.Set(value, GetArena());
 }
-inline std::string* FileChunk::_internal_mutable_filename() {
+inline std::string* Pod::_internal_mutable_pods_name() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
-  return _impl_.filename_.Mutable( GetArena());
+  return _impl_.pods_name_.Mutable( GetArena());
 }
-inline std::string* FileChunk::release_filename() {
+inline std::string* Pod::release_pods_name() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:zpods.FileChunk.filename)
-  return _impl_.filename_.Release();
+  // @@protoc_insertion_point(field_release:zpods.Pod.pods_name)
+  return _impl_.pods_name_.Release();
 }
-inline void FileChunk::set_allocated_filename(std::string* value) {
+inline void Pod::set_allocated_pods_name(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.filename_.SetAllocated(value, GetArena());
+  _impl_.pods_name_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-        if (_impl_.filename_.IsDefault()) {
-          _impl_.filename_.Set("", GetArena());
+        if (_impl_.pods_name_.IsDefault()) {
+          _impl_.pods_name_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:zpods.FileChunk.filename)
+  // @@protoc_insertion_point(field_set_allocated:zpods.Pod.pods_name)
 }
 
-// bytes content = 2;
-inline void FileChunk::clear_content() {
+// string pod_name = 2;
+inline void Pod::clear_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pod_name_.ClearToEmpty();
+}
+inline const std::string& Pod::pod_name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.Pod.pod_name)
+  return _internal_pod_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Pod::set_pod_name(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pod_name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.Pod.pod_name)
+}
+inline std::string* Pod::mutable_pod_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_pod_name();
+  // @@protoc_insertion_point(field_mutable:zpods.Pod.pod_name)
+  return _s;
+}
+inline const std::string& Pod::_internal_pod_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.pod_name_.Get();
+}
+inline void Pod::_internal_set_pod_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pod_name_.Set(value, GetArena());
+}
+inline std::string* Pod::_internal_mutable_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.pod_name_.Mutable( GetArena());
+}
+inline std::string* Pod::release_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.Pod.pod_name)
+  return _impl_.pod_name_.Release();
+}
+inline void Pod::set_allocated_pod_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pod_name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.pod_name_.IsDefault()) {
+          _impl_.pod_name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.Pod.pod_name)
+}
+
+// string token = 3;
+inline void Pod::clear_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.ClearToEmpty();
+}
+inline const std::string& Pod::token() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.Pod.token)
+  return _internal_token();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Pod::set_token(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.Pod.token)
+}
+inline std::string* Pod::mutable_token() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_token();
+  // @@protoc_insertion_point(field_mutable:zpods.Pod.token)
+  return _s;
+}
+inline const std::string& Pod::_internal_token() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.token_.Get();
+}
+inline void Pod::_internal_set_token(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(value, GetArena());
+}
+inline std::string* Pod::_internal_mutable_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.token_.Mutable( GetArena());
+}
+inline std::string* Pod::release_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.Pod.token)
+  return _impl_.token_.Release();
+}
+inline void Pod::set_allocated_token(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.token_.IsDefault()) {
+          _impl_.token_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.Pod.token)
+}
+
+// bytes content = 4;
+inline void Pod::clear_content() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.content_.ClearToEmpty();
 }
-inline const std::string& FileChunk::content() const
+inline const std::string& Pod::content() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:zpods.FileChunk.content)
+  // @@protoc_insertion_point(field_get:zpods.Pod.content)
   return _internal_content();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void FileChunk::set_content(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void Pod::set_content(Arg_&& arg,
                                                      Args_... args) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.content_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:zpods.FileChunk.content)
+  // @@protoc_insertion_point(field_set:zpods.Pod.content)
 }
-inline std::string* FileChunk::mutable_content() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline std::string* Pod::mutable_content() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_content();
-  // @@protoc_insertion_point(field_mutable:zpods.FileChunk.content)
+  // @@protoc_insertion_point(field_mutable:zpods.Pod.content)
   return _s;
 }
-inline const std::string& FileChunk::_internal_content() const {
+inline const std::string& Pod::_internal_content() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.content_.Get();
 }
-inline void FileChunk::_internal_set_content(const std::string& value) {
+inline void Pod::_internal_set_content(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.content_.Set(value, GetArena());
 }
-inline std::string* FileChunk::_internal_mutable_content() {
+inline std::string* Pod::_internal_mutable_content() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   return _impl_.content_.Mutable( GetArena());
 }
-inline std::string* FileChunk::release_content() {
+inline std::string* Pod::release_content() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  // @@protoc_insertion_point(field_release:zpods.FileChunk.content)
+  // @@protoc_insertion_point(field_release:zpods.Pod.content)
   return _impl_.content_.Release();
 }
-inline void FileChunk::set_allocated_content(std::string* value) {
+inline void Pod::set_allocated_content(std::string* value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.content_.SetAllocated(value, GetArena());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1364,7 +1524,7 @@ inline void FileChunk::set_allocated_content(std::string* value) {
           _impl_.content_.Set("", GetArena());
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:zpods.FileChunk.content)
+  // @@protoc_insertion_point(field_set_allocated:zpods.Pod.content)
 }
 
 // -------------------------------------------------------------------
@@ -1772,6 +1932,59 @@ inline void LoginResponse::set_allocated_message(std::string* value) {
         }
   #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:zpods.LoginResponse.message)
+}
+
+// string token = 3;
+inline void LoginResponse::clear_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.ClearToEmpty();
+}
+inline const std::string& LoginResponse::token() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.LoginResponse.token)
+  return _internal_token();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void LoginResponse::set_token(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.LoginResponse.token)
+}
+inline std::string* LoginResponse::mutable_token() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_token();
+  // @@protoc_insertion_point(field_mutable:zpods.LoginResponse.token)
+  return _s;
+}
+inline const std::string& LoginResponse::_internal_token() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.token_.Get();
+}
+inline void LoginResponse::_internal_set_token(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(value, GetArena());
+}
+inline std::string* LoginResponse::_internal_mutable_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.token_.Mutable( GetArena());
+}
+inline std::string* LoginResponse::release_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.LoginResponse.token)
+  return _impl_.token_.Release();
+}
+inline void LoginResponse::set_allocated_token(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.token_.IsDefault()) {
+          _impl_.token_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.LoginResponse.token)
 }
 
 #ifdef __GNUC__

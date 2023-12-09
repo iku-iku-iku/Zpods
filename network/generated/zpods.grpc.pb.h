@@ -42,52 +42,52 @@
 
 namespace zpods {
 
-class FileService final {
+class PodService final {
  public:
   static constexpr char const* service_full_name() {
-    return "zpods.FileService";
+    return "zpods.PodService";
   }
   class StubInterface {
    public:
     virtual ~StubInterface() {}
-    std::unique_ptr< ::grpc::ClientWriterInterface< ::zpods::FileChunk>> UploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
-      return std::unique_ptr< ::grpc::ClientWriterInterface< ::zpods::FileChunk>>(UploadFileRaw(context, response));
+    std::unique_ptr< ::grpc::ClientWriterInterface< ::zpods::Pod>> UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
+      return std::unique_ptr< ::grpc::ClientWriterInterface< ::zpods::Pod>>(UploadPodRaw(context, response));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>> AsyncUploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>>(AsyncUploadFileRaw(context, response, cq, tag));
+    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>> AsyncUploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>>(AsyncUploadPodRaw(context, response, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>> PrepareAsyncUploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>>(PrepareAsyncUploadFileRaw(context, response, cq));
+    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>> PrepareAsyncUploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>>(PrepareAsyncUploadPodRaw(context, response, cq));
     }
     class async_interface {
      public:
       virtual ~async_interface() {}
-      virtual void UploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::FileChunk>* reactor) = 0;
+      virtual void UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::Pod>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
     class async_interface* experimental_async() { return async(); }
    private:
-    virtual ::grpc::ClientWriterInterface< ::zpods::FileChunk>* UploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) = 0;
-    virtual ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>* AsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) = 0;
-    virtual ::grpc::ClientAsyncWriterInterface< ::zpods::FileChunk>* PrepareAsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientWriterInterface< ::zpods::Pod>* UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) = 0;
+    virtual ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>* AsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncWriterInterface< ::zpods::Pod>* PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
     Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
-    std::unique_ptr< ::grpc::ClientWriter< ::zpods::FileChunk>> UploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
-      return std::unique_ptr< ::grpc::ClientWriter< ::zpods::FileChunk>>(UploadFileRaw(context, response));
+    std::unique_ptr< ::grpc::ClientWriter< ::zpods::Pod>> UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
+      return std::unique_ptr< ::grpc::ClientWriter< ::zpods::Pod>>(UploadPodRaw(context, response));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::FileChunk>> AsyncUploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::FileChunk>>(AsyncUploadFileRaw(context, response, cq, tag));
+    std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::Pod>> AsyncUploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::Pod>>(AsyncUploadPodRaw(context, response, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::FileChunk>> PrepareAsyncUploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::FileChunk>>(PrepareAsyncUploadFileRaw(context, response, cq));
+    std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::Pod>> PrepareAsyncUploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncWriter< ::zpods::Pod>>(PrepareAsyncUploadPodRaw(context, response, cq));
     }
     class async final :
       public StubInterface::async_interface {
      public:
-      void UploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::FileChunk>* reactor) override;
+      void UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::Pod>* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -99,10 +99,10 @@ class FileService final {
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
     class async async_stub_{this};
-    ::grpc::ClientWriter< ::zpods::FileChunk>* UploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) override;
-    ::grpc::ClientAsyncWriter< ::zpods::FileChunk>* AsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) override;
-    ::grpc::ClientAsyncWriter< ::zpods::FileChunk>* PrepareAsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) override;
-    const ::grpc::internal::RpcMethod rpcmethod_UploadFile_;
+    ::grpc::ClientWriter< ::zpods::Pod>* UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) override;
+    ::grpc::ClientAsyncWriter< ::zpods::Pod>* AsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncWriter< ::zpods::Pod>* PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) override;
+    const ::grpc::internal::RpcMethod rpcmethod_UploadPod_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -110,110 +110,110 @@ class FileService final {
    public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status UploadFile(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::FileChunk>* reader, ::zpods::UploadStatus* response);
+    virtual ::grpc::Status UploadPod(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::Pod>* reader, ::zpods::UploadStatus* response);
   };
   template <class BaseClass>
-  class WithAsyncMethod_UploadFile : public BaseClass {
+  class WithAsyncMethod_UploadPod : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_UploadFile() {
+    WithAsyncMethod_UploadPod() {
       ::grpc::Service::MarkMethodAsync(0);
     }
-    ~WithAsyncMethod_UploadFile() override {
+    ~WithAsyncMethod_UploadPod() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status UploadFile(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::FileChunk>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
+    ::grpc::Status UploadPod(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::Pod>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestUploadFile(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::zpods::UploadStatus, ::zpods::FileChunk>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestUploadPod(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::zpods::UploadStatus, ::zpods::Pod>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncClientStreaming(0, context, reader, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_UploadFile<Service > AsyncService;
+  typedef WithAsyncMethod_UploadPod<Service > AsyncService;
   template <class BaseClass>
-  class WithCallbackMethod_UploadFile : public BaseClass {
+  class WithCallbackMethod_UploadPod : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithCallbackMethod_UploadFile() {
+    WithCallbackMethod_UploadPod() {
       ::grpc::Service::MarkMethodCallback(0,
-          new ::grpc::internal::CallbackClientStreamingHandler< ::zpods::FileChunk, ::zpods::UploadStatus>(
+          new ::grpc::internal::CallbackClientStreamingHandler< ::zpods::Pod, ::zpods::UploadStatus>(
             [this](
-                   ::grpc::CallbackServerContext* context, ::zpods::UploadStatus* response) { return this->UploadFile(context, response); }));
+                   ::grpc::CallbackServerContext* context, ::zpods::UploadStatus* response) { return this->UploadPod(context, response); }));
     }
-    ~WithCallbackMethod_UploadFile() override {
+    ~WithCallbackMethod_UploadPod() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status UploadFile(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::FileChunk>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
+    ::grpc::Status UploadPod(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::Pod>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerReadReactor< ::zpods::FileChunk>* UploadFile(
+    virtual ::grpc::ServerReadReactor< ::zpods::Pod>* UploadPod(
       ::grpc::CallbackServerContext* /*context*/, ::zpods::UploadStatus* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_UploadFile<Service > CallbackService;
+  typedef WithCallbackMethod_UploadPod<Service > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
-  class WithGenericMethod_UploadFile : public BaseClass {
+  class WithGenericMethod_UploadPod : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_UploadFile() {
+    WithGenericMethod_UploadPod() {
       ::grpc::Service::MarkMethodGeneric(0);
     }
-    ~WithGenericMethod_UploadFile() override {
+    ~WithGenericMethod_UploadPod() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status UploadFile(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::FileChunk>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
+    ::grpc::Status UploadPod(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::Pod>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
   template <class BaseClass>
-  class WithRawMethod_UploadFile : public BaseClass {
+  class WithRawMethod_UploadPod : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_UploadFile() {
+    WithRawMethod_UploadPod() {
       ::grpc::Service::MarkMethodRaw(0);
     }
-    ~WithRawMethod_UploadFile() override {
+    ~WithRawMethod_UploadPod() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status UploadFile(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::FileChunk>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
+    ::grpc::Status UploadPod(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::Pod>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestUploadFile(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestUploadPod(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncClientStreaming(0, context, reader, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_UploadFile : public BaseClass {
+  class WithRawCallbackMethod_UploadPod : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawCallbackMethod_UploadFile() {
+    WithRawCallbackMethod_UploadPod() {
       ::grpc::Service::MarkMethodRawCallback(0,
           new ::grpc::internal::CallbackClientStreamingHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
-                   ::grpc::CallbackServerContext* context, ::grpc::ByteBuffer* response) { return this->UploadFile(context, response); }));
+                   ::grpc::CallbackServerContext* context, ::grpc::ByteBuffer* response) { return this->UploadPod(context, response); }));
     }
-    ~WithRawCallbackMethod_UploadFile() override {
+    ~WithRawCallbackMethod_UploadPod() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status UploadFile(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::FileChunk>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
+    ::grpc::Status UploadPod(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::zpods::Pod>* /*reader*/, ::zpods::UploadStatus* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerReadReactor< ::grpc::ByteBuffer>* UploadFile(
+    virtual ::grpc::ServerReadReactor< ::grpc::ByteBuffer>* UploadPod(
       ::grpc::CallbackServerContext* /*context*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   typedef Service StreamedUnaryService;

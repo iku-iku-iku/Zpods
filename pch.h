@@ -7,6 +7,7 @@
 
 #include "spdlog/spdlog.h"
 
+#include <filesystem>
 #include <unordered_set>
 #include <type_traits>
 #include <cstdint>
@@ -34,6 +35,7 @@ namespace zpods {
         USER_ALREADY_EXISTS,
         USER_NOT_EXISTS,
         WRONG_PASSWORD,
+        NOT_FOUND,
         EMPTY,
         NO_NEW_TO_ARCHIVE,
     };

@@ -14,7 +14,7 @@ public:
 
     zpods::Status Register(const std::string& user, const std::string& password);
 
-    zpods::Status Login(const std::string& user, const std::string& password);
+    zpods::Status Login(const std::string& username, const std::string& password);
 
 private:
     std::shared_ptr<zpods::UserService::Stub> stub_;

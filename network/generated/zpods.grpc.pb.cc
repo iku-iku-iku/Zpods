@@ -21,53 +21,53 @@
 #include <grpcpp/support/sync_stream.h>
 namespace zpods {
 
-static const char* FileService_method_names[] = {
-  "/zpods.FileService/UploadFile",
+static const char* PodService_method_names[] = {
+  "/zpods.PodService/UploadPod",
 };
 
-std::unique_ptr< FileService::Stub> FileService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
+std::unique_ptr< PodService::Stub> PodService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
   (void)options;
-  std::unique_ptr< FileService::Stub> stub(new FileService::Stub(channel, options));
+  std::unique_ptr< PodService::Stub> stub(new PodService::Stub(channel, options));
   return stub;
 }
 
-FileService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_UploadFile_(FileService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::CLIENT_STREAMING, channel)
+PodService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
+  : channel_(channel), rpcmethod_UploadPod_(PodService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::CLIENT_STREAMING, channel)
   {}
 
-::grpc::ClientWriter< ::zpods::FileChunk>* FileService::Stub::UploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
-  return ::grpc::internal::ClientWriterFactory< ::zpods::FileChunk>::Create(channel_.get(), rpcmethod_UploadFile_, context, response);
+::grpc::ClientWriter< ::zpods::Pod>* PodService::Stub::UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
+  return ::grpc::internal::ClientWriterFactory< ::zpods::Pod>::Create(channel_.get(), rpcmethod_UploadPod_, context, response);
 }
 
-void FileService::Stub::async::UploadFile(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::FileChunk>* reactor) {
-  ::grpc::internal::ClientCallbackWriterFactory< ::zpods::FileChunk>::Create(stub_->channel_.get(), stub_->rpcmethod_UploadFile_, context, response, reactor);
+void PodService::Stub::async::UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::Pod>* reactor) {
+  ::grpc::internal::ClientCallbackWriterFactory< ::zpods::Pod>::Create(stub_->channel_.get(), stub_->rpcmethod_UploadPod_, context, response, reactor);
 }
 
-::grpc::ClientAsyncWriter< ::zpods::FileChunk>* FileService::Stub::AsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
-  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::FileChunk>::Create(channel_.get(), cq, rpcmethod_UploadFile_, context, response, true, tag);
+::grpc::ClientAsyncWriter< ::zpods::Pod>* PodService::Stub::AsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::Pod>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, true, tag);
 }
 
-::grpc::ClientAsyncWriter< ::zpods::FileChunk>* FileService::Stub::PrepareAsyncUploadFileRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::FileChunk>::Create(channel_.get(), cq, rpcmethod_UploadFile_, context, response, false, nullptr);
+::grpc::ClientAsyncWriter< ::zpods::Pod>* PodService::Stub::PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::Pod>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, false, nullptr);
 }
 
-FileService::Service::Service() {
+PodService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      FileService_method_names[0],
+      PodService_method_names[0],
       ::grpc::internal::RpcMethod::CLIENT_STREAMING,
-      new ::grpc::internal::ClientStreamingHandler< FileService::Service, ::zpods::FileChunk, ::zpods::UploadStatus>(
-          [](FileService::Service* service,
+      new ::grpc::internal::ClientStreamingHandler< PodService::Service, ::zpods::Pod, ::zpods::UploadStatus>(
+          [](PodService::Service* service,
              ::grpc::ServerContext* ctx,
-             ::grpc::ServerReader<::zpods::FileChunk>* reader,
+             ::grpc::ServerReader<::zpods::Pod>* reader,
              ::zpods::UploadStatus* resp) {
-               return service->UploadFile(ctx, reader, resp);
+               return service->UploadPod(ctx, reader, resp);
              }, this)));
 }
 
-FileService::Service::~Service() {
+PodService::Service::~Service() {
 }
 
-::grpc::Status FileService::Service::UploadFile(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::FileChunk>* reader, ::zpods::UploadStatus* response) {
+::grpc::Status PodService::Service::UploadPod(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::Pod>* reader, ::zpods::UploadStatus* response) {
   (void) context;
   (void) reader;
   (void) response;

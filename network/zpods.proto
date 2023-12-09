@@ -21,13 +21,15 @@ option objc_class_prefix = "HLW";
 
 package zpods;
 
-service FileService {
-  rpc UploadFile(stream FileChunk) returns (UploadStatus) {}
+service PodService {
+  rpc UploadPod(stream Pod) returns (UploadStatus) {}
 }
 
-message FileChunk {
-  string filename = 1;
-  bytes content = 2;
+message Pod {
+  string pods_name = 1;
+  string pod_name = 2;
+  string token = 3;
+  bytes content = 4;
 }
 
 message UploadStatus {
@@ -57,4 +59,5 @@ message LoginRequest {
 message LoginResponse {
   bool success = 1;
   string message = 2;
+  string token = 3;
 }

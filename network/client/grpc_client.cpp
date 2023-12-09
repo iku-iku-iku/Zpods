@@ -1,29 +1,30 @@
 #include "grpc_client.h"
 
 ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
+
 auto MakeClientSslCredentials() {
-  auto ReadFile = [](const std::string& filename) {
-    std::ifstream file(filename);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-  };
+    auto ReadFile = [](const std::string &filename) {
+        std::ifstream file(filename);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
+    };
 
-  std::string server_cert = ReadFile("server.crt"); // 服务端的证书
-  std::string client_key = ReadFile("client.key"); // 客户端的密钥
-  std::string client_cert = ReadFile("client.crt"); // 客户端的证书
-  grpc::SslCredentialsOptions ssl_opts;
-  ssl_opts.pem_root_certs = server_cert;
-  ssl_opts.pem_private_key = client_key;
-  ssl_opts.pem_cert_chain = client_cert;
+    std::string server_cert = ReadFile("server.crt"); // 服务端的证书
+    std::string client_key = ReadFile("client.key"); // 客户端的密钥
+    std::string client_cert = ReadFile("client.crt"); // 客户端的证书
+    grpc::SslCredentialsOptions ssl_opts;
+    ssl_opts.pem_root_certs = server_cert;
+    ssl_opts.pem_private_key = client_key;
+    ssl_opts.pem_cert_chain = client_cert;
 
-  return grpc::SslCredentials(ssl_opts);
+    return grpc::SslCredentials(ssl_opts);
 }
 
-FileServiceClient get_file_service_client() {
+PodServiceClient get_file_service_client() {
     std::string target_str = absl::GetFlag(FLAGS_target);
 
-    FileServiceClient client(grpc::CreateChannel(target_str, MakeClientSslCredentials()));
+    PodServiceClient client(grpc::CreateChannel(target_str, MakeClientSslCredentials()));
 
     return client;
 }
@@ -41,7 +42,7 @@ UserServiceClient get_user_service_client() {
 //  // Instantiate the client. It requires a channel, out of which the actual RPCs
 //  // are created. This channel models a connection to an endpoint specified by
 //  // the argument "--target=" which is the only expected argument.
-////  bool reply = client.UploadFile("/tmp/xxx");
+////  bool reply = client.UploadPod("/tmp/xxx");
 ////  if (reply) {
 ////    std::cout << "success" << std::endl;
 ////  } else {
@@ -61,7 +62,66 @@ zpods::Status zpods::RpcUser::register_() const {
 zpods::Status zpods::RpcUser::login() const {
     UserServiceClient client = get_user_service_client();
 
-    client.Login(username, password);
+
+    let status = client.Login(username, password);
+
+    if (status != zpods::Status::OK) {
+        return status;
+    }
 
     return Status::OK;
+}
+
+zpods::Status zpods::RpcUser::upload_pods(const char *pods_dir) {
+    PodServiceClient client = get_file_service_client();
+
+    spdlog::info("uploading pods: {}", pods_dir);
+    for (const auto& item : std::filesystem::directory_iterator(pods_dir)) {
+        if (item.is_directory()) {
+            continue;
+        }
+
+        let status = client.UploadPod(item.path().string());
+
+        if (status != zpods::Status::OK) {
+            return status;
+        }
+    }
+
+    return Status::OK;
+}
+
+zpods::DbHandle &zpods::DbHandle::Instance() {
+    static DbHandle db_handle;
+    return db_handle;
+}
+
+zpods::DbHandle::DbHandle() {
+    rocksdb::Options options;
+    options.create_if_missing = true;
+    rocksdb::Status status = rocksdb::DB::Open(options, "zpods_client_db", &db);
+    assert(status.ok());
+}
+
+auto zpods::DbHandle::Put(const std::string &key, const std::string &value) -> zpods::Status {
+    ZPODS_ASSERT(db != nullptr);
+
+    rocksdb::Status status = db->Put(rocksdb::WriteOptions(), key, value);
+    if (status.ok()) {
+        return zpods::Status::OK;
+    } else {
+        return zpods::Status::ERROR;
+    }
+}
+
+auto zpods::DbHandle::Get(const std::string &key, std::string *value) -> zpods::Status {
+    ZPODS_ASSERT(db != nullptr);
+    rocksdb::Status status = db->Get(rocksdb::ReadOptions(), key, value);
+    if (status.ok()) {
+        return zpods::Status::OK;
+    } else if (status.IsNotFound()) {
+        return zpods::Status::NOT_FOUND;
+    } else {
+        return zpods::Status::ERROR;
+    }
 }
