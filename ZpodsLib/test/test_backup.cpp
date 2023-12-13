@@ -1,12 +1,13 @@
 // 测试代码
-#include <gtest/gtest.h>
 #include <filesystem>
-#include "zpods_lib.h"
 #include "ZpodsLib/src/core/zpods_core.h"
+#include "zpods_lib.h"
+#include <gtest/gtest.h>
 
 using namespace zpods;
 
-TEST(BackupTest, BackupRestore) {
+TEST(BackupTest, BackupRestore)
+{
     Status status;
     let dir = "recursive";
     let src_path = fmt::format("{}/{}", zpods::test_data_path(), dir);
@@ -24,7 +25,8 @@ TEST(BackupTest, BackupRestore) {
     EXPECT_EQ(status, Status::OK);
 }
 
-TEST(BackupTest, BackupRestoreSoftLink) {
+TEST(BackupTest, BackupRestoreSoftLink)
+{
     Status status;
     let dir = "filter";
     let src_path = fmt::format("{}/{}", zpods::test_data_path(), dir);
@@ -43,7 +45,8 @@ TEST(BackupTest, BackupRestoreSoftLink) {
     EXPECT_EQ(status, Status::OK);
 }
 
-TEST(BackupTest, BackupRestoreCompression) {
+TEST(BackupTest, BackupRestoreCompression)
+{
     Status status;
     let dir = "recursive";
     let src_path = fmt::format("{}/{}", zpods::test_data_path(), dir);
@@ -61,7 +64,8 @@ TEST(BackupTest, BackupRestoreCompression) {
     EXPECT_EQ(status, Status::OK);
 }
 
-TEST(BackupTest, BackupRestoreCompressionEncryption) {
+TEST(BackupTest, BackupRestoreCompressionEncryption)
+{
     let dir = "recursive";
     let src_path = fmt::format("{}/{}", zpods::test_data_path(), dir);
     let dest_path = zpods::temp_path();
@@ -77,14 +81,17 @@ TEST(BackupTest, BackupRestoreCompressionEncryption) {
     EXPECT_EQ(backup(dest_path, config), Status::OK);
 
     // restore with right password
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::OK);
 
     // restore with wrong password
     config.crypto_config = zpods::CryptoConfig("WrongPassword");
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::WRONG_PASSWORD);
+    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::WRONG_PASSWORD);
 }
 
-TEST(BackupTest, DeltaBackup) {
+TEST(BackupTest, DeltaBackup)
+{
     let dir = "recursive";
     let src_path = fs::path(zpods::test_data_path()) / dir;
     let dest_path = zpods::temp_path();
@@ -103,24 +110,28 @@ TEST(BackupTest, DeltaBackup) {
     EXPECT_EQ(backup(dest_path, config), Status::OK);
 
     // restore with right password
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::OK);
 
     // sleep one second the make the timestamp different
     sleep(1);
     // === start test of delta backup ===
     // ***create a new file***
-    fs::copy(some_file_path.c_str(), new_file.c_str(), fs::copy_options::skip_existing);
+    fs::copy(some_file_path.c_str(), new_file.c_str(),
+             fs::copy_options::skip_existing);
     ASSERT_TRUE(fs::exists(new_file.c_str()));
     // do a delta backup
     EXPECT_EQ(backup(dest_path, config), Status::OK);
     let_mut paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
     EXPECT_EQ(paths.size(), 2);
-    // since we add a file which is in original files, if delta backup works, the size of the new file should be smaller
-    // if we simply back up all files, the size of the new backup file should be larger
+    // since we add a file which is in original files, if delta backup works,
+    // the size of the new file should be smaller if we simply back up all
+    // files, the size of the new backup file should be larger
     EXPECT_GT(fs::get_file_size(paths[0]), fs::get_file_size(paths[1]));
     // restore with right password
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::OK);
     let restored_new_file_path = fs::path(temp_path()) / "single/new_file.txt";
     EXPECT_TRUE(fs::exists(restored_new_file_path.c_str()));
 
@@ -136,13 +147,16 @@ TEST(BackupTest, DeltaBackup) {
     paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
     EXPECT_EQ(paths.size(), 3);
-    // since we only update one file, if delta backup works, the size of the new backup file should be smaller
-    // if we simply back up all files, the size of the new backup file should be larger
+    // since we only update one file, if delta backup works, the size of the new
+    // backup file should be smaller if we simply back up all files, the size of
+    // the new backup file should be larger
     EXPECT_GT(fs::get_file_size(paths[1]), fs::get_file_size(paths[2]));
     // restore with right password
-    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::OK);
     EXPECT_TRUE(fs::exists(restored_new_file_path.c_str()));
-    EXPECT_EQ("hello world", fs::read_from_file(restored_new_file_path.c_str()));
+    EXPECT_EQ("hello world",
+              fs::read_from_file(restored_new_file_path.c_str()));
 
     // ***and the last, delete the new file***
     let ts_before_remove_file = get_current_timestamp();
@@ -154,17 +168,21 @@ TEST(BackupTest, DeltaBackup) {
     paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
     EXPECT_EQ(paths.size(), 4);
-    // since we only delete one file, if delta backup works (only mark the deletion in header),
-    // the size of the new backup file should be smaller
-    // if we simply back up all files, the size of the new backup file should be larger
+    // since we only delete one file, if delta backup works (only mark the
+    // deletion in header), the size of the new backup file should be smaller if
+    // we simply back up all files, the size of the new backup file should be
+    // larger
     EXPECT_GT(fs::get_file_size(paths[2]), fs::get_file_size(paths[3]));
-    // for simplicity, we do not automatically delete the file in the restore process, so we must manually delete it
+    // for simplicity, we do not automatically delete the file in the restore
+    // process, so we must manually delete it
     fs::remove_file(restored_new_file_path.c_str());
-    EXPECT_EQ(restore(pods_path.c_str(), temp_path(), config), zpods::Status::OK);
+    EXPECT_EQ(restore(pods_path.c_str(), temp_path(), config),
+              zpods::Status::OK);
     // if the delta backup works, we will not get it back
     EXPECT_FALSE(fs::exists(restored_new_file_path.c_str()));
 
-    // ***because we have implemented delta backup, we can restore from a given timestamp! ***
+    // ***because we have implemented delta backup, we can restore from a given
+    // timestamp! ***
     config.timestamp = ts_before_remove_file;
     EXPECT_EQ(restore(pods_path.c_str(), temp_path(), config), Status::OK);
     EXPECT_TRUE(fs::exists(restored_new_file_path.c_str()));

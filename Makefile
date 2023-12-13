@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy
 
 configure:
 	sudo apt install ceph librados2 librados-dev -y
@@ -9,10 +9,15 @@ configure:
 
 build:
 	./scripts/build.sh
-	cp build/network/client/cli/src/zpods_cli .
-	cp build/network/server/src/zpods_server .
+
+local_deploy: build
+	bash ./scripts/deploy_local.sh
+
 uninstall:
 	rm -rf /usr/local/bin/zpods.cli
+
+format:
+	@clang-format -i -style=file $(shell find ZpodsLib network \( -name "*.h" -o -name "*.cpp" \) -size -100k)
 
 install_cli: build uninstall
 	@# if there is no /usr/local/bin/zpods.cli, then create a symbol link

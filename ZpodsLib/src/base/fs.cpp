@@ -4,11 +4,14 @@
 
 #include "fs.h"
 
-bool zpods::fs::is_same_content(const char *path1, const char *path2) {
-    if (!exists(path1)) {
+bool zpods::fs::is_same_content(const char* path1, const char* path2)
+{
+    if (!exists(path1))
+    {
         return false;
     }
-    if (!exists(path2)) {
+    if (!exists(path2))
+    {
         return false;
     }
     let_mut ifs1 = std::ifstream(path1, ios::binary);
@@ -17,7 +20,8 @@ bool zpods::fs::is_same_content(const char *path1, const char *path2) {
     let_mut size1 = get_file_size(path1);
     let_mut size2 = get_file_size(path2);
 
-    if (size1 != size2) {
+    if (size1 != size2)
+    {
         return false;
     }
 
@@ -30,35 +34,44 @@ bool zpods::fs::is_same_content(const char *path1, const char *path2) {
     return memcmp(buf1.data(), buf2.data(), size1) == 0;
 }
 
-auto zpods::fs::relative(const char *path, const char *base) -> const char * {
+auto zpods::fs::relative(const char* path, const char* base) -> const char*
+{
     let_mut len = strlen(base);
-    if (base[len - 1] == '/') {
+    if (base[len - 1] == '/')
+    {
         len--;
     }
 
     ZPODS_ASSERT(is_directory(base));
 
-    if (strncmp(path, base, len) == 0) {
+    if (strncmp(path, base, len) == 0)
+    {
         return path + len + 1;
     }
     return nullptr;
 }
 
-auto zpods::fs::write(const char *path, std::string_view buf) {
+auto zpods::fs::write(const char* path, std::string_view buf)
+{
     std::ofstream ofs(path);
     ZPODS_ASSERT(ofs.is_open());
-    ofs.write(buf.data(), (long) buf.length());
+    ofs.write(buf.data(), (long)buf.length());
 }
 
-auto zpods::fs::read(const char *path, std::string_view buf) {
+auto zpods::fs::read(const char* path, std::string_view buf)
+{
     std::ifstream ifs(path);
     ZPODS_ASSERT(ifs.is_open());
-    ifs.read(const_cast<char *>(buf.data()), (long) buf.length());
+    ifs.read(const_cast<char*>(buf.data()), (long)buf.length());
 }
 
-auto zpods::fs::open_or_create_file_as_ifs(const char *path, zpods::fs::openmode mode) -> std::ifstream {
+auto zpods::fs::open_or_create_file_as_ifs(const char* path,
+                                           zpods::fs::openmode mode)
+    -> std::ifstream
+{
     let base = get_base_name(path);
-    if (!exists(base.c_str())) {
+    if (!exists(base.c_str()))
+    {
         create_directory_if_not_exist(base.c_str());
     }
     std::ifstream ifs(path, mode);
@@ -66,9 +79,13 @@ auto zpods::fs::open_or_create_file_as_ifs(const char *path, zpods::fs::openmode
     return ifs;
 }
 
-auto zpods::fs::open_or_create_file_as_ofs(const char *path, zpods::fs::openmode mode) -> std::ofstream {
+auto zpods::fs::open_or_create_file_as_ofs(const char* path,
+                                           zpods::fs::openmode mode)
+    -> std::ofstream
+{
     let base = get_base_name(path);
-    if (!exists(base.c_str())) {
+    if (!exists(base.c_str()))
+    {
         create_directory_if_not_exist(base.c_str());
     }
     std::ofstream ofs(path, mode);
@@ -76,11 +93,14 @@ auto zpods::fs::open_or_create_file_as_ofs(const char *path, zpods::fs::openmode
     return ofs;
 }
 
-auto zpods::fs::get_base_name(const char *path) -> std::string {
+auto zpods::fs::get_base_name(const char* path) -> std::string
+{
     size_t len = 0;
     let_mut p = path;
-    while (*p) {
-        if (*p == '/') {
+    while (*p)
+    {
+        if (*p == '/')
+        {
             len = p - path;
         }
         p++;
@@ -88,20 +108,24 @@ auto zpods::fs::get_base_name(const char *path) -> std::string {
     return {path, len};
 }
 
-auto zpods::fs::read_from_file(const char *path) -> std::string {
+auto zpods::fs::read_from_file(const char* path) -> std::string
+{
     ZPODS_ASSERT(exists(path));
     let_mut ifs = open_or_create_file_as_ifs(path, ios::binary);
     let_mut size = get_file_size(path);
     std::vector<char> buf(size);
-    ifs.read(buf.data(), (long) size);
+    ifs.read(buf.data(), (long)size);
     return {buf.begin(), buf.end()};
 }
 
-auto zpods::fs::get_file_name(const char *path) -> const char * {
+auto zpods::fs::get_file_name(const char* path) -> const char*
+{
     let_mut len = strlen(path);
     let_mut ret = path;
-    while (*path) {
-        if (*path == '/') ret = path + 1;
+    while (*path)
+    {
+        if (*path == '/')
+            ret = path + 1;
         path++;
     }
     return ret;

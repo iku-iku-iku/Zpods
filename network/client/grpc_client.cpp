@@ -2,8 +2,9 @@
 
 ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
 
-auto MakeClientSslCredentials() {
-    auto ReadFile = [](const std::string &filename) {
+auto MakeClientSslCredentials()
+{
+    auto ReadFile = [](const std::string& filename) {
         std::ifstream file(filename);
         std::stringstream buffer;
         buffer << file.rdbuf();
@@ -11,7 +12,7 @@ auto MakeClientSslCredentials() {
     };
 
     std::string server_cert = ReadFile("server.crt"); // 服务端的证书
-    std::string client_key = ReadFile("client.key"); // 客户端的密钥
+    std::string client_key = ReadFile("client.key");  // 客户端的密钥
     std::string client_cert = ReadFile("client.crt"); // 客户端的证书
     grpc::SslCredentialsOptions ssl_opts;
     ssl_opts.pem_root_certs = server_cert;
@@ -21,27 +22,33 @@ auto MakeClientSslCredentials() {
     return grpc::SslCredentials(ssl_opts);
 }
 
-PodServiceClient get_file_service_client() {
+PodServiceClient get_file_service_client()
+{
     std::string target_str = absl::GetFlag(FLAGS_target);
 
-    PodServiceClient client(grpc::CreateChannel(target_str, MakeClientSslCredentials()));
+    PodServiceClient client(
+        grpc::CreateChannel(target_str, MakeClientSslCredentials()));
 
     return client;
 }
 
-UserServiceClient get_user_service_client() {
+UserServiceClient get_user_service_client()
+{
     std::string target_str = absl::GetFlag(FLAGS_target);
 
-    UserServiceClient client(grpc::CreateChannel(target_str, MakeClientSslCredentials()));
+    UserServiceClient client(
+        grpc::CreateChannel(target_str, MakeClientSslCredentials()));
 
     return client;
 }
 
-//int main(int argc, char** argv) {
-//  absl::ParseCommandLine(argc, argv);
-//  // Instantiate the client. It requires a channel, out of which the actual RPCs
-//  // are created. This channel models a connection to an endpoint specified by
-//  // the argument "--target=" which is the only expected argument.
+// int main(int argc, char** argv) {
+//   absl::ParseCommandLine(argc, argv);
+//   // Instantiate the client. It requires a channel, out of which the actual
+//   RPCs
+//   // are created. This channel models a connection to an endpoint specified
+//   by
+//   // the argument "--target=" which is the only expected argument.
 ////  bool reply = client.UploadPod("/tmp/xxx");
 ////  if (reply) {
 ////    std::cout << "success" << std::endl;
@@ -51,7 +58,8 @@ UserServiceClient get_user_service_client() {
 //
 //  return 0;
 //}
-zpods::Status zpods::RpcUser::register_() const {
+zpods::Status zpods::RpcUser::register_() const
+{
     UserServiceClient client = get_user_service_client();
 
     client.Register(username, password);
@@ -59,31 +67,36 @@ zpods::Status zpods::RpcUser::register_() const {
     return Status::OK;
 }
 
-zpods::Status zpods::RpcUser::login() const {
+zpods::Status zpods::RpcUser::login() const
+{
     UserServiceClient client = get_user_service_client();
-
 
     let status = client.Login(username, password);
 
-    if (status != zpods::Status::OK) {
+    if (status != zpods::Status::OK)
+    {
         return status;
     }
 
     return Status::OK;
 }
 
-zpods::Status zpods::RpcUser::upload_pods(const char *pods_dir) {
+zpods::Status zpods::RpcUser::upload_pods(const char* pods_dir)
+{
     PodServiceClient client = get_file_service_client();
 
     spdlog::info("uploading pods: {}", pods_dir);
-    for (const auto& item : std::filesystem::directory_iterator(pods_dir)) {
-        if (item.is_directory()) {
+    for (const auto& item : std::filesystem::directory_iterator(pods_dir))
+    {
+        if (item.is_directory())
+        {
             continue;
         }
 
         let status = client.UploadPod(item.path().string());
 
-        if (status != zpods::Status::OK) {
+        if (status != zpods::Status::OK)
+        {
             return status;
         }
     }
@@ -91,37 +104,51 @@ zpods::Status zpods::RpcUser::upload_pods(const char *pods_dir) {
     return Status::OK;
 }
 
-zpods::DbHandle &zpods::DbHandle::Instance() {
+zpods::DbHandle& zpods::DbHandle::Instance()
+{
     static DbHandle db_handle;
     return db_handle;
 }
 
-zpods::DbHandle::DbHandle() {
+zpods::DbHandle::DbHandle()
+{
     rocksdb::Options options;
     options.create_if_missing = true;
     rocksdb::Status status = rocksdb::DB::Open(options, "zpods_client_db", &db);
     assert(status.ok());
 }
 
-auto zpods::DbHandle::Put(const std::string &key, const std::string &value) -> zpods::Status {
+auto zpods::DbHandle::Put(const std::string& key, const std::string& value)
+    -> zpods::Status
+{
     ZPODS_ASSERT(db != nullptr);
 
     rocksdb::Status status = db->Put(rocksdb::WriteOptions(), key, value);
-    if (status.ok()) {
+    if (status.ok())
+    {
         return zpods::Status::OK;
-    } else {
+    }
+    else
+    {
         return zpods::Status::ERROR;
     }
 }
 
-auto zpods::DbHandle::Get(const std::string &key, std::string *value) -> zpods::Status {
+auto zpods::DbHandle::Get(const std::string& key, std::string* value)
+    -> zpods::Status
+{
     ZPODS_ASSERT(db != nullptr);
     rocksdb::Status status = db->Get(rocksdb::ReadOptions(), key, value);
-    if (status.ok()) {
+    if (status.ok())
+    {
         return zpods::Status::OK;
-    } else if (status.IsNotFound()) {
+    }
+    else if (status.IsNotFound())
+    {
         return zpods::Status::NOT_FOUND;
-    } else {
+    }
+    else
+    {
         return zpods::Status::ERROR;
     }
 }

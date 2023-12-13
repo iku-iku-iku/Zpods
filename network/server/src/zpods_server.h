@@ -5,7 +5,4 @@
 #ifndef ZPODS_ZPODS_SERVER_H
 #define ZPODS_ZPODS_SERVER_H
 
-
-
-
-#endif //ZPODS_ZPODS_SERVER_H
+#endif // ZPODS_ZPODS_SERVER_H

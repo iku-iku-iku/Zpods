@@ -2,11 +2,12 @@
 // Created by code4love on 23-12-1.
 //
 
-#include <gtest/gtest.h>
 #include "ZpodsLib/src/core/manager.h"
+#include <gtest/gtest.h>
 
 using namespace zpods;
 
-TEST(ManagerTest, LoadPodsTest) {
+TEST(ManagerTest, LoadPodsTest)
+{
     PodsManager manager;
 }
