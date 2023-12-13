@@ -85,19 +85,19 @@ class DbHandle
         return Get(username_key(username), password_hash);
     }
 
-    static std::string token2user(const std::string& key)
+    static std::string token2username(const std::string& key)
     {
-        return "token2user:" + key;
+        return "token2username:" + key;
     }
 
-    auto put_token2user(const std::string& key, const std::string& value)
+    auto put_token2username(const std::string& key, const std::string& username)
     {
-        return Put(token2user(key), value);
+        return Put(token2username(key), username);
     }
 
-    auto get_user_by_token(const std::string& key, std::string* value)
+    auto get_username_by_token(const std::string& key, std::string* username)
     {
-        return Get(token2user(key), value);
+        return Get(token2username(key), username);
     }
 
     ~DbHandle() { delete db; }

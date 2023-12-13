@@ -1,4 +1,6 @@
+#include <vector>
 #include "grpc_client.h"
+#include "network/client/pod_service_client.h"
 
 ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
 
@@ -22,7 +24,7 @@ auto MakeClientSslCredentials()
     return grpc::SslCredentials(ssl_opts);
 }
 
-PodServiceClient get_file_service_client()
+PodServiceClient get_pod_service_client()
 {
     std::string target_str = absl::GetFlag(FLAGS_target);
 
@@ -83,7 +85,7 @@ zpods::Status zpods::RpcUser::login() const
 
 zpods::Status zpods::RpcUser::upload_pods(const char* pods_dir)
 {
-    PodServiceClient client = get_file_service_client();
+    PodServiceClient client = get_pod_service_client();
 
     spdlog::info("uploading pods: {}", pods_dir);
     for (const auto& item : std::filesystem::directory_iterator(pods_dir))
@@ -102,6 +104,13 @@ zpods::Status zpods::RpcUser::upload_pods(const char* pods_dir)
     }
 
     return Status::OK;
+}
+
+zpods::Status zpods::RpcUser::query_pods(PodsQueryResult& result)
+{
+    let_mut client = get_pod_service_client();
+
+    return client.QueryPods(result);
 }
 
 zpods::DbHandle& zpods::DbHandle::Instance()

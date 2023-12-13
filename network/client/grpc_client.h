@@ -67,6 +67,7 @@ struct RpcUser
     //        Status unregister() const;
     //
     Status upload_pods(const char* pods_dir);
+    Status query_pods(PodsQueryResult& result);
     //
     //        Status download_pods(const char *remote_pods_dir, const char
     //        *local_pods_dir);
@@ -75,7 +76,7 @@ struct RpcUser
 };
 } // namespace zpods
 
-PodServiceClient get_file_service_client();
+PodServiceClient get_pod_service_client();
 
 UserServiceClient get_user_service_client();
 

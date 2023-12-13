@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs local_deploy
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy
 
 configure:
 	sudo apt install ceph librados2 librados-dev -y

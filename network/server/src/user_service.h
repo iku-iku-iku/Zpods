@@ -122,7 +122,7 @@ class UserServiceImpl final : public UserService::Service
         if (s.ok() && stored_password_hash == password_hash)
         {
             let token = generate_token();
-            zpods::DbHandle::Instance().put_token2user(token, username);
+            zpods::DbHandle::Instance().put_token2username(token, username);
             put_token(token);
 
             response->set_success(true);

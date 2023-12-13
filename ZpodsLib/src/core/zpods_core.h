@@ -78,6 +78,13 @@ struct PodHeader
     }
 };
 
+
+struct Pod {
+  std::string name;
+  std::string path;
+  long last_modified_ts;
+};
+
 struct PeaHeader
 {
     union

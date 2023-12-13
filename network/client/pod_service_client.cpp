@@ -3,6 +3,7 @@
 //
 
 #include "grpc_client.h"
+#include "pch.h"
 #include "pod_service_client.h"
 
 zpods::Status PodServiceClient::UploadPod(const std::string& pod_path)
@@ -10,10 +11,10 @@ zpods::Status PodServiceClient::UploadPod(const std::string& pod_path)
     std::ifstream file(pod_path, std::ios::binary);
     ClientContext context;
     UploadStatus upload_status;
-    std::unique_ptr<ClientWriter<Pod>> writer(
+    std::unique_ptr<ClientWriter<UploadPodRequest>> writer(
         stub_->UploadPod(&context, &upload_status));
 
-    Pod pod;
+    UploadPodRequest pod;
     let pod_name = std::filesystem::path(pod_path).filename().string();
     let pods_name =
         std::filesystem::path(pod_path).parent_path().filename().string();
@@ -58,4 +59,52 @@ zpods::Status PodServiceClient::UploadPod(const std::string& pod_path)
     spdlog::info("fail to upload pod: {}", (int)finish_status.error_code());
 
     return zpods::Status::ERROR;
+}
+
+zpods::Status PodServiceClient::QueryPods(PodsQueryResult& result)
+{
+    std::string token;
+    {
+
+        let status = zpods::DbHandle::Instance().get_cached_token(&token);
+        if (status != zpods::Status::OK)
+        {
+            spdlog::info("fail to get cached token");
+            return status;
+        }
+    }
+
+    ClientContext context;
+    QueryPodsRequest request;
+    QueryPodsResponse response;
+
+    request.set_token(token);
+
+    {
+        let status = stub_->QueryPods(&context, request, &response);
+
+        if (!status.ok())
+        {
+            spdlog::info("fail to query pods: {}", (int)status.error_code());
+            return zpods::Status::ERROR;
+        }
+    }
+
+    for (int i = 0; i < response.pods_name_size(); i++)
+    {
+
+        let_ref pod_name = response.pods_name(i);
+        let_ref pods = response.pod_list(i);
+
+        std::vector<std::pair<std::string, long>> pod_list;
+        for (int j = 0; j < pods.pod_name_size(); j++)
+        {
+            let_ref pod_name = pods.pod_name(j);
+            let_ref pod_last_modified_timestamp = pods.last_modified_time(j);
+            pod_list.emplace_back(pod_name, pod_last_modified_timestamp);
+        }
+
+        result.emplace_back(pod_name, std::move(pod_list));
+    }
+    return zpods::Status::OK;
 }

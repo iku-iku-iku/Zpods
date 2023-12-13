@@ -2,9 +2,11 @@
 // Created by code4love on 23-9-30.
 //
 #include "../../grpc_client.h"
+#include "network/client/pod_service_client.h"
 #include "pch.h"
 
 #include "CLI11.hpp"
+#include <vector>
 #include "termios.h"
 #include "zpods_lib.h"
 
@@ -47,12 +49,13 @@ int main(int argc, char** argv)
     CLI::App app{"zpods client"};
     app.require_subcommand(1);
 
-    CLI::App* register_ = app.add_subcommand("register", "register a user");
-    CLI::App* login = app.add_subcommand("login", "login a user");
+    CLI::App* register_cmd = app.add_subcommand("register", "register a user");
+    CLI::App* login_cmd = app.add_subcommand("login", "login a user");
     CLI::App* backup = app.add_subcommand(
         "backup", "backup a directory (or a file) to a single file");
     CLI::App* restore =
         app.add_subcommand("restore", "restore a archive file to a directory");
+    CLI::App* list_cmd = app.add_subcommand("list", "list all pods");
 
     std::vector<std::string> src_path_list;
     std::string target_dir;
@@ -64,7 +67,7 @@ int main(int argc, char** argv)
     int interval = -1;
 
     // register
-    register_->callback([&] {
+    register_cmd->callback([&] {
         user.username = get_username();
         user.password = get_password();
         user.password = get_password(true);
@@ -72,10 +75,24 @@ int main(int argc, char** argv)
     });
 
     // login
-    login->callback([&] {
+    login_cmd->callback([&] {
         user.username = get_username();
         user.password = get_password();
         (void)user.login();
+    });
+
+    // list
+    list_cmd->callback([&] {
+        PodsQueryResult result;
+        user.query_pods(result);
+
+        for (const auto& [pods_name, pod_list] : result)
+        {
+            for (const auto& [pod_name, last_modified_ts] : pod_list)
+            {
+                spdlog::info("{}/{}", pods_name, pod_name);
+            }
+        }
     });
 
     // backup

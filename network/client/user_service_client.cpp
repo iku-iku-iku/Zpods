@@ -19,7 +19,7 @@ zpods::Status UserServiceClient::Register(const std::string& user,
 
     if (!status.ok())
     {
-        std::cout << "Register failed: " << status.error_code() << ": "
+        std::cout << "Register failed[" << status.error_code() << "] "
                   << status.error_message() << std::endl;
         return zpods::Status::ERROR;
     }

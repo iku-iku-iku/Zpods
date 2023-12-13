@@ -22,10 +22,11 @@ option objc_class_prefix = "HLW";
 package zpods;
 
 service PodService {
-  rpc UploadPod(stream Pod) returns (UploadStatus) {}
+  rpc UploadPod(stream UploadPodRequest) returns (UploadStatus) {}
+  rpc QueryPods(QueryPodsRequest) returns (QueryPodsResponse) {}
 }
 
-message Pod {
+message UploadPodRequest {
   string pods_name = 1;
   string pod_name = 2;
   string token = 3;
@@ -34,6 +35,20 @@ message Pod {
 
 message UploadStatus {
   bool success = 1;
+}
+
+message QueryPodsRequest {
+  string token = 1;
+}
+
+message PodList {
+  repeated string pod_name = 1;
+  repeated int32 last_modified_time = 2;
+}
+
+message QueryPodsResponse {
+  repeated string pods_name = 1;
+  repeated PodList pod_list = 2;
 }
 
 service UserService {

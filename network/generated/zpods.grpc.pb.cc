@@ -23,6 +23,7 @@ namespace zpods {
 
 static const char* PodService_method_names[] = {
   "/zpods.PodService/UploadPod",
+  "/zpods.PodService/QueryPods",
 };
 
 std::unique_ptr< PodService::Stub> PodService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -33,43 +34,84 @@ std::unique_ptr< PodService::Stub> PodService::NewStub(const std::shared_ptr< ::
 
 PodService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
   : channel_(channel), rpcmethod_UploadPod_(PodService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::CLIENT_STREAMING, channel)
+  , rpcmethod_QueryPods_(PodService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::ClientWriter< ::zpods::Pod>* PodService::Stub::UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
-  return ::grpc::internal::ClientWriterFactory< ::zpods::Pod>::Create(channel_.get(), rpcmethod_UploadPod_, context, response);
+::grpc::ClientWriter< ::zpods::UploadPodRequest>* PodService::Stub::UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
+  return ::grpc::internal::ClientWriterFactory< ::zpods::UploadPodRequest>::Create(channel_.get(), rpcmethod_UploadPod_, context, response);
 }
 
-void PodService::Stub::async::UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::Pod>* reactor) {
-  ::grpc::internal::ClientCallbackWriterFactory< ::zpods::Pod>::Create(stub_->channel_.get(), stub_->rpcmethod_UploadPod_, context, response, reactor);
+void PodService::Stub::async::UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::UploadPodRequest>* reactor) {
+  ::grpc::internal::ClientCallbackWriterFactory< ::zpods::UploadPodRequest>::Create(stub_->channel_.get(), stub_->rpcmethod_UploadPod_, context, response, reactor);
 }
 
-::grpc::ClientAsyncWriter< ::zpods::Pod>* PodService::Stub::AsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
-  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::Pod>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, true, tag);
+::grpc::ClientAsyncWriter< ::zpods::UploadPodRequest>* PodService::Stub::AsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::UploadPodRequest>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, true, tag);
 }
 
-::grpc::ClientAsyncWriter< ::zpods::Pod>* PodService::Stub::PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::Pod>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, false, nullptr);
+::grpc::ClientAsyncWriter< ::zpods::UploadPodRequest>* PodService::Stub::PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncWriterFactory< ::zpods::UploadPodRequest>::Create(channel_.get(), cq, rpcmethod_UploadPod_, context, response, false, nullptr);
+}
+
+::grpc::Status PodService::Stub::QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::zpods::QueryPodsResponse* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::zpods::QueryPodsRequest, ::zpods::QueryPodsResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_QueryPods_, context, request, response);
+}
+
+void PodService::Stub::async::QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::zpods::QueryPodsRequest, ::zpods::QueryPodsResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryPods_, context, request, response, std::move(f));
+}
+
+void PodService::Stub::async::QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryPods_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>* PodService::Stub::PrepareAsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::zpods::QueryPodsResponse, ::zpods::QueryPodsRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_QueryPods_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>* PodService::Stub::AsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncQueryPodsRaw(context, request, cq);
+  result->StartCall();
+  return result;
 }
 
 PodService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       PodService_method_names[0],
       ::grpc::internal::RpcMethod::CLIENT_STREAMING,
-      new ::grpc::internal::ClientStreamingHandler< PodService::Service, ::zpods::Pod, ::zpods::UploadStatus>(
+      new ::grpc::internal::ClientStreamingHandler< PodService::Service, ::zpods::UploadPodRequest, ::zpods::UploadStatus>(
           [](PodService::Service* service,
              ::grpc::ServerContext* ctx,
-             ::grpc::ServerReader<::zpods::Pod>* reader,
+             ::grpc::ServerReader<::zpods::UploadPodRequest>* reader,
              ::zpods::UploadStatus* resp) {
                return service->UploadPod(ctx, reader, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      PodService_method_names[1],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< PodService::Service, ::zpods::QueryPodsRequest, ::zpods::QueryPodsResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](PodService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::zpods::QueryPodsRequest* req,
+             ::zpods::QueryPodsResponse* resp) {
+               return service->QueryPods(ctx, req, resp);
              }, this)));
 }
 
 PodService::Service::~Service() {
 }
 
-::grpc::Status PodService::Service::UploadPod(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::Pod>* reader, ::zpods::UploadStatus* response) {
+::grpc::Status PodService::Service::UploadPod(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::UploadPodRequest>* reader, ::zpods::UploadStatus* response) {
   (void) context;
   (void) reader;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status PodService::Service::QueryPods(::grpc::ServerContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response) {
+  (void) context;
+  (void) request;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }

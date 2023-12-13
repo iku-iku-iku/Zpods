@@ -5,10 +5,7 @@
 #ifndef ZPODS_CLIENT_PCH_H
 #define ZPODS_CLIENT_PCH_H
 
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <string>
+#include "pch.h"
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
