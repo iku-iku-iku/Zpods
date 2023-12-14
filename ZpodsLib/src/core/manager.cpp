@@ -101,7 +101,7 @@ Status PodsManager::load_pods(const fs::zpath& pods_path,
     return Status::OK;
 }
 
-void PodsManager::load_pods_path()
+void PodsManager::load_pods_mapping()
 {
     if (fs::exists("./pods_paths"))
     {
@@ -115,7 +115,7 @@ void PodsManager::load_pods_path()
     }
 }
 
-void PodsManager::store_pods_path()
+void PodsManager::store_pods_mapping()
 {
     let_mut ofs =
         fs::open_or_create_file_as_ofs("./pods_paths", fs::ios::binary);
@@ -130,12 +130,12 @@ void PodsManager::record_mapping(const fs::zpath& src_path,
                                  const fs::zpath& dst_path)
 {
     path_mapping_[src_path] = dst_path;
-    store_pods_path();
+    store_pods_mapping();
 }
 
 void PodsManager::load_pods_from_tracked_paths()
 {
-    load_pods_path();
+    load_pods_mapping();
 
     for (const auto& [k, v] : path_mapping_)
     {

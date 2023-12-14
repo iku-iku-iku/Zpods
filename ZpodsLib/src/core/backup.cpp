@@ -10,8 +10,8 @@ using namespace zpods;
 
 using namespace zpods::fs;
 
-static Status backup_one(const char* src_dir, const char* target_dir,
-                         const BackupConfig& config)
+static Status backup_internal(const char* src_dir, const char* target_dir,
+                              const BackupConfig& config)
 {
     Status status = PodsManager::Instance()->load_pods(target_dir, config);
     if (status != Status::OK)
@@ -92,7 +92,7 @@ Status zpods::backup(const char* dest_dir, const BackupConfig& config)
     fs::create_directory_if_not_exist(dest_dir);
     ZPODS_ASSERT(fs::is_directory(dest_dir));
 
-    let dir_to_backup = config.dir_to_backup;
+    let dir_to_backup = config.tree_dir;
 
     let pods_dir_name =
         fmt::format("{}-PODS", dir_to_backup.filename().c_str());
@@ -102,14 +102,14 @@ Status zpods::backup(const char* dest_dir, const BackupConfig& config)
     {
         PodsManager::Instance()->create_pods(pods_dir);
     }
-    PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
 
-    let st = backup_one(dir_to_backup.c_str(), pods_dir.c_str(), config);
+    let st = backup_internal(dir_to_backup.c_str(), pods_dir.c_str(), config);
     if (st != Status::OK)
     {
         return st;
     }
 
+    PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
     return Status::OK;
 }
 

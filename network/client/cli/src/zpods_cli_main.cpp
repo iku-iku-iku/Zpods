@@ -2,6 +2,7 @@
 // Created by code4love on 23-9-30.
 //
 #include "../../grpc_client.h"
+#include "daemon.h"
 #include "network/client/pod_service_client.h"
 #include "pch.h"
 
@@ -57,6 +58,8 @@ int main(int argc, char** argv)
         app.add_subcommand("restore", "restore a archive file to a directory");
     CLI::App* list_cmd = app.add_subcommand("list", "list all pods");
     CLI::App* download_cmd = app.add_subcommand("download", "download a pod");
+    CLI::App* daemon_cmd =
+        app.add_subcommand("daemon", "start a daemon for synchronization");
 
     std::vector<std::string> src_path_list;
     std::string target_dir;
@@ -94,6 +97,23 @@ int main(int argc, char** argv)
                 spdlog::info("{}/{}", pods_name, pod_name);
             }
         }
+    });
+
+    // daemon
+    daemon_cmd->callback([&] {
+        zpods::DaemonConfig config;
+        config.query_pods = [&](PodsQueryResult& result) {
+            return user.query_pods(result);
+        };
+        config.download_pod = [&](const std::string& pods_name,
+                                  const std::string& pod_name,
+                                  const std::string& dir) {
+            return user.download_pod(pods_name, pod_name, dir);
+        };
+        config.upload_pod = [&](const std::string& pod_path) {
+            return user.upload_pods(pod_path);
+        };
+        zpods::zpods_daemon_entry(config);
     });
 
     std::string pods_name, pod_name, dir;
@@ -202,7 +222,7 @@ int main(int argc, char** argv)
 
             for (const auto& item : src_path_list)
             {
-                config.dir_to_backup = item;
+                config.tree_dir = item;
                 if (*sync)
                 {
                     zpods::sync_backup(target_dir.c_str(), config);

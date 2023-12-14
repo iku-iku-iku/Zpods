@@ -66,7 +66,7 @@ struct RpcUser
 
     //        Status unregister() const;
     //
-    Status upload_pods(const char* pods_dir);
+    Status upload_pods(const std::string& pods_dir);
     Status query_pods(PodsQueryResult& result);
     Status download_pod(const std::string& pods_name,
                         const std::string& pod_name, const std::string& dir);

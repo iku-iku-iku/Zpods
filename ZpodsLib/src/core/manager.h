@@ -14,15 +14,17 @@ class PodsManager
   public:
     static PodsManager* Instance();
 
+    auto& get_path_mapping() { return path_mapping_; }
+
     void create_pods(const fs::zpath& pods_path);
 
     void load_pods_from_tracked_paths();
 
     Status load_pods(const fs::zpath& pods_path, const BackupConfig& config);
 
-    void load_pods_path();
+    void load_pods_mapping();
 
-    void store_pods_path();
+    void store_pods_mapping();
 
     void record_mapping(const fs::zpath& src_path, const fs::zpath& dst_path);
 

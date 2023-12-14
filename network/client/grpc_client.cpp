@@ -83,7 +83,7 @@ zpods::Status zpods::RpcUser::login() const
     return Status::OK;
 }
 
-zpods::Status zpods::RpcUser::upload_pods(const char* pods_dir)
+zpods::Status zpods::RpcUser::upload_pods(const std::string& pods_dir)
 {
     PodServiceClient client = get_pod_service_client();
 
