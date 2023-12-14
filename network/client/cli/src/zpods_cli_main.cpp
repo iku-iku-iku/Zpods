@@ -111,7 +111,7 @@ int main(int argc, char** argv)
             return user.download_pod(pods_name, pod_name, dir);
         };
         config.upload_pod = [&](const std::string& pod_path) {
-            return user.upload_pods(pod_path);
+            return user.upload_pod(pod_path);
         };
         zpods::zpods_daemon_entry(config);
     });

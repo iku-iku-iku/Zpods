@@ -56,6 +56,9 @@ struct RpcUser
     std::string username;
     std::string password;
 
+    RpcUser();
+    PodServiceClient client_;
+
     //        auto to_json_str() const -> std::string;
 
     //        auto request(const char *path) const;
@@ -66,6 +69,7 @@ struct RpcUser
 
     //        Status unregister() const;
     //
+    Status upload_pod(const std::string& pod_path);
     Status upload_pods(const std::string& pods_dir);
     Status query_pods(PodsQueryResult& result);
     Status download_pod(const std::string& pods_name,

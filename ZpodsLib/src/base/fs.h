@@ -24,7 +24,8 @@ namespace fs
 namespace ios
 {
 constexpr auto binary = std::ios::binary;
-}
+constexpr auto text = std::ios::out;
+} // namespace ios
 
 using openmode = std::ios::openmode;
 

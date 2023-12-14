@@ -105,6 +105,8 @@ void thread_for_pods(std::string tree_dir, std::string pods_dir,
             std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
         }
 
+        spdlog::info("start sync for {}...", pods_dir);
+
         { // backup
             let status = backup(dest_dir.c_str(), config);
             if (status != Status::OK)

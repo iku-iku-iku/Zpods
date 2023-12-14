@@ -1,6 +1,7 @@
 #include <vector>
 #include "grpc_client.h"
 #include "network/client/pod_service_client.h"
+#include "pch.h"
 
 ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
 
@@ -60,6 +61,9 @@ UserServiceClient get_user_service_client()
 //
 //  return 0;
 //}
+//
+zpods::RpcUser::RpcUser() : client_(get_pod_service_client()) {}
+
 zpods::Status zpods::RpcUser::register_() const
 {
     UserServiceClient client = get_user_service_client();
@@ -83,9 +87,14 @@ zpods::Status zpods::RpcUser::login() const
     return Status::OK;
 }
 
+zpods::Status zpods::RpcUser::upload_pod(const std::string& pod_path)
+{
+    CHECK_STATUS(client_.UploadPod(pod_path));
+    return Status::OK;
+}
+
 zpods::Status zpods::RpcUser::upload_pods(const std::string& pods_dir)
 {
-    PodServiceClient client = get_pod_service_client();
 
     spdlog::info("uploading pods: {}", pods_dir);
     for (const auto& item : std::filesystem::directory_iterator(pods_dir))
@@ -94,13 +103,7 @@ zpods::Status zpods::RpcUser::upload_pods(const std::string& pods_dir)
         {
             continue;
         }
-
-        let status = client.UploadPod(item.path().string());
-
-        if (status != zpods::Status::OK)
-        {
-            return status;
-        }
+        CHECK_STATUS(upload_pod(item.path()));
     }
 
     return Status::OK;

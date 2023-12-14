@@ -1,7 +1,7 @@
 //
 // Created by code4love on 23-11-15.
 //
-#include "ZpodsLib/src/core/zpods_core.h"
+#include "fs.h"
 #include "manager.h"
 
 using namespace zpods;
@@ -117,12 +117,11 @@ void PodsManager::load_pods_mapping()
 
 void PodsManager::store_pods_mapping()
 {
-    let_mut ofs =
-        fs::open_or_create_file_as_ofs("./pods_paths", fs::ios::binary);
+    let_mut ofs = fs::open_or_create_file_as_ofs("./pods_paths", fs::ios::text);
     for (const auto& [k, v] : path_mapping_)
     {
-        ofs << k << '\n';
-        ofs << v << '\n';
+        ofs << k.c_str() << '\n';
+        ofs << v.c_str() << '\n';
     }
 }
 

@@ -6,6 +6,7 @@ if [ ! -f "scripts/light_deploy.sh" ]; then
 fi
 
 DEPLOY_PATH=deploy
+mkdir -p $DEPLOY_PATH
 
 rm -rf $DEPLOY_PATH/zpods_cli
 rm -rf $DEPLOY_PATH/zpods_server
