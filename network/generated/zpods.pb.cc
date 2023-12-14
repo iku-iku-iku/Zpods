@@ -208,6 +208,54 @@ struct LoginRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
 
+inline constexpr DownloadPodResponse::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : content_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DownloadPodResponse::DownloadPodResponse(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DownloadPodResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DownloadPodResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DownloadPodResponseDefaultTypeInternal() {}
+  union {
+    DownloadPodResponse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DownloadPodResponseDefaultTypeInternal _DownloadPodResponse_default_instance_;
+
+inline constexpr DownloadPodRequest::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : pods_name_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        pod_name_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        token_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DownloadPodRequest::DownloadPodRequest(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DownloadPodRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DownloadPodRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DownloadPodRequestDefaultTypeInternal() {}
+  union {
+    DownloadPodRequest _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DownloadPodRequestDefaultTypeInternal _DownloadPodRequest_default_instance_;
+
 inline constexpr QueryPodsResponse::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : pods_name_{},
@@ -228,7 +276,7 @@ struct QueryPodsResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 QueryPodsResponseDefaultTypeInternal _QueryPodsResponse_default_instance_;
 }  // namespace zpods
-static ::_pb::Metadata file_level_metadata_zpods_2eproto[9];
+static ::_pb::Metadata file_level_metadata_zpods_2eproto[11];
 static constexpr const ::_pb::EnumDescriptor**
     file_level_enum_descriptors_zpods_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor**
@@ -286,6 +334,26 @@ const ::uint32_t TableStruct_zpods_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
     PROTOBUF_FIELD_OFFSET(::zpods::QueryPodsResponse, _impl_.pods_name_),
     PROTOBUF_FIELD_OFFSET(::zpods::QueryPodsResponse, _impl_.pod_list_),
     ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodRequest, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodRequest, _impl_.pods_name_),
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodRequest, _impl_.pod_name_),
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodRequest, _impl_.token_),
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodResponse, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::zpods::DownloadPodResponse, _impl_.content_),
+    ~0u,  // no _has_bits_
     PROTOBUF_FIELD_OFFSET(::zpods::RegisterRequest, _internal_metadata_),
     ~0u,  // no _extensions_
     ~0u,  // no _oneof_case_
@@ -335,10 +403,12 @@ static const ::_pbi::MigrationSchema
         {21, -1, -1, sizeof(::zpods::QueryPodsRequest)},
         {30, -1, -1, sizeof(::zpods::PodList)},
         {40, -1, -1, sizeof(::zpods::QueryPodsResponse)},
-        {50, -1, -1, sizeof(::zpods::RegisterRequest)},
-        {60, -1, -1, sizeof(::zpods::RegisterResponse)},
-        {70, -1, -1, sizeof(::zpods::LoginRequest)},
-        {80, -1, -1, sizeof(::zpods::LoginResponse)},
+        {50, -1, -1, sizeof(::zpods::DownloadPodRequest)},
+        {61, -1, -1, sizeof(::zpods::DownloadPodResponse)},
+        {70, -1, -1, sizeof(::zpods::RegisterRequest)},
+        {80, -1, -1, sizeof(::zpods::RegisterResponse)},
+        {90, -1, -1, sizeof(::zpods::LoginRequest)},
+        {100, -1, -1, sizeof(::zpods::LoginResponse)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -347,6 +417,8 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::zpods::_QueryPodsRequest_default_instance_._instance,
     &::zpods::_PodList_default_instance_._instance,
     &::zpods::_QueryPodsResponse_default_instance_._instance,
+    &::zpods::_DownloadPodRequest_default_instance_._instance,
+    &::zpods::_DownloadPodResponse_default_instance_._instance,
     &::zpods::_RegisterRequest_default_instance_._instance,
     &::zpods::_RegisterResponse_default_instance_._instance,
     &::zpods::_LoginRequest_default_instance_._instance,
@@ -360,33 +432,38 @@ const char descriptor_table_protodef_zpods_2eproto[] PROTOBUF_SECTION_VARIABLE(p
     "st\022\r\n\005token\030\001 \001(\t\"7\n\007PodList\022\020\n\010pod_name"
     "\030\001 \003(\t\022\032\n\022last_modified_time\030\002 \003(\005\"H\n\021Qu"
     "eryPodsResponse\022\021\n\tpods_name\030\001 \003(\t\022 \n\010po"
-    "d_list\030\002 \003(\0132\016.zpods.PodList\"5\n\017Register"
-    "Request\022\020\n\010username\030\001 \001(\t\022\020\n\010password\030\002 "
-    "\001(\t\"4\n\020RegisterResponse\022\017\n\007success\030\001 \001(\010"
-    "\022\017\n\007message\030\002 \001(\t\"2\n\014LoginRequest\022\020\n\010use"
-    "rname\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"@\n\rLoginRe"
-    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
-    "\022\r\n\005token\030\003 \001(\t2\215\001\n\nPodService\022=\n\tUpload"
-    "Pod\022\027.zpods.UploadPodRequest\032\023.zpods.Upl"
-    "oadStatus\"\000(\001\022@\n\tQueryPods\022\027.zpods.Query"
-    "PodsRequest\032\030.zpods.QueryPodsResponse\"\0002"
-    "\202\001\n\013UserService\022=\n\010Register\022\026.zpods.Regi"
-    "sterRequest\032\027.zpods.RegisterResponse\"\000\0224"
-    "\n\005Login\022\023.zpods.LoginRequest\032\024.zpods.Log"
-    "inResponse\"\000B6\n\033io.grpc.examples.hellowo"
-    "rldB\017HelloWorldProtoP\001\242\002\003HLWb\006proto3"
+    "d_list\030\002 \003(\0132\016.zpods.PodList\"H\n\022Download"
+    "PodRequest\022\021\n\tpods_name\030\001 \001(\t\022\020\n\010pod_nam"
+    "e\030\002 \001(\t\022\r\n\005token\030\003 \001(\t\"&\n\023DownloadPodRes"
+    "ponse\022\017\n\007content\030\001 \001(\014\"5\n\017RegisterReques"
+    "t\022\020\n\010username\030\001 \001(\t\022\020\n\010password\030\002 \001(\t\"4\n"
+    "\020RegisterResponse\022\017\n\007success\030\001 \001(\010\022\017\n\007me"
+    "ssage\030\002 \001(\t\"2\n\014LoginRequest\022\020\n\010username\030"
+    "\001 \001(\t\022\020\n\010password\030\002 \001(\t\"@\n\rLoginResponse"
+    "\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\r\n\005to"
+    "ken\030\003 \001(\t2\327\001\n\nPodService\022=\n\tUploadPod\022\027."
+    "zpods.UploadPodRequest\032\023.zpods.UploadSta"
+    "tus\"\000(\001\022@\n\tQueryPods\022\027.zpods.QueryPodsRe"
+    "quest\032\030.zpods.QueryPodsResponse\"\000\022H\n\013Dow"
+    "nloadPod\022\031.zpods.DownloadPodRequest\032\032.zp"
+    "ods.DownloadPodResponse\"\0000\0012\202\001\n\013UserServ"
+    "ice\022=\n\010Register\022\026.zpods.RegisterRequest\032"
+    "\027.zpods.RegisterResponse\"\000\0224\n\005Login\022\023.zp"
+    "ods.LoginRequest\032\024.zpods.LoginResponse\"\000"
+    "B6\n\033io.grpc.examples.helloworldB\017HelloWo"
+    "rldProtoP\001\242\002\003HLWb\006proto3"
 };
 static ::absl::once_flag descriptor_table_zpods_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_zpods_2eproto = {
     false,
     false,
-    876,
+    1064,
     descriptor_table_protodef_zpods_2eproto,
     "zpods.proto",
     &descriptor_table_zpods_2eproto_once,
     nullptr,
     0,
-    9,
+    11,
     schemas,
     file_default_instances,
     TableStruct_zpods_2eproto::offsets,
@@ -1479,6 +1556,440 @@ void QueryPodsResponse::InternalSwap(QueryPodsResponse* PROTOBUF_RESTRICT other)
 }
 // ===================================================================
 
+class DownloadPodRequest::_Internal {
+ public:
+};
+
+DownloadPodRequest::DownloadPodRequest(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:zpods.DownloadPodRequest)
+}
+inline PROTOBUF_NDEBUG_INLINE DownloadPodRequest::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : pods_name_(arena, from.pods_name_),
+        pod_name_(arena, from.pod_name_),
+        token_(arena, from.token_),
+        _cached_size_{0} {}
+
+DownloadPodRequest::DownloadPodRequest(
+    ::google::protobuf::Arena* arena,
+    const DownloadPodRequest& from)
+    : ::google::protobuf::Message(arena) {
+  DownloadPodRequest* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
+  // @@protoc_insertion_point(copy_constructor:zpods.DownloadPodRequest)
+}
+inline PROTOBUF_NDEBUG_INLINE DownloadPodRequest::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : pods_name_(arena),
+        pod_name_(arena),
+        token_(arena),
+        _cached_size_{0} {}
+
+inline void DownloadPodRequest::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+DownloadPodRequest::~DownloadPodRequest() {
+  // @@protoc_insertion_point(destructor:zpods.DownloadPodRequest)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  SharedDtor();
+}
+inline void DownloadPodRequest::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.pods_name_.Destroy();
+  _impl_.pod_name_.Destroy();
+  _impl_.token_.Destroy();
+  _impl_.~Impl_();
+}
+
+PROTOBUF_NOINLINE void DownloadPodRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:zpods.DownloadPodRequest)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.pods_name_.ClearToEmpty();
+  _impl_.pod_name_.ClearToEmpty();
+  _impl_.token_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+const char* DownloadPodRequest::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
+  return ptr;
+}
+
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 3, 0, 55, 2> DownloadPodRequest::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    3, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967288,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    &_DownloadPodRequest_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // string pods_name = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.pods_name_)}},
+    // string pod_name = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.pod_name_)}},
+    // string token = 3;
+    {::_pbi::TcParser::FastUS1,
+     {26, 63, 0, PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.token_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string pods_name = 1;
+    {PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.pods_name_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string pod_name = 2;
+    {PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.pod_name_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string token = 3;
+    {PROTOBUF_FIELD_OFFSET(DownloadPodRequest, _impl_.token_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\30\11\10\5\0\0\0\0"
+    "zpods.DownloadPodRequest"
+    "pods_name"
+    "pod_name"
+    "token"
+  }},
+};
+
+::uint8_t* DownloadPodRequest::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:zpods.DownloadPodRequest)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // string pods_name = 1;
+  if (!this->_internal_pods_name().empty()) {
+    const std::string& _s = this->_internal_pods_name();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.DownloadPodRequest.pods_name");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
+  }
+
+  // string pod_name = 2;
+  if (!this->_internal_pod_name().empty()) {
+    const std::string& _s = this->_internal_pod_name();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.DownloadPodRequest.pod_name");
+    target = stream->WriteStringMaybeAliased(2, _s, target);
+  }
+
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    const std::string& _s = this->_internal_token();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "zpods.DownloadPodRequest.token");
+    target = stream->WriteStringMaybeAliased(3, _s, target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:zpods.DownloadPodRequest)
+  return target;
+}
+
+::size_t DownloadPodRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:zpods.DownloadPodRequest)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string pods_name = 1;
+  if (!this->_internal_pods_name().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_pods_name());
+  }
+
+  // string pod_name = 2;
+  if (!this->_internal_pod_name().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_pod_name());
+  }
+
+  // string token = 3;
+  if (!this->_internal_token().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_token());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::google::protobuf::Message::ClassData DownloadPodRequest::_class_data_ = {
+    DownloadPodRequest::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DownloadPodRequest::GetClassData() const {
+  return &_class_data_;
+}
+
+void DownloadPodRequest::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DownloadPodRequest*>(&to_msg);
+  auto& from = static_cast<const DownloadPodRequest&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:zpods.DownloadPodRequest)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_pods_name().empty()) {
+    _this->_internal_set_pods_name(from._internal_pods_name());
+  }
+  if (!from._internal_pod_name().empty()) {
+    _this->_internal_set_pod_name(from._internal_pod_name());
+  }
+  if (!from._internal_token().empty()) {
+    _this->_internal_set_token(from._internal_token());
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DownloadPodRequest::CopyFrom(const DownloadPodRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:zpods.DownloadPodRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+PROTOBUF_NOINLINE bool DownloadPodRequest::IsInitialized() const {
+  return true;
+}
+
+::_pbi::CachedSize* DownloadPodRequest::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DownloadPodRequest::InternalSwap(DownloadPodRequest* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pods_name_, &other->_impl_.pods_name_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.pod_name_, &other->_impl_.pod_name_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.token_, &other->_impl_.token_, arena);
+}
+
+::google::protobuf::Metadata DownloadPodRequest::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
+      file_level_metadata_zpods_2eproto[5]);
+}
+// ===================================================================
+
+class DownloadPodResponse::_Internal {
+ public:
+};
+
+DownloadPodResponse::DownloadPodResponse(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:zpods.DownloadPodResponse)
+}
+inline PROTOBUF_NDEBUG_INLINE DownloadPodResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : content_(arena, from.content_),
+        _cached_size_{0} {}
+
+DownloadPodResponse::DownloadPodResponse(
+    ::google::protobuf::Arena* arena,
+    const DownloadPodResponse& from)
+    : ::google::protobuf::Message(arena) {
+  DownloadPodResponse* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
+  // @@protoc_insertion_point(copy_constructor:zpods.DownloadPodResponse)
+}
+inline PROTOBUF_NDEBUG_INLINE DownloadPodResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : content_(arena),
+        _cached_size_{0} {}
+
+inline void DownloadPodResponse::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+DownloadPodResponse::~DownloadPodResponse() {
+  // @@protoc_insertion_point(destructor:zpods.DownloadPodResponse)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  SharedDtor();
+}
+inline void DownloadPodResponse::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.content_.Destroy();
+  _impl_.~Impl_();
+}
+
+PROTOBUF_NOINLINE void DownloadPodResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:zpods.DownloadPodResponse)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.content_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+const char* DownloadPodResponse::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
+  return ptr;
+}
+
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> DownloadPodResponse::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    &_DownloadPodResponse_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // bytes content = 1;
+    {::_pbi::TcParser::FastBS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DownloadPodResponse, _impl_.content_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bytes content = 1;
+    {PROTOBUF_FIELD_OFFSET(DownloadPodResponse, _impl_.content_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+::uint8_t* DownloadPodResponse::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:zpods.DownloadPodResponse)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bytes content = 1;
+  if (!this->_internal_content().empty()) {
+    const std::string& _s = this->_internal_content();
+    target = stream->WriteBytesMaybeAliased(1, _s, target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:zpods.DownloadPodResponse)
+  return target;
+}
+
+::size_t DownloadPodResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:zpods.DownloadPodResponse)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bytes content = 1;
+  if (!this->_internal_content().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                    this->_internal_content());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::google::protobuf::Message::ClassData DownloadPodResponse::_class_data_ = {
+    DownloadPodResponse::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DownloadPodResponse::GetClassData() const {
+  return &_class_data_;
+}
+
+void DownloadPodResponse::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DownloadPodResponse*>(&to_msg);
+  auto& from = static_cast<const DownloadPodResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:zpods.DownloadPodResponse)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_content().empty()) {
+    _this->_internal_set_content(from._internal_content());
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DownloadPodResponse::CopyFrom(const DownloadPodResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:zpods.DownloadPodResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+PROTOBUF_NOINLINE bool DownloadPodResponse::IsInitialized() const {
+  return true;
+}
+
+::_pbi::CachedSize* DownloadPodResponse::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DownloadPodResponse::InternalSwap(DownloadPodResponse* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.content_, &other->_impl_.content_, arena);
+}
+
+::google::protobuf::Metadata DownloadPodResponse::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
+      file_level_metadata_zpods_2eproto[6]);
+}
+// ===================================================================
+
 class RegisterRequest::_Internal {
  public:
 };
@@ -1694,7 +2205,7 @@ void RegisterRequest::InternalSwap(RegisterRequest* PROTOBUF_RESTRICT other) {
 ::google::protobuf::Metadata RegisterRequest::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
-      file_level_metadata_zpods_2eproto[5]);
+      file_level_metadata_zpods_2eproto[7]);
 }
 // ===================================================================
 
@@ -1909,7 +2420,7 @@ void RegisterResponse::InternalSwap(RegisterResponse* PROTOBUF_RESTRICT other) {
 ::google::protobuf::Metadata RegisterResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
-      file_level_metadata_zpods_2eproto[6]);
+      file_level_metadata_zpods_2eproto[8]);
 }
 // ===================================================================
 
@@ -2128,7 +2639,7 @@ void LoginRequest::InternalSwap(LoginRequest* PROTOBUF_RESTRICT other) {
 ::google::protobuf::Metadata LoginRequest::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
-      file_level_metadata_zpods_2eproto[7]);
+      file_level_metadata_zpods_2eproto[9]);
 }
 // ===================================================================
 
@@ -2373,7 +2884,7 @@ void LoginResponse::InternalSwap(LoginResponse* PROTOBUF_RESTRICT other) {
 ::google::protobuf::Metadata LoginResponse::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_zpods_2eproto_getter, &descriptor_table_zpods_2eproto_once,
-      file_level_metadata_zpods_2eproto[8]);
+      file_level_metadata_zpods_2eproto[10]);
 }
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace zpods

@@ -24,6 +24,7 @@ namespace zpods {
 static const char* PodService_method_names[] = {
   "/zpods.PodService/UploadPod",
   "/zpods.PodService/QueryPods",
+  "/zpods.PodService/DownloadPod",
 };
 
 std::unique_ptr< PodService::Stub> PodService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -35,6 +36,7 @@ std::unique_ptr< PodService::Stub> PodService::NewStub(const std::shared_ptr< ::
 PodService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
   : channel_(channel), rpcmethod_UploadPod_(PodService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::CLIENT_STREAMING, channel)
   , rpcmethod_QueryPods_(PodService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_DownloadPod_(PodService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
 ::grpc::ClientWriter< ::zpods::UploadPodRequest>* PodService::Stub::UploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response) {
@@ -76,6 +78,22 @@ void PodService::Stub::async::QueryPods(::grpc::ClientContext* context, const ::
   return result;
 }
 
+::grpc::ClientReader< ::zpods::DownloadPodResponse>* PodService::Stub::DownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::zpods::DownloadPodResponse>::Create(channel_.get(), rpcmethod_DownloadPod_, context, request);
+}
+
+void PodService::Stub::async::DownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest* request, ::grpc::ClientReadReactor< ::zpods::DownloadPodResponse>* reactor) {
+  ::grpc::internal::ClientCallbackReaderFactory< ::zpods::DownloadPodResponse>::Create(stub_->channel_.get(), stub_->rpcmethod_DownloadPod_, context, request, reactor);
+}
+
+::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>* PodService::Stub::AsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::zpods::DownloadPodResponse>::Create(channel_.get(), cq, rpcmethod_DownloadPod_, context, request, true, tag);
+}
+
+::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>* PodService::Stub::PrepareAsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::zpods::DownloadPodResponse>::Create(channel_.get(), cq, rpcmethod_DownloadPod_, context, request, false, nullptr);
+}
+
 PodService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       PodService_method_names[0],
@@ -97,6 +115,16 @@ PodService::Service::Service() {
              ::zpods::QueryPodsResponse* resp) {
                return service->QueryPods(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      PodService_method_names[2],
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< PodService::Service, ::zpods::DownloadPodRequest, ::zpods::DownloadPodResponse>(
+          [](PodService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::zpods::DownloadPodRequest* req,
+             ::grpc::ServerWriter<::zpods::DownloadPodResponse>* writer) {
+               return service->DownloadPod(ctx, req, writer);
+             }, this)));
 }
 
 PodService::Service::~Service() {
@@ -113,6 +141,13 @@ PodService::Service::~Service() {
   (void) context;
   (void) request;
   (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status PodService::Service::DownloadPod(::grpc::ServerContext* context, const ::zpods::DownloadPodRequest* request, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* writer) {
+  (void) context;
+  (void) request;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 

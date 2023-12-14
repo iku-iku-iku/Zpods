@@ -56,6 +56,7 @@ int main(int argc, char** argv)
     CLI::App* restore =
         app.add_subcommand("restore", "restore a archive file to a directory");
     CLI::App* list_cmd = app.add_subcommand("list", "list all pods");
+    CLI::App* download_cmd = app.add_subcommand("download", "download a pod");
 
     std::vector<std::string> src_path_list;
     std::string target_dir;
@@ -94,6 +95,15 @@ int main(int argc, char** argv)
             }
         }
     });
+
+    std::string pods_name, pod_name, dir;
+    download_cmd->add_option("-p,--pods", pods_name, "pods name")->required();
+    download_cmd->add_option("-f,--pod", pod_name, "pod name")->required();
+    download_cmd
+        ->add_option("-d,--dir", dir, "where to store the downloaded pod")
+        ->required();
+    download_cmd->callback(
+        [&] { user.download_pod(pods_name, pod_name, dir); });
 
     // backup
     backup

@@ -42,6 +42,11 @@ inline auto path(const char* path) -> zpath
     return {path};
 }
 
+inline auto path(const std::string& path) -> zpath
+{
+    return {path};
+}
+
 inline auto last_modified_timestamp(const char* path) -> uint32_t
 {
     let t = std::filesystem::last_write_time(path);

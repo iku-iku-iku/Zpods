@@ -68,6 +68,8 @@ struct RpcUser
     //
     Status upload_pods(const char* pods_dir);
     Status query_pods(PodsQueryResult& result);
+    Status download_pod(const std::string& pods_name,
+                        const std::string& pod_name, const std::string& dir);
     //
     //        Status download_pods(const char *remote_pods_dir, const char
     //        *local_pods_dir);

@@ -113,6 +113,14 @@ zpods::Status zpods::RpcUser::query_pods(PodsQueryResult& result)
     return client.QueryPods(result);
 }
 
+zpods::Status zpods::RpcUser::download_pod(const std::string& pods_name,
+                                           const std::string& pod_name,
+                                           const std::string& dir)
+{
+    let_mut client = get_pod_service_client();
+    return client.DownloadPod(pods_name, pod_name, dir);
+}
+
 zpods::DbHandle& zpods::DbHandle::Instance()
 {
     static DbHandle db_handle;

@@ -5,26 +5,20 @@
 #ifndef ZPODS_POD_SERVICE_H
 #define ZPODS_POD_SERVICE_H
 
-#include <filesystem>
 #include "ZpodsLib/src/base/fs.h"
 #include "server_pch.h"
 #include "zpods.pb.h"
 
-using zpods::UploadPodRequest;
-using zpods::PodService;
-using zpods::QueryPodsRequest;
-using zpods::QueryPodsResponse;
-using zpods::UploadStatus;
-
-class PodServiceImpl final : public PodService::Service
+class PodServiceImpl final : public zpods::PodService::Service
 {
   public:
-    Status UploadPod(ServerContext* context, ServerReader<UploadPodRequest>* reader,
-                     UploadStatus* response) override
+    Status UploadPod(ServerContext* context,
+                     ServerReader<zpods::UploadPodRequest>* reader,
+                     zpods::UploadStatus* response) override
     {
         std::ofstream out;
         std::string username;
-        UploadPodRequest pod;
+        zpods::UploadPodRequest pod;
 
         bool first_read = true;
         while (reader->Read(&pod))
@@ -65,8 +59,9 @@ class PodServiceImpl final : public PodService::Service
         return Status::OK;
     }
 
-    Status QueryPods(ServerContext* context, const QueryPodsRequest* request,
-                     QueryPodsResponse* response) override
+    Status QueryPods(ServerContext* context,
+                     const zpods::QueryPodsRequest* request,
+                     zpods::QueryPodsResponse* response) override
     {
         std::string username;
         {
@@ -78,7 +73,7 @@ class PodServiceImpl final : public PodService::Service
             }
         }
 
-        let pods_path = std::filesystem::path(username);
+        let pods_path = zpods::fs::path(username);
         if (!std::filesystem::exists(pods_path))
         {
             // empty
@@ -104,6 +99,53 @@ class PodServiceImpl final : public PodService::Service
                     zpods::fs::last_modified_timestamp(entry.path().c_str());
                 pod_list->add_last_modified_time(ts);
             }
+        }
+        return Status::OK;
+    }
+
+    Status
+    DownloadPod(ServerContext* context,
+                const zpods::DownloadPodRequest* request,
+                grpc::ServerWriter<zpods::DownloadPodResponse>* writer) override
+    {
+        std::string username;
+        {
+            let status = zpods::DbHandle::Instance().get_username_by_token(
+                request->token(), &username);
+            if (status != rocksdb::Status::OK())
+            {
+                return Status::CANCELLED;
+            }
+        }
+
+        let pod_path = zpods::fs::path(fmt::format("{}/{}/{}", username.c_str(),
+                                                   request->pods_name(),
+                                                   request->pod_name()));
+        if (!std::filesystem::exists(pod_path))
+        {
+            spdlog::info("{} is trying to download the wrong path: {}",
+                         username, pod_path.c_str());
+            return Status::CANCELLED;
+        }
+        else
+        {
+            spdlog::info("{} is downloading the path: {}", username,
+                         pod_path.c_str());
+        }
+        std::ifstream in(pod_path, std::ios::binary);
+        std::string content;
+        while (true)
+        {
+            content.resize(1024 * 1024);
+            in.read(content.data(), content.size());
+            content.resize(in.gcount());
+            if (content.empty())
+            {
+                break;
+            }
+            zpods::DownloadPodResponse response;
+            response.set_content(content);
+            writer->Write(response);
         }
         return Status::OK;
     }

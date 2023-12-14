@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy
 
 configure:
 	sudo apt install ceph librados2 librados-dev -y
@@ -12,6 +12,9 @@ build:
 
 local_deploy: build
 	bash ./scripts/deploy_local.sh
+
+light_deploy: build
+	bash ./scripts/light_deploy.sh
 
 uninstall:
 	rm -rf /usr/local/bin/zpods.cli

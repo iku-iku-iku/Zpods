@@ -87,6 +87,10 @@ namespace zpods {
 #define let_ref const auto&
 #define let_mut auto
 #define let_mut_ref auto&
+#define CHECK_STATUS(status) \
+    if (status != zpods::Status::OK) { \
+        return status; \
+    }
 
 namespace zpods {
 

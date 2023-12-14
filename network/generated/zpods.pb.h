@@ -56,6 +56,12 @@ struct TableStruct_zpods_2eproto {
 extern const ::google::protobuf::internal::DescriptorTable
     descriptor_table_zpods_2eproto;
 namespace zpods {
+class DownloadPodRequest;
+struct DownloadPodRequestDefaultTypeInternal;
+extern DownloadPodRequestDefaultTypeInternal _DownloadPodRequest_default_instance_;
+class DownloadPodResponse;
+struct DownloadPodResponseDefaultTypeInternal;
+extern DownloadPodResponseDefaultTypeInternal _DownloadPodResponse_default_instance_;
 class LoginRequest;
 struct LoginRequestDefaultTypeInternal;
 extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
@@ -565,7 +571,7 @@ class RegisterResponse final :
                &_RegisterResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    8;
 
   friend void swap(RegisterResponse& a, RegisterResponse& b) {
     a.Swap(&b);
@@ -758,7 +764,7 @@ class RegisterRequest final :
                &_RegisterRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(RegisterRequest& a, RegisterRequest& b) {
     a.Swap(&b);
@@ -1352,7 +1358,7 @@ class LoginResponse final :
                &_LoginResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    10;
 
   friend void swap(LoginResponse& a, LoginResponse& b) {
     a.Swap(&b);
@@ -1563,7 +1569,7 @@ class LoginRequest final :
                &_LoginRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    9;
 
   friend void swap(LoginRequest& a, LoginRequest& b) {
     a.Swap(&b);
@@ -1696,6 +1702,404 @@ class LoginRequest final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr username_;
     ::google::protobuf::internal::ArenaStringPtr password_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_zpods_2eproto;
+};// -------------------------------------------------------------------
+
+class DownloadPodResponse final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:zpods.DownloadPodResponse) */ {
+ public:
+  inline DownloadPodResponse() : DownloadPodResponse(nullptr) {}
+  ~DownloadPodResponse() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR DownloadPodResponse(::google::protobuf::internal::ConstantInitialized);
+
+  inline DownloadPodResponse(const DownloadPodResponse& from)
+      : DownloadPodResponse(nullptr, from) {}
+  DownloadPodResponse(DownloadPodResponse&& from) noexcept
+    : DownloadPodResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline DownloadPodResponse& operator=(const DownloadPodResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DownloadPodResponse& operator=(DownloadPodResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DownloadPodResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DownloadPodResponse* internal_default_instance() {
+    return reinterpret_cast<const DownloadPodResponse*>(
+               &_DownloadPodResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(DownloadPodResponse& a, DownloadPodResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(DownloadPodResponse* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DownloadPodResponse* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DownloadPodResponse* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DownloadPodResponse>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const DownloadPodResponse& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const DownloadPodResponse& from) {
+    DownloadPodResponse::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(DownloadPodResponse* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "zpods.DownloadPodResponse";
+  }
+  protected:
+  explicit DownloadPodResponse(::google::protobuf::Arena* arena);
+  DownloadPodResponse(::google::protobuf::Arena* arena, const DownloadPodResponse& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kContentFieldNumber = 1,
+  };
+  // bytes content = 1;
+  void clear_content() ;
+  const std::string& content() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_content(Arg_&& arg, Args_... args);
+  std::string* mutable_content();
+  PROTOBUF_NODISCARD std::string* release_content();
+  void set_allocated_content(std::string* value);
+
+  private:
+  const std::string& _internal_content() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_content(
+      const std::string& value);
+  std::string* _internal_mutable_content();
+
+  public:
+  // @@protoc_insertion_point(class_scope:zpods.DownloadPodResponse)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 0,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr content_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_zpods_2eproto;
+};// -------------------------------------------------------------------
+
+class DownloadPodRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:zpods.DownloadPodRequest) */ {
+ public:
+  inline DownloadPodRequest() : DownloadPodRequest(nullptr) {}
+  ~DownloadPodRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR DownloadPodRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline DownloadPodRequest(const DownloadPodRequest& from)
+      : DownloadPodRequest(nullptr, from) {}
+  DownloadPodRequest(DownloadPodRequest&& from) noexcept
+    : DownloadPodRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline DownloadPodRequest& operator=(const DownloadPodRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DownloadPodRequest& operator=(DownloadPodRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DownloadPodRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DownloadPodRequest* internal_default_instance() {
+    return reinterpret_cast<const DownloadPodRequest*>(
+               &_DownloadPodRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(DownloadPodRequest& a, DownloadPodRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(DownloadPodRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DownloadPodRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DownloadPodRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DownloadPodRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const DownloadPodRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const DownloadPodRequest& from) {
+    DownloadPodRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(DownloadPodRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "zpods.DownloadPodRequest";
+  }
+  protected:
+  explicit DownloadPodRequest(::google::protobuf::Arena* arena);
+  DownloadPodRequest(::google::protobuf::Arena* arena, const DownloadPodRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPodsNameFieldNumber = 1,
+    kPodNameFieldNumber = 2,
+    kTokenFieldNumber = 3,
+  };
+  // string pods_name = 1;
+  void clear_pods_name() ;
+  const std::string& pods_name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_pods_name(Arg_&& arg, Args_... args);
+  std::string* mutable_pods_name();
+  PROTOBUF_NODISCARD std::string* release_pods_name();
+  void set_allocated_pods_name(std::string* value);
+
+  private:
+  const std::string& _internal_pods_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_pods_name(
+      const std::string& value);
+  std::string* _internal_mutable_pods_name();
+
+  public:
+  // string pod_name = 2;
+  void clear_pod_name() ;
+  const std::string& pod_name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_pod_name(Arg_&& arg, Args_... args);
+  std::string* mutable_pod_name();
+  PROTOBUF_NODISCARD std::string* release_pod_name();
+  void set_allocated_pod_name(std::string* value);
+
+  private:
+  const std::string& _internal_pod_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_pod_name(
+      const std::string& value);
+  std::string* _internal_mutable_pod_name();
+
+  public:
+  // string token = 3;
+  void clear_token() ;
+  const std::string& token() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_token(Arg_&& arg, Args_... args);
+  std::string* mutable_token();
+  PROTOBUF_NODISCARD std::string* release_token();
+  void set_allocated_token(std::string* value);
+
+  private:
+  const std::string& _internal_token() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(
+      const std::string& value);
+  std::string* _internal_mutable_token();
+
+  public:
+  // @@protoc_insertion_point(class_scope:zpods.DownloadPodRequest)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 3, 0,
+      55, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr pods_name_;
+    ::google::protobuf::internal::ArenaStringPtr pod_name_;
+    ::google::protobuf::internal::ArenaStringPtr token_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2530,6 +2934,226 @@ inline ::google::protobuf::RepeatedPtrField<::zpods::PodList>*
 QueryPodsResponse::_internal_mutable_pod_list() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.pod_list_;
+}
+
+// -------------------------------------------------------------------
+
+// DownloadPodRequest
+
+// string pods_name = 1;
+inline void DownloadPodRequest::clear_pods_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pods_name_.ClearToEmpty();
+}
+inline const std::string& DownloadPodRequest::pods_name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.DownloadPodRequest.pods_name)
+  return _internal_pods_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DownloadPodRequest::set_pods_name(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pods_name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.DownloadPodRequest.pods_name)
+}
+inline std::string* DownloadPodRequest::mutable_pods_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_pods_name();
+  // @@protoc_insertion_point(field_mutable:zpods.DownloadPodRequest.pods_name)
+  return _s;
+}
+inline const std::string& DownloadPodRequest::_internal_pods_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.pods_name_.Get();
+}
+inline void DownloadPodRequest::_internal_set_pods_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pods_name_.Set(value, GetArena());
+}
+inline std::string* DownloadPodRequest::_internal_mutable_pods_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.pods_name_.Mutable( GetArena());
+}
+inline std::string* DownloadPodRequest::release_pods_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.DownloadPodRequest.pods_name)
+  return _impl_.pods_name_.Release();
+}
+inline void DownloadPodRequest::set_allocated_pods_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pods_name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.pods_name_.IsDefault()) {
+          _impl_.pods_name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.DownloadPodRequest.pods_name)
+}
+
+// string pod_name = 2;
+inline void DownloadPodRequest::clear_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pod_name_.ClearToEmpty();
+}
+inline const std::string& DownloadPodRequest::pod_name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.DownloadPodRequest.pod_name)
+  return _internal_pod_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DownloadPodRequest::set_pod_name(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pod_name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.DownloadPodRequest.pod_name)
+}
+inline std::string* DownloadPodRequest::mutable_pod_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_pod_name();
+  // @@protoc_insertion_point(field_mutable:zpods.DownloadPodRequest.pod_name)
+  return _s;
+}
+inline const std::string& DownloadPodRequest::_internal_pod_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.pod_name_.Get();
+}
+inline void DownloadPodRequest::_internal_set_pod_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.pod_name_.Set(value, GetArena());
+}
+inline std::string* DownloadPodRequest::_internal_mutable_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.pod_name_.Mutable( GetArena());
+}
+inline std::string* DownloadPodRequest::release_pod_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.DownloadPodRequest.pod_name)
+  return _impl_.pod_name_.Release();
+}
+inline void DownloadPodRequest::set_allocated_pod_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.pod_name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.pod_name_.IsDefault()) {
+          _impl_.pod_name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.DownloadPodRequest.pod_name)
+}
+
+// string token = 3;
+inline void DownloadPodRequest::clear_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.ClearToEmpty();
+}
+inline const std::string& DownloadPodRequest::token() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.DownloadPodRequest.token)
+  return _internal_token();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DownloadPodRequest::set_token(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.DownloadPodRequest.token)
+}
+inline std::string* DownloadPodRequest::mutable_token() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_token();
+  // @@protoc_insertion_point(field_mutable:zpods.DownloadPodRequest.token)
+  return _s;
+}
+inline const std::string& DownloadPodRequest::_internal_token() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.token_.Get();
+}
+inline void DownloadPodRequest::_internal_set_token(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.token_.Set(value, GetArena());
+}
+inline std::string* DownloadPodRequest::_internal_mutable_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.token_.Mutable( GetArena());
+}
+inline std::string* DownloadPodRequest::release_token() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.DownloadPodRequest.token)
+  return _impl_.token_.Release();
+}
+inline void DownloadPodRequest::set_allocated_token(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.token_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.token_.IsDefault()) {
+          _impl_.token_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.DownloadPodRequest.token)
+}
+
+// -------------------------------------------------------------------
+
+// DownloadPodResponse
+
+// bytes content = 1;
+inline void DownloadPodResponse::clear_content() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.content_.ClearToEmpty();
+}
+inline const std::string& DownloadPodResponse::content() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:zpods.DownloadPodResponse.content)
+  return _internal_content();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DownloadPodResponse::set_content(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.content_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:zpods.DownloadPodResponse.content)
+}
+inline std::string* DownloadPodResponse::mutable_content() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_content();
+  // @@protoc_insertion_point(field_mutable:zpods.DownloadPodResponse.content)
+  return _s;
+}
+inline const std::string& DownloadPodResponse::_internal_content() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.content_.Get();
+}
+inline void DownloadPodResponse::_internal_set_content(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.content_.Set(value, GetArena());
+}
+inline std::string* DownloadPodResponse::_internal_mutable_content() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.content_.Mutable( GetArena());
+}
+inline std::string* DownloadPodResponse::release_content() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:zpods.DownloadPodResponse.content)
+  return _impl_.content_.Release();
+}
+inline void DownloadPodResponse::set_allocated_content(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.content_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.content_.IsDefault()) {
+          _impl_.content_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:zpods.DownloadPodResponse.content)
 }
 
 // -------------------------------------------------------------------

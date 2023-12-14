@@ -24,6 +24,7 @@ package zpods;
 service PodService {
   rpc UploadPod(stream UploadPodRequest) returns (UploadStatus) {}
   rpc QueryPods(QueryPodsRequest) returns (QueryPodsResponse) {}
+  rpc DownloadPod(DownloadPodRequest) returns (stream DownloadPodResponse) {}
 }
 
 message UploadPodRequest {
@@ -49,6 +50,16 @@ message PodList {
 message QueryPodsResponse {
   repeated string pods_name = 1;
   repeated PodList pod_list = 2;
+}
+
+message DownloadPodRequest {
+  string pods_name = 1;
+  string pod_name = 2;
+  string token = 3;
+}
+
+message DownloadPodResponse {
+  bytes content = 1;
 }
 
 service UserService {

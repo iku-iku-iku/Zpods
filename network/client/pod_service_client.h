@@ -6,21 +6,15 @@
 #define ZPODS_POD_SERVICE_CLIENT_H
 
 #include "client_pch.h"
-#include "zpods.pb.h"
 
-using PodsQueryResult = std::vector<std::pair<std::string, std::vector<std::pair<std::string, long>>>>;
-
-using zpods::UploadPodRequest;
-using zpods::PodService;
-using zpods::UploadStatus;
-using zpods::QueryPodsRequest;
-using zpods::QueryPodsResponse;
+using PodsQueryResult = std::vector<
+    std::pair<std::string, std::vector<std::pair<std::string, long>>>>;
 
 class PodServiceClient
 {
   public:
     explicit PodServiceClient(const std::shared_ptr<Channel>& channel)
-        : stub_(PodService::NewStub(channel))
+        : stub_(zpods::PodService::NewStub(channel))
     {
     }
 
@@ -35,8 +29,16 @@ class PodServiceClient
     /// \return the status of the query
     zpods::Status QueryPods(PodsQueryResult& result);
 
+    /// DownloadPod downloads a pod from the server.
+    /// \param pods_name the name of the pods
+    /// \param pod_name the name of the pod
+    /// \return the status of the download
+    zpods::Status DownloadPod(const std::string& pods_name,
+                              const std::string& pod_name,
+                              const std::string& dir);
+
   private:
-    std::unique_ptr<PodService::Stub> stub_;
+    std::unique_ptr<zpods::PodService::Stub> stub_;
 };
 
 #endif // ZPODS_POD_SERVICE_CLIENT_H

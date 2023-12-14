@@ -66,12 +66,22 @@ class PodService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::zpods::QueryPodsResponse>> PrepareAsyncQueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::zpods::QueryPodsResponse>>(PrepareAsyncQueryPodsRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::zpods::DownloadPodResponse>> DownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::zpods::DownloadPodResponse>>(DownloadPodRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>> AsyncDownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>>(AsyncDownloadPodRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>> PrepareAsyncDownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>>(PrepareAsyncDownloadPodRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
       virtual void UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::UploadPodRequest>* reactor) = 0;
       virtual void QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void DownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest* request, ::grpc::ClientReadReactor< ::zpods::DownloadPodResponse>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -82,6 +92,9 @@ class PodService final {
     virtual ::grpc::ClientAsyncWriterInterface< ::zpods::UploadPodRequest>* PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::zpods::QueryPodsResponse>* AsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::zpods::QueryPodsResponse>* PrepareAsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::zpods::DownloadPodResponse>* DownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>* AsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::zpods::DownloadPodResponse>* PrepareAsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -102,12 +115,22 @@ class PodService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>> PrepareAsyncQueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>>(PrepareAsyncQueryPodsRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReader< ::zpods::DownloadPodResponse>> DownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::zpods::DownloadPodResponse>>(DownloadPodRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>> AsyncDownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>>(AsyncDownloadPodRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>> PrepareAsyncDownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>>(PrepareAsyncDownloadPodRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
       void UploadPod(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::ClientWriteReactor< ::zpods::UploadPodRequest>* reactor) override;
       void QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, std::function<void(::grpc::Status)>) override;
       void QueryPods(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void DownloadPod(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest* request, ::grpc::ClientReadReactor< ::zpods::DownloadPodResponse>* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -124,8 +147,12 @@ class PodService final {
     ::grpc::ClientAsyncWriter< ::zpods::UploadPodRequest>* PrepareAsyncUploadPodRaw(::grpc::ClientContext* context, ::zpods::UploadStatus* response, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>* AsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::zpods::QueryPodsResponse>* PrepareAsyncQueryPodsRaw(::grpc::ClientContext* context, const ::zpods::QueryPodsRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::zpods::DownloadPodResponse>* DownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request) override;
+    ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>* AsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::zpods::DownloadPodResponse>* PrepareAsyncDownloadPodRaw(::grpc::ClientContext* context, const ::zpods::DownloadPodRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_UploadPod_;
     const ::grpc::internal::RpcMethod rpcmethod_QueryPods_;
+    const ::grpc::internal::RpcMethod rpcmethod_DownloadPod_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -135,6 +162,7 @@ class PodService final {
     virtual ~Service();
     virtual ::grpc::Status UploadPod(::grpc::ServerContext* context, ::grpc::ServerReader< ::zpods::UploadPodRequest>* reader, ::zpods::UploadStatus* response);
     virtual ::grpc::Status QueryPods(::grpc::ServerContext* context, const ::zpods::QueryPodsRequest* request, ::zpods::QueryPodsResponse* response);
+    virtual ::grpc::Status DownloadPod(::grpc::ServerContext* context, const ::zpods::DownloadPodRequest* request, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* writer);
   };
   template <class BaseClass>
   class WithAsyncMethod_UploadPod : public BaseClass {
@@ -176,7 +204,27 @@ class PodService final {
       ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_UploadPod<WithAsyncMethod_QueryPods<Service > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodAsync(2);
+    }
+    ~WithAsyncMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestDownloadPod(::grpc::ServerContext* context, ::zpods::DownloadPodRequest* request, ::grpc::ServerAsyncWriter< ::zpods::DownloadPodResponse>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(2, context, request, writer, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_UploadPod<WithAsyncMethod_QueryPods<WithAsyncMethod_DownloadPod<Service > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_UploadPod : public BaseClass {
    private:
@@ -226,7 +274,29 @@ class PodService final {
     virtual ::grpc::ServerUnaryReactor* QueryPods(
       ::grpc::CallbackServerContext* /*context*/, const ::zpods::QueryPodsRequest* /*request*/, ::zpods::QueryPodsResponse* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_UploadPod<WithCallbackMethod_QueryPods<Service > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodCallback(2,
+          new ::grpc::internal::CallbackServerStreamingHandler< ::zpods::DownloadPodRequest, ::zpods::DownloadPodResponse>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::zpods::DownloadPodRequest* request) { return this->DownloadPod(context, request); }));
+    }
+    ~WithCallbackMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerWriteReactor< ::zpods::DownloadPodResponse>* DownloadPod(
+      ::grpc::CallbackServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_UploadPod<WithCallbackMethod_QueryPods<WithCallbackMethod_DownloadPod<Service > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_UploadPod : public BaseClass {
@@ -258,6 +328,23 @@ class PodService final {
     }
     // disable synchronous version of this method
     ::grpc::Status QueryPods(::grpc::ServerContext* /*context*/, const ::zpods::QueryPodsRequest* /*request*/, ::zpods::QueryPodsResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodGeneric(2);
+    }
+    ~WithGenericMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -300,6 +387,26 @@ class PodService final {
     }
     void RequestQueryPods(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodRaw(2);
+    }
+    ~WithRawMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestDownloadPod(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(2, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -347,6 +454,28 @@ class PodService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithRawCallbackMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodRawCallback(2,
+          new ::grpc::internal::CallbackServerStreamingHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const::grpc::ByteBuffer* request) { return this->DownloadPod(context, request); }));
+    }
+    ~WithRawCallbackMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerWriteReactor< ::grpc::ByteBuffer>* DownloadPod(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_QueryPods : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -374,8 +503,35 @@ class PodService final {
     virtual ::grpc::Status StreamedQueryPods(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::zpods::QueryPodsRequest,::zpods::QueryPodsResponse>* server_unary_streamer) = 0;
   };
   typedef WithStreamedUnaryMethod_QueryPods<Service > StreamedUnaryService;
-  typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_QueryPods<Service > StreamedService;
+  template <class BaseClass>
+  class WithSplitStreamingMethod_DownloadPod : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithSplitStreamingMethod_DownloadPod() {
+      ::grpc::Service::MarkMethodStreamed(2,
+        new ::grpc::internal::SplitServerStreamingHandler<
+          ::zpods::DownloadPodRequest, ::zpods::DownloadPodResponse>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerSplitStreamer<
+                     ::zpods::DownloadPodRequest, ::zpods::DownloadPodResponse>* streamer) {
+                       return this->StreamedDownloadPod(context,
+                         streamer);
+                  }));
+    }
+    ~WithSplitStreamingMethod_DownloadPod() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status DownloadPod(::grpc::ServerContext* /*context*/, const ::zpods::DownloadPodRequest* /*request*/, ::grpc::ServerWriter< ::zpods::DownloadPodResponse>* /*writer*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedDownloadPod(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::zpods::DownloadPodRequest,::zpods::DownloadPodResponse>* server_split_streamer) = 0;
+  };
+  typedef WithSplitStreamingMethod_DownloadPod<Service > SplitStreamedService;
+  typedef WithStreamedUnaryMethod_QueryPods<WithSplitStreamingMethod_DownloadPod<Service > > StreamedService;
 };
 
 class UserService final {
