@@ -12,6 +12,7 @@ using namespace zpods::fs;
 TEST(FsTest, BasicTest)
 {
     std::string path = test_data_path();
+    spdlog::info("path{}", path);
     EXPECT_TRUE(fs::is_directory(path));
     EXPECT_FALSE(fs::is_directory(path + "/single/man_pthreads.txt"));
     EXPECT_STREQ(fs::relative("/home/a.txt", "/home"), "a.txt");

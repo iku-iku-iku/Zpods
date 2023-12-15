@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
         zpods_grpc_proto
+	-llz4
         -lrocksdb
         -ldl
         -lzstd

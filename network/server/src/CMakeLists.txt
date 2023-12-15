@@ -37,6 +37,7 @@ target_link_libraries(zpods_server
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF}
         -lpthread
+	-llz4
         -lrocksdb
         -ldl
         -lzstd

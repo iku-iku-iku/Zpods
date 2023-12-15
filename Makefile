@@ -1,11 +1,10 @@
 .PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy
 
 configure:
-	sudo apt install ceph librados2 librados-dev -y
-	sudo apt install libssl3 libssl-dev -y
-	git submodule update --init --recursive
-	chmod a+x ./scripts/test.sh
-	chmod a+x ./scripts/build.sh
+	chmod u+x scripts/*.sh
+	./scripts/configure.sh
+	./scripts/install_rocksdb.sh
+	./scripts/install_grpc.sh
 
 build:
 	./scripts/build.sh
