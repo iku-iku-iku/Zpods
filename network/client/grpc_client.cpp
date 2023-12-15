@@ -3,7 +3,7 @@
 #include "network/client/pod_service_client.h"
 #include "pch.h"
 
-ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
+ABSL_FLAG(std::string, target, "47.108.88.125:50051", "Server address");
 
 auto MakeClientSslCredentials()
 {

@@ -9,6 +9,9 @@ configure:
 build:
 	./scripts/build.sh
 
+server_docker: build
+	./scripts/server_docker_build.sh
+
 local_deploy: build
 	bash ./scripts/deploy_local.sh
 
