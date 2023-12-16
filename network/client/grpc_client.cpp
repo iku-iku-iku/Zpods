@@ -1,4 +1,4 @@
-#include <vector>
+#include "ZpodsLib/src/base/fs.h"
 #include "grpc_client.h"
 #include "network/client/pod_service_client.h"
 #include "pch.h"
@@ -132,20 +132,18 @@ zpods::DbHandle& zpods::DbHandle::Instance()
 
 zpods::DbHandle::DbHandle()
 {
-    rocksdb::Options options;
-    options.create_if_missing = true;
-    rocksdb::Status status = rocksdb::DB::Open(options, "zpods_client_db", &db);
-    assert(status.ok());
+    zpods::fs::create_directory_if_not_exist(DB_PATH);
 }
 
 auto zpods::DbHandle::Put(const std::string& key, const std::string& value)
     -> zpods::Status
 {
-    ZPODS_ASSERT(db != nullptr);
-
-    rocksdb::Status status = db->Put(rocksdb::WriteOptions(), key, value);
-    if (status.ok())
+    let key_path = zpods::fs::path(DB_PATH) / key;
+    let_mut ofs = zpods::fs::open_or_create_file_as_ofs(key_path.c_str(),
+                                                        zpods::fs::ios::text);
+    if (ofs.is_open())
     {
+        ofs << value;
         return zpods::Status::OK;
     }
     else
@@ -157,15 +155,18 @@ auto zpods::DbHandle::Put(const std::string& key, const std::string& value)
 auto zpods::DbHandle::Get(const std::string& key, std::string* value)
     -> zpods::Status
 {
-    ZPODS_ASSERT(db != nullptr);
-    rocksdb::Status status = db->Get(rocksdb::ReadOptions(), key, value);
-    if (status.ok())
-    {
-        return zpods::Status::OK;
-    }
-    else if (status.IsNotFound())
+    let key_path = zpods::fs::path(DB_PATH) / key;
+    if (!zpods::fs::exists(key_path.c_str()))
     {
         return zpods::Status::NOT_FOUND;
+    }
+    let_mut ifs =
+        zpods::fs::open_file_as_ifs(key_path.c_str(), zpods::fs::ios::text);
+
+    if (ifs.is_open())
+    {
+        ifs >> *value;
+        return zpods::Status::OK;
     }
     else
     {

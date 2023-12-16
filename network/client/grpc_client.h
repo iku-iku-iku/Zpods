@@ -8,7 +8,8 @@
 #include "pch.h"
 #include "pod_service_client.h"
 #include "user_service_client.h"
-#include <rocksdb/db.h>
+
+#define DB_PATH "./db"
 
 namespace zpods
 {
@@ -16,8 +17,6 @@ class DbHandle
 {
   public:
     static DbHandle& Instance();
-
-    ~DbHandle() { delete db; }
 
     auto Put(const std::string& key, const std::string& value) -> zpods::Status;
 
@@ -47,7 +46,6 @@ class DbHandle
     DbHandle& operator=(const DbHandle&) = delete;
 
   private:
-    rocksdb::DB* db = nullptr;
     DbHandle();
 };
 
@@ -58,10 +56,6 @@ struct RpcUser
 
     RpcUser();
     PodServiceClient client_;
-
-    //        auto to_json_str() const -> std::string;
-
-    //        auto request(const char *path) const;
 
     zpods::Status register_() const;
 
@@ -77,8 +71,6 @@ struct RpcUser
     //
     //        Status download_pods(const char *remote_pods_dir, const char
     //        *local_pods_dir);
-  private:
-    rocksdb::DB* db;
 };
 } // namespace zpods
 

@@ -6,15 +6,16 @@
 #define ZPODS_POD_SERVICE_H
 
 #include "ZpodsLib/src/base/fs.h"
-#include "server_pch.h"
+#include "server_db.h"
+#include "zpods.grpc.pb.h"
 #include "zpods.pb.h"
 
 class PodServiceImpl final : public zpods::PodService::Service
 {
   public:
-    Status UploadPod(ServerContext* context,
-                     ServerReader<zpods::UploadPodRequest>* reader,
-                     zpods::UploadStatus* response) override
+    grpc::Status UploadPod(grpc::ServerContext* context,
+                           grpc::ServerReader<zpods::UploadPodRequest>* reader,
+                           zpods::UploadStatus* response) override
     {
         std::ofstream out;
         std::string username;
@@ -29,7 +30,7 @@ class PodServiceImpl final : public zpods::PodService::Service
                 // check whether the token is valid
                 if (!is_token_valid(pod.token()))
                 {
-                    return Status::CANCELLED;
+                    return grpc::Status::CANCELLED;
                 }
 
                 // get username by token
@@ -39,29 +40,26 @@ class PodServiceImpl final : public zpods::PodService::Service
                              pod.pods_name(), pod.pod_name());
 
                 // get ofstream for writing file
-                let pod_path = std::filesystem::path(
-                    fmt::format("{}/{}/{}", username.c_str(), pod.pods_name(),
-                                pod.pod_name()));
-                spdlog::info("the path: {}", pod_path.c_str());
-                if (!std::filesystem::exists(pod_path.parent_path()))
-                {
-                    std::filesystem::create_directories(pod_path.parent_path());
-                    spdlog::info("create directory: {}",
-                                 pod_path.parent_path().c_str());
-                }
-                out = std::ofstream(pod_path, std::ios::binary);
+                let pod_storage_path = zpods::fs::path(ZPODS_STORAGE) /
+                                       username / pod.pods_name() /
+                                       pod.pod_name();
+                spdlog::info("{} uploading at path: {}", username,
+                             pod_storage_path.c_str());
+                zpods::fs::create_directory_if_not_exist(
+                    pod_storage_path.parent_path().c_str());
+                out = std::ofstream(pod_storage_path, std::ios::binary);
             }
 
             out.write(pod.content().data(), pod.content().size());
         }
         out.close();
         response->set_success(true);
-        return Status::OK;
+        return grpc::Status::OK;
     }
 
-    Status QueryPods(ServerContext* context,
-                     const zpods::QueryPodsRequest* request,
-                     zpods::QueryPodsResponse* response) override
+    grpc::Status QueryPods(grpc::ServerContext* context,
+                           const zpods::QueryPodsRequest* request,
+                           zpods::QueryPodsResponse* response) override
     {
         std::string username;
         {
@@ -69,15 +67,15 @@ class PodServiceImpl final : public zpods::PodService::Service
                 request->token(), &username);
             if (status != rocksdb::Status::OK())
             {
-                return Status::CANCELLED;
+                return grpc::Status::CANCELLED;
             }
         }
 
-        let pods_path = zpods::fs::path(username);
+        let pods_path = MAKE_STORE_PATH(username);
         if (!std::filesystem::exists(pods_path))
         {
             // empty
-            return Status::OK;
+            return grpc::Status::OK;
         }
 
         for (const auto& pods_entry :
@@ -100,11 +98,11 @@ class PodServiceImpl final : public zpods::PodService::Service
                 pod_list->add_last_modified_time(ts);
             }
         }
-        return Status::OK;
+        return grpc::Status::OK;
     }
 
-    Status
-    DownloadPod(ServerContext* context,
+    grpc::Status
+    DownloadPod(grpc::ServerContext* context,
                 const zpods::DownloadPodRequest* request,
                 grpc::ServerWriter<zpods::DownloadPodResponse>* writer) override
     {
@@ -114,7 +112,7 @@ class PodServiceImpl final : public zpods::PodService::Service
                 request->token(), &username);
             if (status != rocksdb::Status::OK())
             {
-                return Status::CANCELLED;
+                return grpc::Status::CANCELLED;
             }
         }
 
@@ -125,7 +123,7 @@ class PodServiceImpl final : public zpods::PodService::Service
         {
             spdlog::info("{} is trying to download the wrong path: {}",
                          username, pod_path.c_str());
-            return Status::CANCELLED;
+            return grpc::Status::CANCELLED;
         }
         else
         {
@@ -147,7 +145,7 @@ class PodServiceImpl final : public zpods::PodService::Service
             response.set_content(content);
             writer->Write(response);
         }
-        return Status::OK;
+        return grpc::Status::OK;
     }
 };
 

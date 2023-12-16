@@ -425,7 +425,7 @@ std::pair<size_t, std::unique_ptr<byte[]>> zpods::decompress(p_cbyte src)
 
 Status zpods::compress_file(const char* src_path, const char* dst_path)
 {
-    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, fs::ios::binary);
+    let_mut ifs = fs::open_file_as_ifs(src_path, fs::ios::binary);
     if (!ifs.is_open())
     {
         spdlog::error("cannot open file: {}", src_path);
@@ -455,7 +455,7 @@ Status zpods::compress_file(const char* src_path, const char* dst_path)
 
 Status zpods::decompress_file(const char* src_path, const char* dst_path)
 {
-    let_mut ifs = fs::open_or_create_file_as_ifs(src_path, std::ios::binary);
+    let_mut ifs = fs::open_file_as_ifs(src_path, std::ios::binary);
     if (!ifs.is_open())
     {
         spdlog::error("cannot open file: {}", src_path);

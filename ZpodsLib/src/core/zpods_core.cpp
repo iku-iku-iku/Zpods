@@ -23,7 +23,7 @@ Status check_header(const zpods::PodHeader& header)
 zpods::Status zpods::read_pod_file(const char* path, zpods::PodHeader& header,
                                    std::string& bytes)
 {
-    let_mut ifs = fs::open_or_create_file_as_ifs(path, fs::ios::binary);
+    let_mut ifs = fs::open_file_as_ifs(path, fs::ios::binary);
     if (!ifs.is_open())
     {
         return Status::ERROR;

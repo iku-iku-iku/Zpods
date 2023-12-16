@@ -1,37 +1,11 @@
-//
-// Created by code4love on 23-12-7.
-//
+#pragma once
 
-#ifndef ZPODS_SERVER_PCH_H
-#define ZPODS_SERVER_PCH_H
-
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <string>
 #include "pch.h"
-#include <openssl/evp.h>
 #include <rocksdb/db.h>
 
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-#include "absl/strings/str_format.h"
-
-#include "zpods.grpc.pb.h"
-#include <grpcpp/ext/proto_server_reflection_plugin.h>
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
-#include <grpcpp/security/credentials.h>
-
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::ServerReader;
-using grpc::Status;
-
-const char* TTL = "ttl:";
+#define TTL "ttl:"
+#define ZPODS_STORAGE "../zpods_storage"
+#define MAKE_STORE_PATH(x) (zpods::fs::path(ZPODS_STORAGE) / x)
 
 namespace zpods
 {
@@ -39,14 +13,7 @@ namespace zpods
 class DbHandle
 {
   public:
-    DbHandle()
-    {
-        rocksdb::Options options;
-        options.create_if_missing = true;
-        rocksdb::Status status =
-            rocksdb::DB::Open(options, "zpods_server_db", &db);
-        assert(status.ok());
-    }
+    DbHandle();
 
     static DbHandle& Instance()
     {
@@ -137,5 +104,3 @@ inline bool is_token_valid(const std::string& token)
     let expiry = std::stoi(expiry_value);
     return now_value < expiry;
 }
-
-#endif // ZPODS_PCH_H

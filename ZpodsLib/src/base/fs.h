@@ -89,8 +89,7 @@ auto get_base_name(const char* path) -> std::string;
 auto open_or_create_file_as_ofs(const char* path, openmode mode)
     -> std::ofstream;
 
-auto open_or_create_file_as_ifs(const char* path, openmode mode)
-    -> std::ifstream;
+auto open_file_as_ifs(const char* path, openmode mode) -> std::ifstream;
 
 inline bool is_directory(const std::string& path)
 {

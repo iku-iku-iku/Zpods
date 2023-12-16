@@ -65,8 +65,7 @@ auto zpods::fs::read(const char* path, std::string_view buf)
     ifs.read(const_cast<char*>(buf.data()), (long)buf.length());
 }
 
-auto zpods::fs::open_or_create_file_as_ifs(const char* path,
-                                           zpods::fs::openmode mode)
+auto zpods::fs::open_file_as_ifs(const char* path, zpods::fs::openmode mode)
     -> std::ifstream
 {
     let base = get_base_name(path);
@@ -111,7 +110,7 @@ auto zpods::fs::get_base_name(const char* path) -> std::string
 auto zpods::fs::read_from_file(const char* path) -> std::string
 {
     ZPODS_ASSERT(exists(path));
-    let_mut ifs = open_or_create_file_as_ifs(path, ios::binary);
+    let_mut ifs = open_file_as_ifs(path, ios::binary);
     let_mut size = get_file_size(path);
     std::vector<char> buf(size);
     ifs.read(buf.data(), (long)size);

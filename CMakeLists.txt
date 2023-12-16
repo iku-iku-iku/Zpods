@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(Zpods)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CMakeModules/GlobalIncludeDir.cmake)
 
@@ -19,7 +20,7 @@ add_subdirectory(extern/googletest)
 add_subdirectory(extern/spdlog)
 
 include_directories(extern/ormpp/include)
-include_directories(extern/spdlog/include ./)
+include_directories(extern/spdlog/include ${CMAKE_SOURCE_DIR})
 
 set(PCH_PATH ${CMAKE_SOURCE_DIR}/pch.h)
 

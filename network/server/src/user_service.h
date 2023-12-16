@@ -5,15 +5,11 @@
 #ifndef ZPODS_USER_SERVICE_H
 #define ZPODS_USER_SERVICE_H
 
-#include <random>
-#include <string>
-#include "server_pch.h"
-
-using zpods::LoginRequest;
-using zpods::LoginResponse;
-using zpods::RegisterRequest;
-using zpods::RegisterResponse;
-using zpods::UserService;
+#include "pch.h"
+#include "server_db.h"
+#include "zpods.grpc.pb.h"
+#include "zpods.pb.h"
+#include <openssl/evp.h>
 
 namespace
 {
@@ -75,12 +71,12 @@ inline std::string sha256(const std::string& str)
 }
 } // namespace
 
-class UserServiceImpl final : public UserService::Service
+class UserServiceImpl final : public zpods::UserService::Service
 {
   public:
     grpc::Status Register(grpc::ServerContext* context,
-                          const RegisterRequest* request,
-                          RegisterResponse* response) override
+                          const zpods::RegisterRequest* request,
+                          zpods::RegisterResponse* response) override
     {
         std::string username = request->username();
         std::string password_hash = sha256(request->password());
@@ -110,8 +106,8 @@ class UserServiceImpl final : public UserService::Service
     }
 
     grpc::Status Login(grpc::ServerContext* context,
-                       const LoginRequest* request,
-                       LoginResponse* response) override
+                       const zpods::LoginRequest* request,
+                       zpods::LoginResponse* response) override
     {
         std::string username = request->username();
         std::string password_hash = sha256(request->password());

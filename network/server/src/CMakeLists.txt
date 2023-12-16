@@ -23,11 +23,10 @@ project(zpods_server C CXX)
 
 set(CXX_STANDARD 17)
 
-
 find_path(ROCKSDB_INCLUDE_DIR rocksdb/db.h PATHS)
 include_directories(${ROCKSDB_INCLUDE_DIR})
 # Targets greeter_[async_](client|server)
-add_executable(zpods_server "zpods_server.cpp"
+add_executable(zpods_server "zpods_server.cpp" "server_db.cpp"
         zpods_server.h)
 target_link_libraries(zpods_server
         zpods_grpc_proto
@@ -37,7 +36,7 @@ target_link_libraries(zpods_server
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF}
         -lpthread
-	-llz4
+ -llz4
         -lrocksdb
         -ldl
         -lzstd
