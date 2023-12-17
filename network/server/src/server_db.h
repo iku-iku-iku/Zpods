@@ -4,8 +4,12 @@
 #include <rocksdb/db.h>
 
 #define TTL "ttl:"
-#define ZPODS_STORAGE "../zpods_storage"
-#define MAKE_STORE_PATH(x) (zpods::fs::path(ZPODS_STORAGE) / x)
+#define MAKE_STORE_PATH(x) (get_zpods_storage_path() / x)
+
+inline auto get_zpods_storage_path()
+{
+    return std::filesystem::path("server_storage");
+}
 
 namespace zpods
 {

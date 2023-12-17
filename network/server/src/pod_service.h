@@ -40,9 +40,8 @@ class PodServiceImpl final : public zpods::PodService::Service
                              pod.pods_name(), pod.pod_name());
 
                 // get ofstream for writing file
-                let pod_storage_path = zpods::fs::path(ZPODS_STORAGE) /
-                                       username / pod.pods_name() /
-                                       pod.pod_name();
+                let pod_storage_path = MAKE_STORE_PATH(
+                    username / pod.pods_name() / pod.pod_name());
                 spdlog::info("{} uploading at path: {}", username,
                              pod_storage_path.c_str());
                 zpods::fs::create_directory_if_not_exist(
@@ -116,9 +115,9 @@ class PodServiceImpl final : public zpods::PodService::Service
             }
         }
 
-        let pod_path = zpods::fs::path(fmt::format("{}/{}/{}", username.c_str(),
-                                                   request->pods_name(),
-                                                   request->pod_name()));
+        let pod_path =
+            MAKE_STORE_PATH(zpods::fs::path(username) / request->pods_name() /
+                            request->pod_name());
         if (!std::filesystem::exists(pod_path))
         {
             spdlog::info("{} is trying to download the wrong path: {}",

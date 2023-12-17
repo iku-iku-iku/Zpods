@@ -142,6 +142,6 @@ zpods::Status PodServiceClient::DownloadPod(const std::string& pods_name,
                      (int)status.error_code());
         return zpods::Status::ERROR;
     }
-    spdlog::info("download pod {} success", pod_name);
+    spdlog::info("download pod {} succeeded!", pod_name);
     return zpods::Status::OK;
 }

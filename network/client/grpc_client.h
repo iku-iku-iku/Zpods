@@ -9,7 +9,24 @@
 #include "pod_service_client.h"
 #include "user_service_client.h"
 
-#define DB_PATH "./db"
+inline auto get_db_path()
+{
+    return std::filesystem::path(getenv("HOME")) / ".ZPODS/client_db";
+}
+
+inline bool is_server_addr_set;
+
+inline std::string& get_server_addr()
+{
+    static std::string s;
+    return s;
+}
+
+inline void set_server_addr(const std::string& s)
+{
+    is_server_addr_set = true;
+    get_server_addr() = s;
+}
 
 namespace zpods
 {
@@ -40,6 +57,16 @@ class DbHandle
     auto get_cached_token(std::string* token) -> zpods::Status
     {
         return Get("cache_token", token);
+    }
+
+    auto put_cached_addr(const std::string& addr) -> zpods::Status
+    {
+        return Put("cache_addr", addr);
+    }
+
+    auto get_cached_addr(std::string* addr) -> zpods::Status
+    {
+        return Get("cache_addr", addr);
     }
 
     DbHandle(const DbHandle&) = delete;

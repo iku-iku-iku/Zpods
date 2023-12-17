@@ -50,6 +50,8 @@ int main(int argc, char** argv)
     CLI::App app{"zpods client"};
     app.require_subcommand(1);
 
+    CLI::App* set_server_addr_cmd =
+        app.add_subcommand("set_server_addr", "set server address to IP:PORT");
     CLI::App* register_cmd = app.add_subcommand("register", "register a user");
     CLI::App* login_cmd = app.add_subcommand("login", "login a user");
     CLI::App* backup = app.add_subcommand(
@@ -115,6 +117,14 @@ int main(int argc, char** argv)
         };
         zpods::zpods_daemon_entry(config);
     });
+
+    std::string server_addr;
+    set_server_addr_cmd
+        ->add_option("address", server_addr, "server address(IP:PORT)")
+        ->required();
+    // set server addr
+    set_server_addr_cmd->callback(
+        [&] { zpods::DbHandle::Instance().put_cached_addr(server_addr); });
 
     std::string pods_name, pod_name, dir;
     download_cmd->add_option("-p,--pods", pods_name, "pods name")->required();

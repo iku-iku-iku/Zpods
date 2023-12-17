@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy docker_build AppImage gen_key gen_key_local push_docker
 
 configure:
 	chmod u+x scripts/*.sh
@@ -6,11 +6,24 @@ configure:
 	./scripts/install_rocksdb.sh
 	./scripts/install_grpc.sh
 
+gen_key:
+	./scripts/gen_key.sh
+
+gen_key_local:
+	./scripts/gen_key_local.sh
+
 build:
 	./scripts/build.sh
 
 docker_build: build
 	./scripts/docker_build.sh
+
+push_docker: docker_build
+	docker tag zpods_server:latest code4love/zpods_server:v1.0
+	docker push code4love/zpods_server:v1.0
+
+AppImage: build
+	./scripts/build_appimage.sh
 
 local_deploy: build
 	bash ./scripts/deploy_local.sh

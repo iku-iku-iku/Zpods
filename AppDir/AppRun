@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# 导出应用程序使用的库文件的路径
+export LD_LIBRARY_PATH="${APPDIR}/usr/lib:${LD_LIBRARY_PATH}"
+
+# 导出其他可能需要的环境变量
+# export OTHER_ENV_VARIABLE="value"
+
+# 执行应用程序的主二进制文件
+exec "${APPDIR}/usr/bin/zpods_cli" "$@"
+

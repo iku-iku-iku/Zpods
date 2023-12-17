@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 
+
 def generate_commands(binary_path, target_dir):
     try:
         # 获取ldd输出
@@ -11,9 +12,9 @@ def generate_commands(binary_path, target_dir):
         real_paths = []
         link = {}
         for line in ldd_output.splitlines():
-            parts = line.split('=>')
+            parts = line.split("=>")
             if len(parts) == 2:
-                path = parts[1].split('(')[0].strip()
+                path = parts[1].split("(")[0].strip()
                 if path:
                     real_path = os.path.realpath(path)
 
@@ -36,12 +37,15 @@ def generate_commands(binary_path, target_dir):
             if path in link:
                 link_name = os.path.basename(link[path])
                 link_path = os.path.join("/usr/lib", link_name)
-                docker_cp_commands.append(f"RUN rm -rf {link_path} && ln -s {lib_path} {link_path}")
+                docker_cp_commands.append(
+                    f"RUN rm -rf {link_path} && ln -s {lib_path} {link_path}"
+                )
 
         return local_cp_commands, docker_cp_commands, local_rm_commands
 
     except subprocess.CalledProcessError as e:
         return ["ERROR: ldd command failed"], []
+
 
 # 接收命令行参数
 if len(sys.argv) != 3:
@@ -52,7 +56,9 @@ binary_path = sys.argv[1]
 target_dir = sys.argv[2]
 
 # 生成指令
-local_cp_cmds, docker_cp_cmds, local_rm_commands = generate_commands(binary_path, target_dir)
+local_cp_cmds, docker_cp_cmds, local_rm_commands = generate_commands(
+    binary_path, target_dir
+)
 
 # 打印生成的本地拷贝指令
 print("Local copy commands:")
@@ -68,4 +74,3 @@ for cmd in docker_cp_cmds:
 print("\nLocal remove commands:")
 for cmd in local_rm_commands:
     print(cmd)
-

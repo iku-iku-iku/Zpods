@@ -1,14 +1,17 @@
+#include <fstream>
 #include "ZpodsLib/src/base/fs.h"
 #include "grpc_client.h"
 #include "network/client/pod_service_client.h"
 #include "pch.h"
 
-ABSL_FLAG(std::string, target, "47.108.88.125:50051", "Server address");
+ABSL_FLAG(std::string, target, "127.0.0.1:50051", "Server address");
 
 auto MakeClientSslCredentials()
 {
     auto ReadFile = [](const std::string& filename) {
-        std::ifstream file(filename);
+        let filepath = zpods::fs::path(getenv("APPDIR")) / filename;
+
+        std::ifstream file(filepath);
         std::stringstream buffer;
         buffer << file.rdbuf();
         return buffer.str();
@@ -25,9 +28,27 @@ auto MakeClientSslCredentials()
     return grpc::SslCredentials(ssl_opts);
 }
 
+static std::string get_target()
+{
+    std::string target;
+    if (is_server_addr_set)
+    {
+        target = get_server_addr();
+    }
+    else if (zpods::DbHandle::Instance().get_cached_addr(&target) ==
+             zpods::Status::OK)
+    {
+    }
+    else
+    {
+        target = absl::GetFlag(FLAGS_target);
+    }
+    return target;
+}
+
 PodServiceClient get_pod_service_client()
 {
-    std::string target_str = absl::GetFlag(FLAGS_target);
+    std::string target_str = get_target();
 
     PodServiceClient client(
         grpc::CreateChannel(target_str, MakeClientSslCredentials()));
@@ -37,7 +58,7 @@ PodServiceClient get_pod_service_client()
 
 UserServiceClient get_user_service_client()
 {
-    std::string target_str = absl::GetFlag(FLAGS_target);
+    std::string target_str = get_target();
 
     UserServiceClient client(
         grpc::CreateChannel(target_str, MakeClientSslCredentials()));
@@ -132,13 +153,13 @@ zpods::DbHandle& zpods::DbHandle::Instance()
 
 zpods::DbHandle::DbHandle()
 {
-    zpods::fs::create_directory_if_not_exist(DB_PATH);
+    zpods::fs::create_directory_if_not_exist(get_db_path().c_str());
 }
 
 auto zpods::DbHandle::Put(const std::string& key, const std::string& value)
     -> zpods::Status
 {
-    let key_path = zpods::fs::path(DB_PATH) / key;
+    let key_path = zpods::fs::path(get_db_path()) / key;
     let_mut ofs = zpods::fs::open_or_create_file_as_ofs(key_path.c_str(),
                                                         zpods::fs::ios::text);
     if (ofs.is_open())
@@ -155,13 +176,13 @@ auto zpods::DbHandle::Put(const std::string& key, const std::string& value)
 auto zpods::DbHandle::Get(const std::string& key, std::string* value)
     -> zpods::Status
 {
-    let key_path = zpods::fs::path(DB_PATH) / key;
+    let key_path = zpods::fs::path(get_db_path()) / key;
     if (!zpods::fs::exists(key_path.c_str()))
     {
         return zpods::Status::NOT_FOUND;
     }
-    let_mut ifs =
-        zpods::fs::open_file_as_ifs(key_path.c_str(), zpods::fs::ios::text);
+
+    std::ifstream ifs(key_path.c_str());
 
     if (ifs.is_open())
     {

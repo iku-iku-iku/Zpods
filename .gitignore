@@ -435,3 +435,6 @@ FodyWeavers.xsd
 
 *storage
 *image
+*.key
+*.crt
+*.AppImage

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=zpods_cli
+Icon=zpods_cli-icon
+Exec=AppRun
+Comment=zpods cli
+Categories=Utility;
+Terminal=false
+

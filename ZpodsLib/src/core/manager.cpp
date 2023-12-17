@@ -103,7 +103,9 @@ Status PodsManager::load_pods(const fs::zpath& pods_path,
 
 void PodsManager::load_pods_mapping()
 {
-    if (fs::exists("./pods_paths"))
+    let pods_mapping = fs::path(getenv("HOME")) / ".ZPODS" / "tree2pods";
+
+    if (fs::exists(pods_mapping.c_str()))
     {
         let_mut ifs = std::ifstream("./pods_paths");
         std::string line1;
@@ -117,7 +119,10 @@ void PodsManager::load_pods_mapping()
 
 void PodsManager::store_pods_mapping()
 {
-    let_mut ofs = fs::open_or_create_file_as_ofs("./pods_paths", fs::ios::text);
+    let pods_mapping = fs::path(getenv("HOME")) / ".ZPODS" / "tree2pods";
+
+    let_mut ofs =
+        fs::open_or_create_file_as_ofs(pods_mapping.c_str(), fs::ios::text);
     for (const auto& [k, v] : path_mapping_)
     {
         ofs << k.c_str() << '\n';
