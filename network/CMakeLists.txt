@@ -33,5 +33,5 @@ target_link_libraries(zpods_grpc_proto
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF})
 
-add_subdirectory(server)
+# add_subdirectory(server)
 add_subdirectory(client)
