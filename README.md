@@ -19,6 +19,31 @@ make configure
 make test
 ```
 
+## how to deploy?
+
+### gen keys
+
+You need to generate keys and credentials first.
+
+For local use, just run `make gen_key_local`, and you will see `client.key`, `client.crt`, `server.key`, `server.crt` in the root directory of the project.
+
+For remote use, you must modify the IP in `san.cnf`, and then run `make gen_key`.
+
+NOTE: the client and the server share the same version of keys and credentials. So please only do this step once, and reuse generated files for the following steps.
+
+### make appimage
+
+1. You need to run `python3 scripts/gen_cmd_for_dep.py deploy/zpods_cli AppDir/usr/lib` to get the commands and replace them in `scripts/build_appimage.sh`
+2. You need to get appimagetool from `https://appimage.github.io/appimagetool/` and install it.
+3. Make sure you have run `make gen_key` or `make gen_key_local` first.
+4. `make AppImage`
+
+### deploy with docker
+
+1. You need to run `python3 scripts/gen_cmd_for_dep.py deploy/zpods_server server_image` to get the commands and replace them in `scripts/docker_build.sh` and `Docker.server`.
+2. Run `make run_server` to build docker image and run it locally.
+3. For remote deployment, `make push_docker`. Then copy the `./scripts/run_server.sh` to your server and run it.
+
 ## install cli
 
 ```sh
@@ -81,4 +106,18 @@ zpods.cli restore --src ./tmp/single.map --target ./tmp
 # if your backup is encrypted,
 # you must use '-p' to specify the password used in encryption
 zpods.cli restore --src ./tmp/single.map --target ./tmp -p 1234
+```
+
+### remote backup
+
+```shell
+# set you remote server address
+zpods.cli set_server_addr IP:PORT
+zpods.cli register
+zpods.cli login
+# use -r in backup to backup to remote server
+# the mapping will be recorded
+zpods.cli backup ... -r
+# run daemon for synchronization continuously
+zpods.cli daemon
 ```

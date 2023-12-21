@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy docker_build AppImage gen_key gen_key_local push_docker
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy docker_build AppImage gen_key gen_key_local push_docker run_server
 
 configure:
 	chmod u+x scripts/*.sh
@@ -22,6 +22,9 @@ push_docker: docker_build
 	docker tag zpods_server:latest code4love/zpods_server:v1.0
 	docker push code4love/zpods_server:v1.0
 
+run_server: docker_build
+	./scripts/run_server.sh
+
 AppImage: build
 	./scripts/build_appimage.sh
 
@@ -37,9 +40,10 @@ uninstall:
 format:
 	@clang-format -i -style=file $(shell find ZpodsLib network \( -name "*.h" -o -name "*.cpp" \) -size -100k)
 
-install_cli: build uninstall
+install_cli: build uninstall AppImage
 	@# if there is no /usr/local/bin/zpods.cli, then create a symbol link
-	@[ -f /usr/local/bin/zpods.cli ] || ln -s $(shell pwd)/build/client/cli/src/zpods_cli /usr/local/bin/zpods.cli
+	@chmod u+x zpods_cli-x86_64.AppImage
+	@[ -f /usr/local/bin/zpods.cli ] || ln -s $(shell pwd)/zpods_cli-x86_64.AppImage /usr/local/bin/zpods.cli
 	@echo "installed successfully in /usr/local/bin/zpods.cli!"
 	@echo "you can use 'zpods.cli --help' to learn how to use zpods cli"
 

@@ -16,6 +16,7 @@ cp Dockerfile.server server_image/Dockerfile
 
 cp build/network/server/src/zpods_server server_image/
 
+#! you need run scripts/gen_cmd_for_dep.py to generate following commands
 cp build/ZpodsLib/src/libzpods_lib.so server_image/
 cp /usr/lib/x86_64-linux-gnu/libzstd.so.1.4.8 server_image/libzstd.so.1.4.8
 cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30 server_image/libstdc++.so.6.0.30
@@ -29,6 +30,7 @@ docker build -t zpods_server:latest .
 
 # clean
 cd ..
+#! you need run scripts/gen_cmd_for_dep.py to generate following commands
 rm server_image/libzstd.so.1.4.8
 rm server_image/libstdc++.so.6.0.30
 rm server_image/libm.so.6
