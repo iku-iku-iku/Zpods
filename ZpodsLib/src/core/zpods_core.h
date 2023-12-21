@@ -225,7 +225,7 @@ struct fmt::formatter<zpods::Pea>
     template <typename FormatContext>
     auto format(const zpods::Pea& p, FormatContext& ctx) const
     {
-        return format_to(ctx.out(), "rel_path: {}, last_modified_ts: {}",
+        return fmt::format_to(ctx.out(), "rel_path: {}, last_modified_ts: {}",
                          p.rel_path, p.last_modified_ts);
     }
 };

@@ -165,7 +165,7 @@ struct fmt::formatter<Code>
     template <typename FormatContext>
     auto format(const Code& p, FormatContext& ctx) const
     {
-        return format_to(ctx.out(), "0b{:0{}b}", p.bits, p.len);
+        return fmt::format_to(ctx.out(), "0b{:0{}b}", p.bits, p.len);
     }
 };
 
