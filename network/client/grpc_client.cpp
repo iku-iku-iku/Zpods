@@ -9,10 +9,10 @@ ABSL_FLAG(std::string, target, "127.0.0.1:50051", "Server address");
 auto MakeClientSslCredentials()
 {
     auto ReadFile = [](const std::string& filename) {
-        let filepath = filename;
+        let_mut filepath = filename;
 
         const char* appDir = getenv("APPDIR");
-        if(appDir != nullptr)
+        if (appDir != nullptr)
         {
             filepath = zpods::fs::path(getenv("APPDIR")) / filename;
         }

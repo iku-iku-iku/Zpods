@@ -1,0 +1,28 @@
+FROM ubuntu:22.04
+# 使用官方的 Ubuntu 基础镜像
+
+# 为了避免在安装过程中出现任何交互式提示
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
+# 设置工作目录
+
+# 将编译好的可执行文件复制到容器中
+COPY zpods_cli /app
+COPY *.key *.crt /app
+
+COPY libzpods_lib.so /usr/lib/libzpods_lib.so
+COPY libstdc++.so.6.0.30 /usr/lib/libstdc++.so.6.0.30
+RUN rm -rf /usr/lib/libstdc++.so.6 && ln -s /usr/lib/libstdc++.so.6.0.30 /usr/lib/libstdc++.so.6
+COPY libm.so.6 /usr/lib/libm.so.6
+COPY libgcc_s.so.1 /usr/lib/libgcc_s.so.1
+COPY libc.so.6 /usr/lib/libc.so.6
+COPY libcrypto.so.3 /usr/lib/libcrypto.so.3
+
+RUN apt-get update && apt-get -y install libfuse2
+
+# 给执行文件添加运行权限
+RUN chmod u+x /app/zpods_cli
+
+# 设置环境变量以便可以从任何路径运行您的CLI
+ENV PATH="/app:${PATH}"
