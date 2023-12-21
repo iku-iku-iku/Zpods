@@ -25,12 +25,6 @@ TEST(FsTest, BasicTest)
     EXPECT_FALSE(fs::exists("/me"));
 }
 
-TEST(FsTest, DeltaBackupTest)
-{
-    let file_path = path(test_data_path()) / path("tiny/a.txt");
-    EXPECT_EQ(2, get_file_family(file_path.c_str()).size());
-}
-
 auto filtered_paths_expect_eq(std::unordered_set<std::string> expected_paths,
                               fs::zpath path, fs::FilesFilter filter)
 {

@@ -142,9 +142,11 @@ void init_daemon(const DaemonConfig& config)
     let manager = PodsManager::Instance();
     manager->load_pods_mapping();
     // create one thread for each path
-    for (const auto& [tree_dir, pods_dir] : manager->get_path_mapping())
+    for (const auto& mapping : manager->get_path_mapping())
     {
-        std::thread(thread_for_pods, tree_dir, pods_dir, config).detach();
+        std::thread(thread_for_pods, mapping.tree_path, mapping.pods_path,
+                    config)
+            .detach();
     }
 }
 } // namespace
@@ -163,9 +165,9 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
         config.query_pods(result);
         let mapping = manager->get_path_mapping();
         std::unordered_set<std::string> pods_list;
-        for (let_ref[k, v] : mapping)
+        for (let_ref mp : mapping)
         {
-            pods_list.insert(fs::path(v).filename());
+            pods_list.insert(fs::path(mp.pods_path).filename());
         }
         for (let_ref[pods_name, _] : result)
         {
@@ -175,12 +177,31 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
                 // record the new mapping and create a thread for it
                 let src_path = pods_name.substr(0, pods_name.find_last_of('-'));
                 let pods_dir = fs::path(getenv("HOME")) / ".ZPODS" / pods_name;
-                manager->record_mapping(src_path, pods_dir);
 
                 fs::create_directory_if_not_exist(src_path.c_str());
                 fs::create_directory_if_not_exist(pods_dir.c_str());
-                std::thread(thread_for_pods, src_path, pods_dir, config)
-                    .detach();
+
+                // download meta file
+                do
+                {
+                    let status =
+                        config.download_pod(pods_name, ".META", pods_dir);
+                    if (status == Status::OK)
+                    {
+                        break;
+                    }
+                } while (true);
+
+                // parse meta file
+                BackupConfig backup_config;
+                std::ifstream ifs(pods_dir / ".META");
+                ZPODS_ASSERT(ifs.is_open());
+                backup_config.deserialize(ifs);
+
+                manager->record_mapping(src_path, pods_dir, backup_config);
+                // std::thread(thread_for_pods, src_path, pods_dir.c_str(),
+                // config)
+                //.detach();
             }
         }
     }

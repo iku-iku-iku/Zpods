@@ -21,6 +21,8 @@ struct CryptoConfig
     static constexpr auto IV_SIZE = 16;
     static constexpr auto KEY_SIZE = 32;
 
+    CryptoConfig() = default;
+
     explicit CryptoConfig(std::string key)
     {
         key_ = std::move(key);
@@ -55,6 +57,47 @@ struct BackupConfig
     ///< if not set, default to ${src_path.filename()}.pods
     ///< will be overwritten by the real name after backup
     fs::FilesFilter filter; ///< filter the files to backup
+
+    template <typename OStream>
+        requires requires(OStream& os) { os << std::declval<std::string>(); }
+    void serialize(OStream& os) const
+    {
+        os << "compress: " << compress << '\n';
+        os << "crypto: " << crypto_config.has_value() << '\n';
+        if (crypto_config.has_value())
+        {
+            os << crypto_config->key_ << '\n';
+            os << crypto_config->iv_ << '\n';
+        }
+        filter.serialize(os);
+    }
+
+    template <typename IStream>
+        requires requires(IStream& is, std::string s) { is >> s; }
+    void deserialize(IStream& is)
+    {
+        std::istringstream iss;
+        std::string line, s;
+        bool crypto;
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s >> compress;
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s >> crypto;
+
+        if (crypto)
+        {
+            crypto_config = {};
+            std::getline(is, crypto_config->key_);
+            std::getline(is, crypto_config->iv_);
+        }
+
+        std::getline(is, line);
+        filter.deserialize(is);
+    }
 };
 } // namespace zpods
 

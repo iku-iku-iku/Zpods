@@ -78,34 +78,20 @@ auto zpods::fs::open_file_as_ifs(const char* path, zpods::fs::openmode mode)
     return ifs;
 }
 
-auto zpods::fs::open_or_create_file_as_ofs(const char* path,
-                                           zpods::fs::openmode mode)
-    -> std::ofstream
-{
-    let base = get_base_name(path);
-    if (!exists(base.c_str()))
-    {
-        create_directory_if_not_exist(base.c_str());
-    }
-    std::ofstream ofs(path, mode);
-    ZPODS_ASSERT(ofs.is_open());
-    return ofs;
-}
-
-auto zpods::fs::get_base_name(const char* path) -> std::string
-{
-    size_t len = 0;
-    let_mut p = path;
-    while (*p)
-    {
-        if (*p == '/')
-        {
-            len = p - path;
-        }
-        p++;
-    }
-    return {path, len};
-}
+/* auto zpods::fs::get_base_name(const char* path) -> std::string */
+/* { */
+/*     size_t len = 0; */
+/*     let_mut p = path; */
+/*     while (*p) */
+/*     { */
+/*         if (*p == '/') */
+/*         { */
+/*             len = p - path; */
+/*         } */
+/*         p++; */
+/*     } */
+/*     return {path, len}; */
+/* } */
 
 auto zpods::fs::read_from_file(const char* path) -> std::string
 {

@@ -124,11 +124,11 @@ TEST(BackupTest, DeltaBackup)
     EXPECT_EQ(backup(dest_path, config), Status::OK);
     let_mut paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
-    EXPECT_EQ(paths.size(), 2);
+    EXPECT_EQ(paths.size(), 3);
     // since we add a file which is in original files, if delta backup works,
     // the size of the new file should be smaller if we simply back up all
     // files, the size of the new backup file should be larger
-    EXPECT_GT(fs::get_file_size(paths[0]), fs::get_file_size(paths[1]));
+    EXPECT_GT(fs::get_file_size(paths[1]), fs::get_file_size(paths[2]));
     // restore with right password
     EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
               zpods::Status::OK);
@@ -146,11 +146,11 @@ TEST(BackupTest, DeltaBackup)
     EXPECT_EQ(backup(dest_path, config), Status::OK);
     paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
-    EXPECT_EQ(paths.size(), 3);
+    EXPECT_EQ(paths.size(), 4);
     // since we only update one file, if delta backup works, the size of the new
     // backup file should be smaller if we simply back up all files, the size of
     // the new backup file should be larger
-    EXPECT_GT(fs::get_file_size(paths[1]), fs::get_file_size(paths[2]));
+    EXPECT_GT(fs::get_file_size(paths[2]), fs::get_file_size(paths[3]));
     // restore with right password
     EXPECT_EQ(zpods::restore(pods_path.c_str(), temp_path(), config),
               zpods::Status::OK);
@@ -167,12 +167,12 @@ TEST(BackupTest, DeltaBackup)
     EXPECT_EQ(backup(dest_path, config), Status::OK);
     paths = fs::FileCollector(pods_path, {}).paths();
     std::sort(paths.begin(), paths.end());
-    EXPECT_EQ(paths.size(), 4);
+    EXPECT_EQ(paths.size(), 5);
     // since we only delete one file, if delta backup works (only mark the
     // deletion in header), the size of the new backup file should be smaller if
     // we simply back up all files, the size of the new backup file should be
     // larger
-    EXPECT_GT(fs::get_file_size(paths[2]), fs::get_file_size(paths[3]));
+    EXPECT_GT(fs::get_file_size(paths[3]), fs::get_file_size(paths[4]));
     // for simplicity, we do not automatically delete the file in the restore
     // process, so we must manually delete it
     fs::remove_file(restored_new_file_path.c_str());

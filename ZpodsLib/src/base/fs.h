@@ -5,10 +5,10 @@
 #ifndef ZPODS_FS_H
 #define ZPODS_FS_H
 
+#include "pch.h"
+
 #include <filesystem>
 #include <regex>
-#include <utility>
-#include "pch.h"
 
 #ifdef __linux__
 
@@ -84,10 +84,23 @@ inline auto remove_all(const char* path)
 
 auto get_file_name(const char* path) -> const char*;
 
-auto get_base_name(const char* path) -> std::string;
+inline auto get_base_name(const zpath& path) -> std::string
+{
+    return path.parent_path().c_str();
+}
 
-auto open_or_create_file_as_ofs(const char* path, openmode mode)
-    -> std::ofstream;
+auto open_or_create_file_as_ofs(auto&& path, zpods::fs::openmode mode)
+    -> std::ofstream
+{
+    let base = get_base_name(path);
+    if (!exists(base.c_str()))
+    {
+        create_directory_if_not_exist(base.c_str());
+    }
+    std::ofstream ofs(path, mode);
+    ZPODS_ASSERT(ofs.is_open());
+    return ofs;
+}
 
 auto open_file_as_ifs(const char* path, openmode mode) -> std::ifstream;
 
@@ -170,6 +183,79 @@ struct FilesFilter
     uintmax_t min_size = 0; ///< only backup files that are larger than min_size
     uintmax_t max_size =
         (uintmax_t)-1; ///< only backup files that are smaller than max_size
+
+    template <typename OStream>
+        requires requires(OStream& os) { os << std::declval<std::string>(); }
+    void serialize(OStream& os) const
+    {
+        os << "types: ";
+        for (let_ref type : types)
+        {
+            os << (int)type << " ";
+        }
+        os << '\n';
+        os << "min_date: " << (int)min_date.year() << " "
+           << (unsigned)min_date.month() << " " << (unsigned)min_date.day()
+           << '\n';
+        os << "max_date: " << (int)max_date.year() << " "
+           << (unsigned)max_date.month() << " " << (unsigned)max_date.day()
+           << '\n';
+        os << "min_size: " << min_size << '\n';
+        os << "max_size: " << max_size << '\n';
+        os << "re_list: ";
+        for (let_ref re : re_list)
+        {
+            os << re << " ";
+        }
+        os << '\n';
+    }
+
+    template <typename IStream>
+        requires requires(IStream& is, std::string s) { is >> s; }
+    void deserialize(IStream& is)
+    {
+        std::string line;
+        std::getline(is, line);
+        std::istringstream iss(line);
+        std::string s;
+        iss >> s;
+        while (iss >> s)
+        {
+            types.insert((FileType)std::stoi(s));
+        }
+
+        int year, month, day;
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s;
+        iss >> year >> month >> day;
+        min_date = make_year_month_day(year, month, day);
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s;
+        iss >> year >> month >> day;
+        max_date = make_year_month_day(year, month, day);
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s;
+        iss >> min_size;
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s;
+        iss >> max_size;
+
+        std::getline(is, line);
+        iss = std::istringstream(line);
+        iss >> s;
+        while (iss >> s)
+        {
+            re_list.push_back(s);
+        }
+    }
 };
 
 class FileCollector

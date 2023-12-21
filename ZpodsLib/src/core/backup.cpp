@@ -109,7 +109,7 @@ Status zpods::backup(const char* dest_dir, const BackupConfig& config)
         return st;
     }
 
-    PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir);
+    PodsManager::Instance()->record_mapping(dir_to_backup, pods_dir, config);
     return Status::OK;
 }
 

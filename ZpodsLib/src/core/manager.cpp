@@ -1,11 +1,17 @@
 //
 // Created by code4love on 23-11-15.
 //
+#include "config.h"
 #include "fs.h"
 #include "manager.h"
 
 using namespace zpods;
 
+bool Tree2PodsMapping::operator==(const Tree2PodsMapping& rhs) const
+{
+    return std::hash<Tree2PodsMapping>()(*this) ==
+           std::hash<Tree2PodsMapping>()(rhs);
+}
 PodsManager* PodsManager::Instance()
 {
     static PodsManager instance;
@@ -15,17 +21,17 @@ PodsManager* PodsManager::Instance()
 Status PodsManager::load_pods(const fs::zpath& pods_path,
                               const BackupConfig& config)
 {
-    //    let_mut paths = fs::get_file_family(pods_path.c_str());
     ZPODS_ASSERT(fs::is_directory(pods_path));
-    if (!cur_state_of_peas_per_pods.contains(pods_path))
+    if (!cur_state_of_tree_per_pods.contains(pods_path))
     {
-        cur_state_of_peas_per_pods.insert({pods_path, {}});
+        cur_state_of_tree_per_pods.insert({pods_path, {}});
     }
 
     std::vector<fs::zpath> pod_paths;
     for (let_ref pod : fs::directory_iterator(pods_path))
     {
         let_ref pod_path = pod.path();
+        // find all files with pod suffix
         if (pod_path.string().ends_with(POD_FILE_SUFFIX))
         {
             pod_paths.push_back(pod_path);
@@ -112,7 +118,14 @@ void PodsManager::load_pods_mapping()
         std::string line2;
         while (std::getline(ifs, line1) && std::getline(ifs, line2))
         {
-            path_mapping_[line1] = line2;
+            Tree2PodsMapping mapping;
+            mapping.tree_path = line1;
+            mapping.pods_path = line2;
+
+            let_mut meta_ifs = std::ifstream(mapping.pods_path / ".META");
+            mapping.config.deserialize(meta_ifs);
+
+            tree2pods_.insert(std::move(mapping));
         }
     }
 }
@@ -121,19 +134,26 @@ void PodsManager::store_pods_mapping()
 {
     let pods_mapping = fs::path(getenv("HOME")) / ".ZPODS" / "tree2pods";
 
-    let_mut ofs =
-        fs::open_or_create_file_as_ofs(pods_mapping.c_str(), fs::ios::text);
-    for (const auto& [k, v] : path_mapping_)
+    let_mut ofs = fs::open_or_create_file_as_ofs(pods_mapping, fs::ios::text);
+
+    for (let_ref mapping : tree2pods_)
     {
-        ofs << k.c_str() << '\n';
-        ofs << v.c_str() << '\n';
+        ofs << mapping.tree_path.c_str() << '\n';
+        ofs << mapping.pods_path.c_str() << '\n';
+
+        let_mut meta_ofs = fs::open_or_create_file_as_ofs(
+            mapping.pods_path / ".META", fs::ios::text);
+        mapping.config.serialize(meta_ofs);
     }
 }
 
-void PodsManager::record_mapping(const fs::zpath& src_path,
-                                 const fs::zpath& dst_path)
+void PodsManager::record_mapping(const fs::zpath& tree_path,
+                                 const fs::zpath& pods_path,
+                                 BackupConfig config)
 {
-    path_mapping_[src_path] = dst_path;
+    tree2pods_.insert({.tree_path = tree_path,
+                       .pods_path = pods_path,
+                       .config = std::move(config)});
     store_pods_mapping();
 }
 
@@ -141,9 +161,9 @@ void PodsManager::load_pods_from_tracked_paths()
 {
     load_pods_mapping();
 
-    for (const auto& [k, v] : path_mapping_)
+    for (let_ref mapping : tree2pods_)
     {
-        for (const auto& entry : fs::directory_iterator(v))
+        for (const auto& entry : fs::directory_iterator(mapping.pods_path))
         {
             if (entry.is_regular_file())
             {
@@ -163,5 +183,5 @@ void PodsManager::create_pods(const fs::zpath& pods_path)
 
     fs::create_directory_if_not_exist(pods_path.c_str());
 
-    cur_state_of_peas_per_pods.insert({pods_path, {}});
+    cur_state_of_tree_per_pods.insert({pods_path, {}});
 }

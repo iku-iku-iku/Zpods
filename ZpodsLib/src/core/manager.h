@@ -9,12 +9,38 @@
 
 namespace zpods
 {
+
+struct Tree2PodsMapping
+{
+    fs::zpath tree_path;
+    fs::zpath pods_path;
+    BackupConfig config;
+
+    bool operator==(const Tree2PodsMapping& rhs) const;
+};
+
+} // namespace zpods
+
+namespace std
+{
+template <>
+struct hash<zpods::Tree2PodsMapping>
+{
+    std::size_t operator()(const zpods::Tree2PodsMapping& mapping) const
+    {
+        return std::hash<std::string>()(mapping.tree_path.string());
+    }
+};
+} // namespace std
+
+namespace zpods
+{
 class PodsManager
 {
   public:
     static PodsManager* Instance();
 
-    auto& get_path_mapping() { return path_mapping_; }
+    auto& get_path_mapping() { return tree2pods_; }
 
     void create_pods(const fs::zpath& pods_path);
 
@@ -26,25 +52,26 @@ class PodsManager
 
     void store_pods_mapping();
 
-    void record_mapping(const fs::zpath& src_path, const fs::zpath& dst_path);
+    void record_mapping(const fs::zpath& tree_path, const fs::zpath& pods_path,
+                        BackupConfig config);
 
     const std::unordered_set<Pea>& current_pod(const fs::zpath& pod_path) const
     {
-        ZPODS_ASSERT(cur_state_of_peas_per_pods.contains(pod_path));
-        return cur_state_of_peas_per_pods.find(pod_path)->second;
+        ZPODS_ASSERT(cur_state_of_tree_per_pods.contains(pod_path));
+        return cur_state_of_tree_per_pods.find(pod_path)->second;
     }
 
     std::unordered_set<Pea>& current_pod(const fs::zpath& pod_path)
     {
-        ZPODS_ASSERT(cur_state_of_peas_per_pods.contains(pod_path));
-        return cur_state_of_peas_per_pods.find(pod_path)->second;
+        ZPODS_ASSERT(cur_state_of_tree_per_pods.contains(pod_path));
+        return cur_state_of_tree_per_pods.find(pod_path)->second;
     }
 
     std::unordered_set<Pea>
     filter_archived_peas(const fs::zpath& pod_path,
                          const std::unordered_set<Pea>& in_pod) const
     {
-        if (!cur_state_of_peas_per_pods.contains(pod_path))
+        if (!cur_state_of_tree_per_pods.contains(pod_path))
         {
             return in_pod;
         }
@@ -77,9 +104,11 @@ class PodsManager
   private:
     // maintain current state of peas for each pods
     std::unordered_map<fs::zpath, std::unordered_set<Pea>>
-        cur_state_of_peas_per_pods;
-    std::unordered_map<fs::zpath, fs::zpath> path_mapping_;
+        cur_state_of_tree_per_pods;
+    std::unordered_set<Tree2PodsMapping> tree2pods_;
 };
 } // namespace zpods
+
+// implement hash for Mapping
 
 #endif // ZPODS_MANAGER_H
