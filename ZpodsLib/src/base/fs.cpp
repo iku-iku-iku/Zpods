@@ -102,16 +102,3 @@ auto zpods::fs::read_from_file(const char* path) -> std::string
     ifs.read(buf.data(), (long)size);
     return {buf.begin(), buf.end()};
 }
-
-auto zpods::fs::get_file_name(const char* path) -> const char*
-{
-    let_mut len = strlen(path);
-    let_mut ret = path;
-    while (*path)
-    {
-        if (*path == '/')
-            ret = path + 1;
-        path++;
-    }
-    return ret;
-}

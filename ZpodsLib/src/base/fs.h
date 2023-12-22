@@ -82,7 +82,15 @@ inline auto remove_all(const char* path)
     return std::filesystem::remove_all(path);
 }
 
-auto get_file_name(const char* path) -> const char*;
+inline auto get_last_part(const zpath& path) -> std::string
+{
+    if (path.has_filename())
+    {
+        return path.filename().string();
+    }
+    // for 'aaa/bbb/' return 'bbb'
+    return path.parent_path().filename().string();
+}
 
 inline auto get_base_name(const zpath& path) -> std::string
 {

@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
     // backup
     backup
-        ->add_option("-s,--src-list", src_path_list,
+        ->add_option("-s,--src", src_path_list,
                      "a list of source paths, separated by spaces")
         ->required();
     backup->add_option("-t,--target", target_dir, "target directory")

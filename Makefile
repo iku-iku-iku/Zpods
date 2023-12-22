@@ -1,4 +1,4 @@
-.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy docker_build AppImage gen_key gen_key_local push_docker run_server docker_run_cli
+.PHONY: clean test configure build install_cli uninstall hdfs local_deploy format local_deploy light_deploy docker_build AppImage gen_key gen_key_local push_docker docker_run_server docker_run_cli
 
 configure:
 	chmod u+x scripts/*.sh
@@ -22,7 +22,7 @@ push_docker: docker_build
 	docker tag zpods_server:latest code4love/zpods_server:v1.0
 	docker push code4love/zpods_server:v1.0
 
-run_server: docker_build
+docker_run_server: docker_build
 	./scripts/run_server.sh
 
 AppImage: build

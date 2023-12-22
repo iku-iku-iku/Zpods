@@ -184,8 +184,8 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
                 // download meta file
                 do
                 {
-                    let status =
-                        config.download_pod(pods_name, ".META", pods_dir);
+                    let status = config.download_pod(pods_name, ".META",
+                                                     pods_dir.parent_path());
                     if (status == Status::OK)
                     {
                         break;
@@ -199,9 +199,8 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
                 backup_config.deserialize(ifs);
 
                 manager->record_mapping(src_path, pods_dir, backup_config);
-                // std::thread(thread_for_pods, src_path, pods_dir.c_str(),
-                // config)
-                //.detach();
+                std::thread(thread_for_pods, src_path, pods_dir, config)
+                    .detach();
             }
         }
     }

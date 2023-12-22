@@ -95,7 +95,7 @@ Status zpods::backup(const char* dest_dir, const BackupConfig& config)
     let dir_to_backup = config.tree_dir;
 
     let pods_dir_name =
-        fmt::format("{}-PODS", dir_to_backup.filename().c_str());
+        fmt::format("{}-PODS", fs::get_last_part(dir_to_backup));
     let pods_dir = fs::path(dest_dir) / pods_dir_name;
 
     if (!fs::exists(pods_dir.c_str()))
