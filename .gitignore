@@ -438,3 +438,4 @@ FodyWeavers.xsd
 *.key
 *.crt
 *.AppImage
+server_log
