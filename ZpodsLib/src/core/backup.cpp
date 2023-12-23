@@ -126,8 +126,11 @@ Status zpods::restore(const char* pods_dir, const char* target_dir,
     }
 
     // record the residing pod paths of the peas
+    // this step is necessary because the peas may be archived in different pods
+    // we only need to process the pods that contain the peas that we want to
+    // restore
     std::unordered_map<fs::zpath, std::unordered_set<Pea>> pod_to_peas;
-    for (const auto& pea : PodsManager::Instance()->current_pod(pods_dir))
+    for (let_ref pea : PodsManager::Instance()->tree_state_of_pods(pods_dir))
     {
         pod_to_peas[pea.resident_pod_path].insert(pea);
     }
@@ -138,8 +141,8 @@ Status zpods::restore(const char* pods_dir, const char* target_dir,
             pod_path.c_str(), config, [&](auto& bytes) {
                 return zpods::foreach_pea_in_pod_bytes(
                     (p_byte)bytes.c_str(), [&](const PeaHeader& header) {
-                        let pea = Pea{.last_modified_ts =
-                                          header.get_last_modified_ts(),
+                        let mts = header.get_last_modified_ts();
+                        let pea = Pea{.last_modified_ts = mts,
                                       .rel_path = header.get_path()};
                         if (!pea_set.contains(pea))
                         {
@@ -150,9 +153,27 @@ Status zpods::restore(const char* pods_dir, const char* target_dir,
                         spdlog::info("unarchived file {}", full_path.c_str());
                         let base_name = fs::get_base_name(full_path.c_str());
                         fs::create_directory_if_not_exist(base_name.c_str());
-                        std::ofstream ofs(full_path);
-                        let bytes = header.get_data();
-                        ofs.write((char*)bytes.data(), bytes.size());
+                        if (fs::exists(full_path))
+                        {
+                            // if the file's last modified ts is not smaller
+                            // than the pea, skip it
+                            let ts = fs::last_modified_timestamp(full_path);
+                            if (ts >= mts)
+                            {
+                                return Status::OK;
+                            }
+                        }
+
+                        { // otherwise, this is a new file
+                            std::ofstream ofs(full_path);
+                            let bytes = header.get_data();
+                            ofs.write((char*)bytes.data(), bytes.size());
+                        }
+
+                        // set last modified timestamp to pea's ts
+                        fs::set_last_modified_timestamp(full_path, mts);
+                        ZPODS_ASSERT(mts ==
+                                     fs::last_modified_timestamp(full_path));
                         return Status::OK;
                     });
             });

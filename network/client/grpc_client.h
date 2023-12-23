@@ -6,12 +6,14 @@
 #define ZPODS_GRPC_CLIENT_H
 
 #include "pch.h"
+
+#include "ZpodsLib/src/base/fs.h"
 #include "pod_service_client.h"
 #include "user_service_client.h"
 
 inline auto get_db_path()
 {
-    return std::filesystem::path(getenv("HOME")) / ".ZPODS/client_db";
+    return ZPODS_HOME_PATH / "client_db";
 }
 
 inline bool is_server_addr_set;

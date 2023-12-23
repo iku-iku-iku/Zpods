@@ -40,15 +40,15 @@ class PodsManager
   public:
     static PodsManager* Instance();
 
-    auto& get_path_mapping() { return tree2pods_; }
+    auto& get_path_mapping()
+    {
+        load_pods_mapping();
+        return tree2pods_;
+    }
 
     void create_pods(const fs::zpath& pods_path);
 
-    void load_pods_from_tracked_paths();
-
     Status load_pods(const fs::zpath& pods_path, const BackupConfig& config);
-
-    void load_pods_mapping();
 
     void store_pods_mapping();
 
@@ -61,10 +61,10 @@ class PodsManager
         return cur_state_of_tree_per_pods.find(pod_path)->second;
     }
 
-    std::unordered_set<Pea>& current_pod(const fs::zpath& pod_path)
+    std::unordered_set<Pea>& tree_state_of_pods(const fs::zpath& pods_path)
     {
-        ZPODS_ASSERT(cur_state_of_tree_per_pods.contains(pod_path));
-        return cur_state_of_tree_per_pods.find(pod_path)->second;
+        ZPODS_ASSERT(cur_state_of_tree_per_pods.contains(pods_path));
+        return cur_state_of_tree_per_pods.find(pods_path)->second;
     }
 
     std::unordered_set<Pea>
@@ -102,7 +102,9 @@ class PodsManager
     }
 
   private:
-    // maintain current state of peas for each pods
+    void load_pods_mapping();
+
+    // maintain current state of tree for each pods
     std::unordered_map<fs::zpath, std::unordered_set<Pea>>
         cur_state_of_tree_per_pods;
     std::unordered_set<Tree2PodsMapping> tree2pods_;

@@ -140,8 +140,7 @@ int main(int argc, char** argv)
         ->add_option("-s,--src", src_path_list,
                      "a list of source paths, separated by spaces")
         ->required();
-    backup->add_option("-t,--target", target_dir, "target directory")
-        ->required();
+    backup->add_option("-t,--target", target_dir, "target directory");
 
     let compress =
         backup->add_flag("-c,--compress", "compress the backup file");
@@ -228,6 +227,11 @@ int main(int argc, char** argv)
             if (*compress)
             {
                 config.compress = true;
+            }
+
+            if (target_dir.empty())
+            {
+                target_dir = ZPODS_HOME_PATH;
             }
 
             for (const auto& item : src_path_list)

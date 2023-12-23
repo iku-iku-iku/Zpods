@@ -9,10 +9,12 @@
 
 #include <filesystem>
 #include <regex>
+#include <utime.h>
 
 #ifdef __linux__
 
 #include <sys/inotify.h>
+#include <sys/stat.h>
 
 #endif
 
@@ -48,25 +50,38 @@ inline auto path(const std::string& path) -> zpath
     return {path};
 }
 
-inline auto last_modified_timestamp(const char* path) -> uint32_t
+inline auto last_modified_timestamp(const fs::zpath& path) -> uint32_t
 {
-    let t = std::filesystem::last_write_time(path);
-    // 将文件最后修改时间从时间点转换为时间戳
-    let duration = t.time_since_epoch();
-    let modTimeTimestamp =
-        std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-
-    return static_cast<uint32_t>(modTimeTimestamp);
+    struct stat statbuf;
+    stat(path.c_str(), &statbuf);
+    return statbuf.st_mtime;
+    /* let t = std::filesystem::last_write_time(path); */
+    /* // 将文件最后修改时间从时间点转换为时间戳 */
+    /* let duration = t.time_since_epoch(); */
+    /* let modTimeTimestamp = */
+    /*     std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+     */
+    /**/
+    /* return static_cast<uint32_t>(modTimeTimestamp); */
 }
 
-inline auto exists(const char* path)
+inline auto set_last_modified_timestamp(const fs::zpath& path, uint32_t ts)
+{
+    time_t time = ts;
+    struct utimbuf new_times;
+    new_times.actime = time;
+    new_times.modtime = time;
+    utime(path.c_str(), &new_times);
+}
+
+inline auto exists(const fs::zpath& path)
 {
     return std::filesystem::exists(path);
 }
 
-inline auto create_directory_if_not_exist(const char* path)
+inline auto create_directory_if_not_exist(const fs::zpath& path)
 {
-    if (!exists(path))
+    if (!fs::exists(path))
     {
         std::filesystem::create_directories(path);
     }

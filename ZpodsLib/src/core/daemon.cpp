@@ -140,9 +140,8 @@ void thread_for_pods(std::string tree_dir, std::string pods_dir,
 void init_daemon(const DaemonConfig& config)
 {
     let manager = PodsManager::Instance();
-    manager->load_pods_mapping();
     // create one thread for each path
-    for (const auto& mapping : manager->get_path_mapping())
+    for (let_ref mapping : manager->get_path_mapping())
     {
         std::thread(thread_for_pods, mapping.tree_path, mapping.pods_path,
                     config)
@@ -156,18 +155,19 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
     init_daemon(config);
 
     let manager = PodsManager::Instance();
-    manager->load_pods_mapping();
     while (true)
     {
         std::this_thread::sleep_for(std::chrono::seconds(3));
 
         PodsQueryResult result;
         config.query_pods(result);
-        let mapping = manager->get_path_mapping();
+
+        let_ref mapping = manager->get_path_mapping();
         std::unordered_set<std::string> pods_list;
         for (let_ref mp : mapping)
         {
-            pods_list.insert(fs::path(mp.pods_path).filename());
+            spdlog::info("existed: {}", fs::get_last_part(mp.pods_path));
+            pods_list.insert(fs::get_last_part(mp.pods_path));
         }
         for (let_ref[pods_name, _] : result)
         {
@@ -176,7 +176,7 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
                 spdlog::info("new pods {} detected", pods_name);
                 // record the new mapping and create a thread for it
                 let src_path = pods_name.substr(0, pods_name.find_last_of('-'));
-                let pods_dir = fs::path(getenv("HOME")) / ".ZPODS" / pods_name;
+                let pods_dir = ZPODS_HOME_PATH / pods_name;
 
                 fs::create_directory_if_not_exist(src_path.c_str());
                 fs::create_directory_if_not_exist(pods_dir.c_str());

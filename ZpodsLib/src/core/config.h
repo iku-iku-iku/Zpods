@@ -5,6 +5,7 @@
 #ifndef ZPODS_CONFIG_H
 #define ZPODS_CONFIG_H
 
+#include <optional>
 #include "ZpodsLib/src/base/fs.h"
 #include "pch.h"
 
@@ -38,6 +39,7 @@ struct CryptoConfig
 class PodsManager;
 struct BackupConfig
 {
+    static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
     enum /* class BackupPolicy */ : uint8_t
     {
         NONE = 0,
@@ -45,18 +47,25 @@ struct BackupConfig
         ENCRYPT = 1 << 1,
     };
 
-    static constexpr auto IV_SIZE = CryptoConfig::IV_SIZE;
-
+    // this is only used in restore to implement incremental backup
+    // pod with larger timestamp will be filtered
     long timestamp = -1;
 
     bool compress = false;                     ///< compress the backup file
     std::optional<CryptoConfig> crypto_config; ///< encrypt the backup file
-    mutable fs::zpath current_pod_path;
-    mutable fs::zpath tree_dir;
     ///< the name of backup file,
     ///< if not set, default to ${src_path.filename()}.pods
     ///< will be overwritten by the real name after backup
     fs::FilesFilter filter; ///< filter the files to backup
+
+    mutable fs::zpath current_pod_path;
+    ///< the current_pod_path is the path to the current
+    ///< pod file of this backup, it's generated with
+    ///< 'ts.pods', where 'ts' is the timestamp of this
+    ///< backup
+    mutable fs::zpath tree_dir;
+    ///< the tree_dir is the path to the root of the
+    ///< tree to backup
 
     template <typename OStream>
         requires requires(OStream& os) { os << std::declval<std::string>(); }

@@ -60,7 +60,7 @@ Status PodsManager::load_pods(const fs::zpath& pods_path,
         });
     }
 
-    let_mut_ref cur_pod = current_pod(pods_path);
+    let_mut_ref cur_pod = tree_state_of_pods(pods_path);
     cur_pod.clear();
 
     std::unordered_map<std::string, decltype(cur_pod.begin())> pea_map;
@@ -107,18 +107,24 @@ Status PodsManager::load_pods(const fs::zpath& pods_path,
     return Status::OK;
 }
 
+const auto PODS_MAPPING_PATH()
+{
+    return ZPODS_HOME_PATH / "tree2pods";
+}
+
 void PodsManager::load_pods_mapping()
 {
-    let pods_mapping = fs::path(getenv("HOME")) / ".ZPODS" / "tree2pods";
+    let pods_mapping = PODS_MAPPING_PATH();
 
     if (fs::exists(pods_mapping.c_str()))
     {
-        let_mut ifs = std::ifstream("./pods_paths");
+        let_mut ifs = std::ifstream(pods_mapping);
         std::string line1;
         std::string line2;
         while (std::getline(ifs, line1) && std::getline(ifs, line2))
         {
             Tree2PodsMapping mapping;
+            spdlog::info("line1 {} line2 {}", line1, line2);
             mapping.tree_path = line1;
             mapping.pods_path = line2;
 
@@ -132,7 +138,7 @@ void PodsManager::load_pods_mapping()
 
 void PodsManager::store_pods_mapping()
 {
-    let pods_mapping = fs::path(getenv("HOME")) / ".ZPODS" / "tree2pods";
+    let pods_mapping = PODS_MAPPING_PATH();
 
     let_mut ofs = fs::open_or_create_file_as_ofs(pods_mapping, fs::ios::text);
 
@@ -155,26 +161,6 @@ void PodsManager::record_mapping(const fs::zpath& tree_path,
                        .pods_path = pods_path,
                        .config = std::move(config)});
     store_pods_mapping();
-}
-
-void PodsManager::load_pods_from_tracked_paths()
-{
-    load_pods_mapping();
-
-    for (let_ref mapping : tree2pods_)
-    {
-        for (const auto& entry : fs::directory_iterator(mapping.pods_path))
-        {
-            if (entry.is_regular_file())
-            {
-                let_ref path = entry.path();
-                if (path.string().ends_with(POD_FILE_SUFFIX))
-                {
-                    //                    load_pods(path, <#initializer#>);
-                }
-            }
-        }
-    }
 }
 
 void PodsManager::create_pods(const fs::zpath& pods_path)

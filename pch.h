@@ -7,38 +7,40 @@
 
 #include "spdlog/spdlog.h"
 
-#include <filesystem>
-#include <unordered_set>
-#include <type_traits>
+#include <cassert>
 #include <cstdint>
-#include <utility>
-#include <string>
-#include <vector>
+#include <filesystem>
+#include <fstream>
+#include <numeric>
+#include <queue>
+#include <random>
 #include <ranges>
 #include <span>
-#include <numeric>
-#include <fstream>
-#include <cassert>
-#include <queue>
 #include <stack>
-#include <random>
+#include <string>
+#include <type_traits>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 // enums
-namespace zpods {
-    enum class Status : std::uint8_t {
-        OK,
-        ERROR,
-        PATH_NOT_EXIST,
-        PASSWORD_NEEDED,
-        NOT_ZPODS_FILE,
-        CHECKSUM_ERROR,
-        USER_ALREADY_EXISTS,
-        USER_NOT_EXISTS,
-        WRONG_PASSWORD,
-        NOT_FOUND,
-        EMPTY,
-        NO_NEW_TO_ARCHIVE,
-    };
+namespace zpods
+{
+enum class Status : std::uint8_t
+{
+    OK,
+    ERROR,
+    PATH_NOT_EXIST,
+    PASSWORD_NEEDED,
+    NOT_ZPODS_FILE,
+    CHECKSUM_ERROR,
+    USER_ALREADY_EXISTS,
+    USER_NOT_EXISTS,
+    WRONG_PASSWORD,
+    NOT_FOUND,
+    EMPTY,
+    NO_NEW_TO_ARCHIVE,
+};
 
 //    enum class FileType : std::uint8_t {
 //        DIRECTORY = 1 << 0,
@@ -50,7 +52,7 @@ namespace zpods {
 //        BLOCK_DEVICE = 1 << 6,
 //        UNKNOWN = 1 << 7
 //    };
-}
+} // namespace zpods
 
 #ifndef PROJECT_PATH
 // do not use this macro directly!
@@ -67,32 +69,40 @@ namespace zpods {
 #define TEMP_PATH "macro TEMP_PATH needed"
 #endif
 
-#define ZPODS_ASSERT(x)                                          \
-    do {                                                         \
-        if (!(x)) {                                              \
-            fprintf(stderr, "Assertion failed: `%s`\n", #x);       \
-            exit(1);                                             \
-        }                                                        \
+#define ZPODS_ASSERT(x)                                                        \
+    do                                                                         \
+    {                                                                          \
+        if (!(x))                                                              \
+        {                                                                      \
+            fprintf(stderr, "Assertion failed: `%s`\n", #x);                   \
+            exit(1);                                                           \
+        }                                                                      \
     } while (0)
-#define ZPODS_ASSERT_MSG(expr, format, ...)                  \
-        do {                                                     \
-            if (!(expr)) {                                       \
-                fprintf(stderr, format, ##__VA_ARGS__);           \
-                fprintf(stderr, "\n");                            \
-                exit(1);                                             \
-            }                                                    \
-        } while (0)
+#define ZPODS_ASSERT_MSG(expr, format, ...)                                    \
+    do                                                                         \
+    {                                                                          \
+        if (!(expr))                                                           \
+        {                                                                      \
+            fprintf(stderr, format, ##__VA_ARGS__);                            \
+            fprintf(stderr, "\n");                                             \
+            exit(1);                                                           \
+        }                                                                      \
+    } while (0)
 
 #define let const auto
 #define let_ref const auto&
 #define let_mut auto
 #define let_mut_ref auto&
-#define CHECK_STATUS(status) \
-    if (status != zpods::Status::OK) { \
-        return status; \
+#define CHECK_STATUS(status)                                                   \
+    if (status != zpods::Status::OK)                                           \
+    {                                                                          \
+        return status;                                                         \
     }
 
-namespace zpods {
+#define ZPODS_HOME_PATH (zpods::fs::path(getenv("HOME")) / ".ZPODS")
+
+namespace zpods
+{
 
 //    template<typename T>
 //    using ref = const std::remove_cvref_t<T> &;
@@ -114,62 +124,74 @@ namespace zpods {
 //    static_assert(std::is_same_v<ref_mut<const int &>, int &>);
 //    static_assert(std::is_same_v<ref_mut<const int &&>, int &>);
 
-    using byte = unsigned char;
-    using p_cbyte = const byte *;
-    using p_byte = byte *;
+using byte = unsigned char;
+using p_cbyte = const byte*;
+using p_byte = byte*;
 
-    inline auto as_p_byte(auto* p) {
-        return (byte*)(p);
-    }
+inline auto as_p_byte(auto* p)
+{
+    return (byte*)(p);
+}
 
-    constexpr auto BYTE_BITS = 8;
+constexpr auto BYTE_BITS = 8;
 
-    inline constexpr const char *project_path() {
-        return PROJECT_PATH;
-    }
+inline constexpr const char* project_path()
+{
+    return PROJECT_PATH;
+}
 
-    inline constexpr const char *test_data_path() {
-        return TEST_DATA_PATH;
-    }
+inline constexpr const char* test_data_path()
+{
+    return TEST_DATA_PATH;
+}
 
-    inline constexpr const char *temp_path() {
-        return TEMP_PATH;
-    }
+inline constexpr const char* temp_path()
+{
+    return TEMP_PATH;
+}
 
-    constexpr auto ceil_div(auto a, auto b) {
-        return (a + b - 1) / b;
-    }
+constexpr auto ceil_div(auto a, auto b)
+{
+    return (a + b - 1) / b;
+}
 
-    constexpr size_t mask(size_t bits) {
-        return (1 << bits) - 1;
-    }
+constexpr size_t mask(size_t bits)
+{
+    return (1 << bits) - 1;
+}
 
-    constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt) {
-        return (mask(cnt) & bits) << offset;
-    }
+constexpr size_t bits_part(size_t bits, size_t offset, size_t cnt)
+{
+    return (mask(cnt) & bits) << offset;
+}
 
-    template<typename T>
-    constexpr auto enabled(T bits, auto opt) {
-        return (bits & static_cast<T>(opt)) != 0;
-    }
+template <typename T>
+constexpr auto enabled(T bits, auto opt)
+{
+    return (bits & static_cast<T>(opt)) != 0;
+}
 
-    template<typename T>
-    void print_map(const T &map) {
-        spdlog::debug("[MAP] map size: {}", map.size());
-        for (let_ref[key, val]: map) {
-            spdlog::debug("key: {}, value: {}", key, val);
-        }
-    }
-
-    template<typename T>
-    auto as_c_str(T &&str) {
-        return reinterpret_cast<const char *>(&str);
-    }
-
-    template<typename T>
-    auto as_c_str(T *str) {
-        return reinterpret_cast<const char *>(str);
+template <typename T>
+void print_map(const T& map)
+{
+    spdlog::debug("[MAP] map size: {}", map.size());
+    for (let_ref[key, val] : map)
+    {
+        spdlog::debug("key: {}, value: {}", key, val);
     }
 }
 
-#endif //ZPODS_PCH_H
+template <typename T>
+auto as_c_str(T&& str)
+{
+    return reinterpret_cast<const char*>(&str);
+}
+
+template <typename T>
+auto as_c_str(T* str)
+{
+    return reinterpret_cast<const char*>(str);
+}
+} // namespace zpods
+
+#endif // ZPODS_PCH_H
