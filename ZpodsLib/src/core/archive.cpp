@@ -9,11 +9,10 @@
 
 using namespace zpods;
 
-Status zpods::archive(const char* src_dir, const char* dest_dir,
-                      const BackupConfig& config)
+std::pair<Status, std::string> zpods::make_archive(const char* src_dir,
+                                                   const char* dest_dir,
+                                                   const BackupConfig& config)
 {
-    ZPODS_ASSERT(fs::is_directory(dest_dir));
-
     size_t pod_total_size = 0;
 
     let_mut collector = zpods::fs::FileCollector{src_dir, config.filter};
@@ -46,7 +45,7 @@ Status zpods::archive(const char* src_dir, const char* dest_dir,
     if (pea_cnt == 0)
     {
         spdlog::info("no new pea to archive");
-        return Status::NO_NEW_TO_ARCHIVE;
+        return {Status::NO_NEW_TO_ARCHIVE, {}};
     }
 
     for (let_ref pea : pod)
@@ -100,10 +99,24 @@ Status zpods::archive(const char* src_dir, const char* dest_dir,
     }
 
     memset(p, 0, header_size);
+
+    return {Status::OK, {(const char*)buffer.get(), pod_total_size}};
+}
+
+Status zpods::archive(const char* src_dir, const char* dest_dir,
+                      const BackupConfig& config)
+{
+    ZPODS_ASSERT(fs::is_directory(dest_dir));
+
+    let[status, buffer] = make_archive(src_dir, dest_dir, config);
+    if (status != Status::OK)
+    {
+        return status;
+    }
+
     let_mut ofs = fs::open_or_create_file_as_ofs(
         config.current_pod_path.c_str(), fs::ios::binary);
-    ofs.write((char*)buffer.get(), (long)pod_total_size);
-
+    ofs << buffer;
     return Status::OK;
 }
 

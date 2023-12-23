@@ -19,6 +19,9 @@ namespace zpods
 Status archive(const char* src_dir, const char* dest_dir,
                const BackupConfig& config = {});
 
+std::pair<Status, std::string> make_archive(const char* src_dir,
+                                            const char* dest_dir,
+                                            const BackupConfig& config);
 /*
  * @brief unarchive a archive file indicated by src_path to a directory in
  * target_dir

@@ -4,7 +4,7 @@ FILE(GLOB_RECURSE SRC *.cpp *.c)
 
 find_package(OpenSSL REQUIRED)
 
-include_directories(./base ./core ./network ./)
+include_directories(./base ./core ./transform ./)
 add_library(${PROJECT_NAME} SHARED zpods_lib.h ${SRC})
 
 collect_and_set_global_include_dirs(${CMAKE_CURRENT_SOURCE_DIR} ZPODS_LIB_INCLUDE_DIRS)

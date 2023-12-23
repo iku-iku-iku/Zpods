@@ -5,6 +5,7 @@
 #include "archive.h"
 #include "backup.h"
 #include "manager.h"
+#include "transform/transform_pipeline_builder.h"
 
 using namespace zpods;
 
@@ -27,48 +28,63 @@ static Status backup_internal(const char* src_dir, const char* target_dir,
     } while (fs::exists(config.current_pod_path.c_str()));
 
     // 1. archive files of src_path to a single file in target_dir
+    TransformPipelineBuilder builder;
 
-    status = zpods::archive(src_dir, target_dir, config);
-    if (status == Status::NO_NEW_TO_ARCHIVE)
-    {
-        return Status::OK;
-    }
-    else if (status != Status::OK)
-    {
-        return status;
-    }
+    builder.enable_archive(src_dir, target_dir, config);
 
-    let_mut bytes = fs::read_from_file(config.current_pod_path.c_str());
-    std::unique_ptr<byte[]> buf;
-    size_t buf_len;
+    /* status = zpods::archive(src_dir, target_dir, config); */
+    /* if (status == Status::NO_NEW_TO_ARCHIVE) */
+    /* { */
+    /*     return Status::OK; */
+    /* } */
+    /* else if (status != Status::OK) */
+    /* { */
+    /*     return status; */
+    /* } */
+
+    /* let_mut bytes = fs::read_from_file(config.current_pod_path.c_str()); */
+    /* std::unique_ptr<byte[]> buf; */
+    /* size_t buf_len; */
     // 2. compress if needed
     if (config.compress)
     {
-        std::tie(buf_len, buf) = compress({(p_byte)bytes.data(), bytes.size()});
-        bytes = {as_c_str(buf.get()), buf_len};
-        spdlog::info("file compression succeeded : {}",
-                     config.current_pod_path.c_str());
+        builder.enable_compress();
+        /* std::tie(buf_len, buf) = compress({(p_byte)bytes.data(),
+         * bytes.size()}); */
+        /* bytes = {as_c_str(buf.get()), buf_len}; */
+        /* spdlog::info("file compression succeeded : {}", */
+        /*              config.current_pod_path.c_str()); */
     }
 
     // 3. encrypt if needed
     if (config.crypto_config)
     {
-        let_ref conf = config.crypto_config;
-        let cipher = encrypt({as_c_str(bytes.data()), bytes.size()}, conf->key_,
-                             conf->iv_);
-        if (!cipher.has_value())
-        {
-            spdlog::error("file encryption failed: {}",
-                          config.current_pod_path.c_str());
-            return Status::ERROR;
-        }
-        bytes = {cipher->data(), cipher->size()};
-        spdlog::info("file encryption succeeded : {}",
-                     config.current_pod_path.c_str());
+        let key = config.crypto_config->key_;
+        let iv = config.crypto_config->iv_;
+        builder.enable_encrypt(key, iv);
+        /* let_ref conf = config.crypto_config; */
+        /* let cipher = encrypt({as_c_str(bytes.data()), bytes.size()},
+         * conf->key_, */
+        /*                      conf->iv_); */
+        /* if (!cipher.has_value()) */
+        /* { */
+        /*     spdlog::error("file encryption failed: {}", */
+        /*                   config.current_pod_path.c_str()); */
+        /*     return Status::ERROR; */
+        /* } */
+        /* bytes = {cipher->data(), cipher->size()}; */
+        /* spdlog::info("file encryption succeeded : {}", */
+        /*              config.current_pod_path.c_str()); */
     }
 
     // output to target file
     {
+        let[status, bytes] = builder.build()->execute({});
+        if (status != Status::OK)
+        {
+            return status;
+        }
+
         let_mut ofs = fs::open_or_create_file_as_ofs(
             config.current_pod_path.c_str(), fs::ios::binary);
 
