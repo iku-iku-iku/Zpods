@@ -3,6 +3,10 @@ project(Zpods)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
+
 include(CMakeModules/GlobalIncludeDir.cmake)
 
 set(TEST_DATA_PATH ${PROJECT_SOURCE_DIR}/test_data)

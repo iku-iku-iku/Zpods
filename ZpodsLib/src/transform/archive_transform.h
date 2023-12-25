@@ -16,14 +16,7 @@ class ArchiveTransform : public Transform
 
     auto execute(std::string&& bytes) -> Transform::ResType override
     {
-        let_mut[status, buf] =
-            make_archive(src_dir_.c_str(), dest_dir_.c_str(), config_);
-        if (status == Status::NO_NEW_TO_ARCHIVE)
-        {
-            spdlog::info("no new pea to archive");
-            status = Status::OK;
-        }
-        return {status, std::move(buf)};
+        return make_archive(src_dir_.c_str(), dest_dir_.c_str(), config_);
     }
 
   private:

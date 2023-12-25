@@ -27,4 +27,3 @@ cd client_image
 docker build -t zpods_cli:latest .
 cd ..
 
-rm -rf client_image

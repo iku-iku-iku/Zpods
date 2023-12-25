@@ -24,6 +24,14 @@ struct CryptoConfig
 
     CryptoConfig() = default;
 
+    CryptoConfig(std::string key, std::string iv)
+    {
+        key_ = std::move(key);
+        key_.resize(KEY_SIZE);
+        iv_ = std::move(iv);
+        iv_.resize(IV_SIZE);
+    }
+
     explicit CryptoConfig(std::string key)
     {
         key_ = std::move(key);
@@ -92,6 +100,10 @@ struct BackupConfig
         std::getline(is, line);
         iss = std::istringstream(line);
         iss >> s >> compress;
+        if (compress)
+        {
+            spdlog::info("compress needed");
+        }
 
         std::getline(is, line);
         iss = std::istringstream(line);
@@ -99,12 +111,16 @@ struct BackupConfig
 
         if (crypto)
         {
-            crypto_config = {};
-            std::getline(is, crypto_config->key_);
-            std::getline(is, crypto_config->iv_);
+            spdlog::info("crypto needed");
+            std::string key, iv;
+            std::getline(is, key);
+            std::getline(is, iv);
+
+            crypto_config = CryptoConfig(key, iv);
+            spdlog::info("key {} iv {}", crypto_config->key_,
+                         crypto_config->iv_);
         }
 
-        std::getline(is, line);
         filter.deserialize(is);
     }
 };

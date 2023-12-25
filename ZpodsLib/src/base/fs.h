@@ -254,22 +254,26 @@ struct FilesFilter
         iss >> s;
         iss >> year >> month >> day;
         min_date = make_year_month_day(year, month, day);
+        spdlog::info("min_date {}-{}-{}", year, month, day);
 
         std::getline(is, line);
         iss = std::istringstream(line);
         iss >> s;
         iss >> year >> month >> day;
         max_date = make_year_month_day(year, month, day);
+        spdlog::info("max_date {}-{}-{}", year, month, day);
 
         std::getline(is, line);
         iss = std::istringstream(line);
         iss >> s;
         iss >> min_size;
+        spdlog::info("min_size {}", min_size);
 
         std::getline(is, line);
         iss = std::istringstream(line);
         iss >> s;
         iss >> max_size;
+        spdlog::info("max_size {}", max_size);
 
         std::getline(is, line);
         iss = std::istringstream(line);

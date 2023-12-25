@@ -95,7 +95,16 @@ void thread_for_pods(std::string tree_dir, std::string pods_dir,
     let dest_dir = fs::path(pods_dir).parent_path();
 
     BackupConfig config;
-    config.tree_dir = tree_dir;
+    let_ref mapping = PodsManager::Instance()->get_path_mapping();
+    for (let_ref mp : mapping)
+    {
+        if (mp.pods_path == pods_dir)
+        {
+            config = mp.config;
+            config.tree_dir = tree_dir;
+            break;
+        }
+    }
 
     let synchronizer = PodsSynchronizer(daemon_config, pods_dir);
     while (true)
@@ -193,10 +202,13 @@ void zpods::zpods_daemon_entry(DaemonConfig config)
                 } while (true);
 
                 // parse meta file
-                BackupConfig backup_config;
                 std::ifstream ifs(pods_dir / ".META");
                 ZPODS_ASSERT(ifs.is_open());
+
+                spdlog::info("parse meta file begin");
+                BackupConfig backup_config;
                 backup_config.deserialize(ifs);
+                spdlog::info("parse meta file successfully");
 
                 manager->record_mapping(src_path, pods_dir, backup_config);
                 std::thread(thread_for_pods, src_path, pods_dir, config)

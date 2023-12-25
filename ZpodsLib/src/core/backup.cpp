@@ -31,29 +31,10 @@ static Status backup_internal(const char* src_dir, const char* target_dir,
     TransformPipelineBuilder builder;
 
     builder.enable_archive(src_dir, target_dir, config);
-
-    /* status = zpods::archive(src_dir, target_dir, config); */
-    /* if (status == Status::NO_NEW_TO_ARCHIVE) */
-    /* { */
-    /*     return Status::OK; */
-    /* } */
-    /* else if (status != Status::OK) */
-    /* { */
-    /*     return status; */
-    /* } */
-
-    /* let_mut bytes = fs::read_from_file(config.current_pod_path.c_str()); */
-    /* std::unique_ptr<byte[]> buf; */
-    /* size_t buf_len; */
     // 2. compress if needed
     if (config.compress)
     {
         builder.enable_compress();
-        /* std::tie(buf_len, buf) = compress({(p_byte)bytes.data(),
-         * bytes.size()}); */
-        /* bytes = {as_c_str(buf.get()), buf_len}; */
-        /* spdlog::info("file compression succeeded : {}", */
-        /*              config.current_pod_path.c_str()); */
     }
 
     // 3. encrypt if needed
@@ -62,19 +43,6 @@ static Status backup_internal(const char* src_dir, const char* target_dir,
         let key = config.crypto_config->key_;
         let iv = config.crypto_config->iv_;
         builder.enable_encrypt(key, iv);
-        /* let_ref conf = config.crypto_config; */
-        /* let cipher = encrypt({as_c_str(bytes.data()), bytes.size()},
-         * conf->key_, */
-        /*                      conf->iv_); */
-        /* if (!cipher.has_value()) */
-        /* { */
-        /*     spdlog::error("file encryption failed: {}", */
-        /*                   config.current_pod_path.c_str()); */
-        /*     return Status::ERROR; */
-        /* } */
-        /* bytes = {cipher->data(), cipher->size()}; */
-        /* spdlog::info("file encryption succeeded : {}", */
-        /*              config.current_pod_path.c_str()); */
     }
 
     // output to target file
@@ -82,6 +50,10 @@ static Status backup_internal(const char* src_dir, const char* target_dir,
         let[status, bytes] = builder.build()->execute({});
         if (status != Status::OK)
         {
+            if (status == Status::NO_NEW_TO_ARCHIVE)
+            {
+                return Status::OK;
+            }
             return status;
         }
 
