@@ -78,11 +78,11 @@ struct PodHeader
     }
 };
 
-
-struct Pod {
-  std::string name;
-  std::string path;
-  long last_modified_ts;
+struct Pod
+{
+    std::string name;
+    std::string path;
+    long last_modified_ts;
 };
 
 struct PeaHeader
@@ -226,7 +226,7 @@ struct fmt::formatter<zpods::Pea>
     auto format(const zpods::Pea& p, FormatContext& ctx) const
     {
         return fmt::format_to(ctx.out(), "rel_path: {}, last_modified_ts: {}",
-                         p.rel_path, p.last_modified_ts);
+                              p.rel_path, p.last_modified_ts);
     }
 };
 
